@@ -1,15 +1,52 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Gradle build
+/.gradle/
+**/build/
+build/
+
+# Gradle wrapper distribution (keep wrapper scripts + jar/props in repo)
+# (Do NOT ignore gradle/wrapper/gradle-wrapper.jar or gradle-wrapper.properties)
+
+# Local configuration (SDK path, secrets)
 local.properties
+*.keystore
+*.jks
+*.p12
+.env
+.env.*
+
+# IDEs
+/.idea/
+/*.iml
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Android specific
+captures/
+.externalNativeBuild/
+.cxx/
+*.hprof
+
+# Generated artifacts / packages
+*.apk
+*.ap_
+*.aab
+
+# Test / report output
+/test-results/
+/build/reports/
+/**/build/reports/
+
+# Kotlin/Java build outputs
+/out/
+/bin/
+
+# Logs
+*.log
+
+# Misc
+*.class
+.gradle-test-kit/
