@@ -47,4 +47,7 @@ interface ApiService {
 
     @POST("reservations/confirm")
     suspend fun confirmBooking(@Body body: ConfirmBookingRequest): Response<ApiResponse<Reservation>>
+
+    @POST("evowner/register")
+    suspend fun registerEvOwner(@Body body: EvOwnerRegisterRequest): Response<ApiResponse<EvOwnerRegisterResponse>>
 }

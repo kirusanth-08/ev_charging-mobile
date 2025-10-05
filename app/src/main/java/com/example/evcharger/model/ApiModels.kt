@@ -45,3 +45,17 @@ data class ConfirmBookingRequest(
     val reservationId: String,
     val operatorId: String
 )
+
+// EV Owner registration request matching provided JSON body
+data class EvOwnerRegisterRequest(
+    val NIC: String,
+    val FullName: String,
+    val Email: String,
+    val PhoneNumber: String,
+    val Password: String
+)
+
+data class EvOwnerRegisterResponse(
+    val id: String?,
+    val nic: String?
+)

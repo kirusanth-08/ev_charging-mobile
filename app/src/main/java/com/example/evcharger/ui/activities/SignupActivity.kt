@@ -29,7 +29,8 @@ class SignupActivity : AppCompatActivity() {
                 phone = binding.inputPhone.text.toString().trim(),
                 isActive = true
             )
-            vm.register(user)
+            val pwd = binding.inputPassword.text.toString().trim()
+            vm.register(user.copy(), pwd)
         }
 
         binding.btnUpdate.setOnClickListener {
@@ -53,6 +54,12 @@ class SignupActivity : AppCompatActivity() {
         }
         vm.errorLive.observe(this) { msg ->
             msg?.let { Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show() }
+        }
+        vm.loading.observe(this) { isLoading ->
+            binding.progressSignup.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
+            binding.btnRegister.isEnabled = isLoading != true
+            binding.btnUpdate.isEnabled = isLoading != true
+            binding.btnDeactivate.isEnabled = isLoading != true
         }
     }
 }
