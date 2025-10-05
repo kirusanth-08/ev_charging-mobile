@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.example.evcharger.databinding.ActivityBookingListBinding
 import com.example.evcharger.model.Reservation
-import com.example.evcharger.network.RetrofitClient
+import com.example.evcharger.repository.ReservationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,6 +20,7 @@ class BookingListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBookingListBinding
     private lateinit var nic: String
     private val adapter = ReservationAdapter()
+    private val repo = ReservationRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,8 +37,8 @@ class BookingListActivity : AppCompatActivity() {
 
     private fun loadData() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val upcoming = RetrofitClient.api.getUpcoming(nic)
-            val history = RetrofitClient.api.getHistory(nic)
+            val upcoming = repo.getUpcoming(nic)
+            val history = repo.getHistory(nic)
             withContext(Dispatchers.Main) {
                 if (upcoming.isSuccessful && history.isSuccessful) {
                     val list = mutableListOf<Reservation>()

@@ -10,6 +10,7 @@ import com.google.gson.annotations.SerializedName
 data class ApiResponse<T>(
     val success: Boolean,
     val message: String? = null,
+    val count: Int? = null,
     val data: T? = null
 )
 
@@ -53,6 +54,11 @@ data class BookingResponseData(
     val canCancel: Boolean?,
     val timeUntilReservation: String?,
     val isExpired: Boolean?
+)
+
+// Request payload for confirming arrival via QR code: { "QrCode": "<QR_CODE_STRING>" }
+data class ConfirmArrivalRequest(
+    @SerializedName("QrCode") val qrCode: String
 )
 
 data class ModifyReservationRequest(

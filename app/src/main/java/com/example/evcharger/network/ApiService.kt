@@ -39,6 +39,9 @@ interface ApiService {
     @GET("booking/upcoming")
     suspend fun getUpcoming(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>
 
+    @GET("booking/pending")
+    suspend fun getPending(): Response<ApiResponse<List<Reservation>>>
+
     @GET("station/nearby")
     suspend fun getNearbyStations(
         @Query("latitude") lat: Double,
@@ -46,8 +49,13 @@ interface ApiService {
         @Query("radius") radius: Int = 10
     ): Response<ApiResponse<List<BackendNearbyItem>>>
 
+    // Fetch reservation by QR payload (used by scanner/lookup). Backend expects query param 'payload'
     @GET("booking/confirm-arrival")
     suspend fun getReservationByQr(@Query("payload") payload: String): Response<ApiResponse<Reservation>>
+
+    // Station operator scans QR and confirms arrival: POST /api/booking/confirm-arrival
+    @POST("api/booking/confirm-arrival")
+    suspend fun confirmArrival(@Body body: com.example.evcharger.model.ConfirmArrivalRequest): Response<ApiResponse<Reservation>>
 
     @PATCH("booking/{id}/approve")
     suspend fun confirmBooking(@Body body: ConfirmBookingRequest): Response<ApiResponse<Reservation>>
