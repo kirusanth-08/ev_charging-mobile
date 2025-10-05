@@ -1,12 +1,12 @@
 package com.example.evcharger.viewmodel
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.ViewModel
-import com.example.evcharger.model.OperatorLoginRequest
+import com.example.evcharger.model.LoginRequest
 import com.example.evcharger.model.Reservation
 import com.example.evcharger.network.RetrofitClient
 import com.example.evcharger.repository.ReservationRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -18,34 +18,62 @@ class OperatorViewModel : ViewModel() {
 
     val operatorToken = MutableLiveData<String?>()
     val scannedReservation = MutableLiveData<Reservation?>()
+    val role = MutableLiveData<String?>()
     val error = MutableLiveData<String?>()
+    val operatorUsername = MutableLiveData<String?>()
+    val loading = MutableLiveData(false)
 
     fun login(username: String, password: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val res = RetrofitClient.api.operatorLogin(OperatorLoginRequest(username, password))
-            if (res.isSuccessful && res.body()?.success == true) {
-                val token = res.body()!!.data!!.token
-                RetrofitClient.setAuthToken(token)
-                operatorToken.postValue(token)
-            } else error.postValue(res.body()?.message ?: "Login failed")
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val res = RetrofitClient.api.login(LoginRequest(username, password))
+                if (res.isSuccessful && res.body()?.success == true) {
+                    val data = res.body()!!.data!!
+                    val token = data.token
+                    RetrofitClient.setAuthToken(token)
+                    operatorToken.postValue(token)
+                    role.postValue(data.role)
+                    operatorUsername.postValue(data.username)
+                    // Session persistence should be handled by the Activity (has Context)
+                } else error.postValue(res.body()?.message ?: "Login failed")
+            } catch (e: Exception) {
+                error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
+            }
         }
     }
 
     fun lookupByQr(payload: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val res = repo.byQr(payload)
-            if (res.isSuccessful && res.body()?.data != null) {
-                scannedReservation.postValue(res.body()!!.data!!)
-            } else error.postValue(res.body()?.message ?: "Not found")
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val res = repo.byQr(payload)
+                if (res.isSuccessful && res.body()?.data != null) {
+                    scannedReservation.postValue(res.body()!!.data!!)
+                } else error.postValue(res.body()?.message ?: "Not found")
+            } catch (e: Exception) {
+                error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
+            }
         }
     }
 
     fun confirm(reservationId: String, operatorId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val res = repo.confirm(reservationId, operatorId)
-            if (res.isSuccessful && res.body()?.data != null) {
-                scannedReservation.postValue(res.body()!!.data!!)
-            } else error.postValue(res.body()?.message ?: "Confirm failed")
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val res = repo.confirm(reservationId, operatorId)
+                if (res.isSuccessful && res.body()?.data != null) {
+                    scannedReservation.postValue(res.body()!!.data!!)
+                } else error.postValue(res.body()?.message ?: "Confirm failed")
+            } catch (e: Exception) {
+                error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.example.evcharger.databinding.ActivityLoginBinding
 import com.example.evcharger.viewmodel.LoginViewModel
+import com.example.evcharger.auth.UserSessionManager
 
 /**
  * EV Owner login by NIC (local SQLite lookup).
@@ -24,7 +25,8 @@ class LoginActivity : AppCompatActivity() {
 
         binding.btnLogin.setOnClickListener {
             val nic = binding.inputNic.text?.toString()?.trim().orEmpty()
-            vm.loginByNic(nic)
+            val pass = binding.inputPassword.text?.toString()?.trim().orEmpty()
+            vm.loginOwner(nic, pass)
         }
 
         binding.btnSignup.setOnClickListener {
@@ -36,11 +38,26 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, QRScannerActivity::class.java))
         }
 
+        vm.loading.observe(this) { isLoading ->
+            binding.progressLogin.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
+            binding.btnLogin.isEnabled = isLoading != true
+            binding.btnSignup.isEnabled = isLoading != true
+            binding.btnOperator.isEnabled = isLoading != true
+        }
+
         vm.userLive.observe(this) {
             if (it != null) {
                 val i = Intent(this, DashboardActivity::class.java)
                 i.putExtra("NIC", it.nic)
                 startActivity(i)
+                // Persist the session token and related info when available
+                val token = vm.tokenLive.value
+                val role = vm.roleLive.value
+                val username = vm.usernameLive.value
+                if (!token.isNullOrBlank()) {
+                    val mgr = UserSessionManager(this)
+                    mgr.saveSession(token, role ?: "", username ?: "", null)
+                }
                 finish()
             }
         }

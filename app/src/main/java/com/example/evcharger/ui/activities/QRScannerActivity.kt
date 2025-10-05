@@ -8,6 +8,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 import com.journeyapps.barcodescanner.ScanContract
 import com.example.evcharger.databinding.ActivityQrscannerBinding
 import com.example.evcharger.viewmodel.OperatorViewModel
+import com.example.evcharger.auth.UserSessionManager
 
 /**
  * Operator login and QR scanning screen.
@@ -33,6 +34,10 @@ class QRScannerActivity : AppCompatActivity() {
         binding = ActivityQrscannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Disable actions until logged in as StationOperator
+        binding.btnScan.isEnabled = false
+        binding.btnConfirm.isEnabled = false
+
         binding.btnOperatorLogin.setOnClickListener {
             val user = binding.inputOperatorUser.text.toString().trim()
             val pass = binding.inputOperatorPass.text.toString().trim()
@@ -47,12 +52,40 @@ class QRScannerActivity : AppCompatActivity() {
 
         binding.btnConfirm.setOnClickListener {
             val res = vm.scannedReservation.value ?: return@setOnClickListener
-            val opId = "operator-1" // retrieve from login response if needed
-            vm.confirm(res.id ?: return@setOnClickListener, opId)
+            val opUser = vm.operatorUsername.value
+            if (opUser.isNullOrBlank()) {
+                Snackbar.make(binding.root, "Missing operator identity", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            vm.confirm(res.id ?: return@setOnClickListener, opUser)
         }
 
         vm.operatorToken.observe(this) {
-            Snackbar.make(binding.root, "Operator logged in", Snackbar.LENGTH_SHORT).show()
+            // token set, wait for role check to enable actions
+            // Persist session when token appears
+            val token = vm.operatorToken.value
+            val role = vm.role.value
+            val username = vm.operatorUsername.value
+            if (!token.isNullOrBlank()) {
+                val mgr = UserSessionManager(this)
+                mgr.saveSession(token, role ?: "", username ?: "", null)
+            }
+        }
+        vm.loading.observe(this) { isLoading ->
+            binding.progressOperator.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
+            // Disable inputs during operations to prevent duplicate calls
+            binding.btnOperatorLogin.isEnabled = isLoading != true
+            binding.btnScan.isEnabled = (isLoading != true) && (vm.role.value.equals("StationOperator", true))
+            binding.btnConfirm.isEnabled = (isLoading != true) && (vm.role.value.equals("StationOperator", true))
+        }
+        vm.role.observe(this) { r ->
+            if (r.equals("StationOperator", ignoreCase = true)) {
+                Snackbar.make(binding.root, "Operator logged in", Snackbar.LENGTH_SHORT).show()
+                binding.btnScan.isEnabled = true
+                binding.btnConfirm.isEnabled = true
+            } else if (!r.isNullOrBlank()) {
+                Snackbar.make(binding.root, "Access denied: requires StationOperator", Snackbar.LENGTH_LONG).show()
+            }
         }
         vm.scannedReservation.observe(this) {
             if (it != null) {

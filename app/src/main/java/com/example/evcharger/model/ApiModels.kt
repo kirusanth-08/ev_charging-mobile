@@ -26,17 +26,40 @@ data class CancelReservationRequest(
     val reservationId: String
 )
 
-data class OperatorLoginRequest(
+// Unified login request/response for both StationOperator and evOwner
+// Backend accepts the same route and returns role-specific payload.
+data class LoginRequest(
+    // For operator this is username, for owner it can be NIC as username; keep one field
     val username: String,
     val password: String
 )
 
-data class OperatorLoginResponse(
+data class LoginResponse(
     val token: String,
-    val operatorId: String
+    val role: String,
+    val username: String,
+    val expiresAt: String
 )
 
 data class ConfirmBookingRequest(
     val reservationId: String,
     val operatorId: String
+)
+
+// EV Owner registration request matching provided JSON body
+data class EvOwnerRegisterRequest(
+    val NIC: String,
+    val FullName: String,
+    val Email: String,
+    val PhoneNumber: String,
+    val Password: String
+)
+
+data class EvOwnerRegisterResponse(
+    val nic: String,
+    val fullName: String,
+    val email: String,
+    val phoneNumber: String,
+    val isActive: Boolean,
+    val createdAt: String
 )

@@ -3,8 +3,13 @@ package com.example.evcharger.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.evcharger.model.User
+import com.example.evcharger.model.LoginRequest
+import com.example.evcharger.network.RetrofitClient
 import com.example.evcharger.repository.UserRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Handles EV Owner local login (lookup by NIC) and operator login is handled in OperatorViewModel.
@@ -14,15 +19,37 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
 
     val userLive = MutableLiveData<User?>()
     val errorLive = MutableLiveData<String?>()
+    val loading = MutableLiveData(false)
+    val tokenLive = MutableLiveData<String?>()
+    val roleLive = MutableLiveData<String?>()
+    val usernameLive = MutableLiveData<String?>()
 
-    fun loginByNic(nic: String) {
-        val user = repo.getByNic(nic)
-        if (user == null) {
-            errorLive.postValue("User not found")
-        } else if (!user.isActive) {
-            errorLive.postValue("Account is deactivated")
-        } else {
-            userLive.postValue(user)
+    fun loginOwner(nic: String, password: String) {
+        if (nic.isBlank() || password.isBlank()) {
+            errorLive.postValue("NIC and password are required")
+            return
+        }
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val res = RetrofitClient.api.login(LoginRequest(username = nic, password = password))
+                if (res.isSuccessful && res.body()?.success == true) {
+                    val data = res.body()!!.data!!
+                    val local = repo.getByNic(nic) ?: User(nic, fullName = nic, email = "", phone = "")
+                    userLive.postValue(local)
+                    tokenLive.postValue(data.token)
+                    roleLive.postValue(data.role)
+                    usernameLive.postValue(data.username)
+                    // also set token for Retrofit immediately
+                    RetrofitClient.setAuthToken(data.token)
+                } else {
+                    errorLive.postValue(res.body()?.message ?: "Login failed")
+                }
+            } catch (e: Exception) {
+                errorLive.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
+            }
         }
     }
 }

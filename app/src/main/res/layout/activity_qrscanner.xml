@@ -44,4 +44,12 @@
         android:text="Confirm Booking"
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:layout_marginTop="12dp"/>
+
+    <ProgressBar
+        android:id="@+id/progressOperator"
+        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
 </LinearLayout>

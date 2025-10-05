@@ -1,5 +1,6 @@
 package com.example.evcharger.network
 
+import com.example.evcharger.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -13,8 +14,8 @@ import java.util.concurrent.TimeUnit
  */
 object RetrofitClient {
 
-    // Replace with your API base URL (https://your-domain/api/)
-    private const val BASE_URL = "https://your-api-base-url/"
+    // Base URL now provided by BuildConfig from local.properties (api.base.url)
+    private val BASE_URL: String = BuildConfig.API_BASE_URL
 
     @Volatile private var authToken: String? = null
 
