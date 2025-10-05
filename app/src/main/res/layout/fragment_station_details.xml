@@ -81,10 +81,27 @@
                     android:layout_weight="1"
                     android:text="Reserve" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnViewSlots"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="View Slots" />
+
             </LinearLayout>
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSlots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        />
 
 </LinearLayout>
