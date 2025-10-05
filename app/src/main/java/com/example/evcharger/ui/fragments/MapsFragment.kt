@@ -17,12 +17,13 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.evcharger.R
 import com.example.evcharger.network.RetrofitClient
+import com.example.evcharger.util.MarkerUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Shows Google Map with nearby charging stations.
+ * Shows Google Map with nearby EV charging stations.
  */
 class MapsFragment : Fragment(R.layout.fragment_maps) {
 
@@ -46,7 +47,6 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
         mapFragment.getMapAsync { map ->
             googleMap = map
@@ -90,23 +90,68 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
             ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ) return
+
         fused.lastLocation.addOnSuccessListener { loc ->
             if (loc != null) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    // use a radius of 10 (units per backend; typically kilometers)
                     val res = RetrofitClient.api.getNearbyStations(loc.latitude, loc.longitude, 10)
                     if (res.isSuccessful && res.body()?.data != null) {
                         val stations = res.body()!!.data!!
+
                         requireActivity().runOnUiThread {
-                            // clear old markers
+                            // Clear old markers
                             currentMarkers.forEach { it.remove() }
                             currentMarkers.clear()
-                            // add fresh markers
-                            stations.forEach { s ->
-                                val marker = googleMap?.addMarker(
-                                    MarkerOptions().position(LatLng(s.latitude, s.longitude)).title(s.name)
+
+                            // Add new station markers
+                            stations.forEach { bs ->
+                                val backend = bs.station
+                                val appStation = com.example.evcharger.model.Station(
+                                    id = backend.stationId,
+                                    name = backend.name,
+                                    latitude = backend.location.latitude,
+                                    longitude = backend.location.longitude,
+                                    address = backend.location.address ?: backend.location.city ?: "",
+                                    connectorTypes = backend.slots.map { it.connectorType },
+                                    chargingPowerKw = backend.slots.firstOrNull()?.powerRating,
+                                    status = backend.type,  // e.g., "available", "busy", "offline"
+                                    lastUpdated = backend.updatedAt,
+                                    distanceMeters = bs.distanceKm?.let { (it * 1000).toInt() }
                                 )
-                                marker?.let { currentMarkers.add(it) }
+
+                                // 💡 Label shows power type (e.g., "DC 50kW")
+                                val powerLabel = appStation.chargingPowerKw?.let { "${it.toInt()}kW" }
+                                    ?: appStation.connectorTypes.firstOrNull()
+                                    ?: "EV"
+
+                                // ⚡ Marker color depends on station status
+                                val markerIcon = MarkerUtils.createEvMarkerBitmap(
+                                    context = requireContext(),
+                                    label = powerLabel,
+                                    status = appStation.status
+                                )
+
+                                val marker = googleMap?.addMarker(
+                                    MarkerOptions()
+                                        .position(LatLng(appStation.latitude, appStation.longitude))
+                                        .title(appStation.name)
+                                        .icon(markerIcon)
+                                )
+
+                                marker?.let {
+                                    it.tag = appStation
+                                    currentMarkers.add(it)
+                                }
+                            }
+
+                            // Handle marker click → open bottom sheet
+                            googleMap?.setOnMarkerClickListener { marker ->
+                                val st = marker.tag as? com.example.evcharger.model.Station
+                                st?.let { station ->
+                                    val sheet = StationDetailsBottomSheet.newInstance(station)
+                                    sheet.show(childFragmentManager, "station_details")
+                                    true
+                                } ?: false
                             }
                         }
                     }

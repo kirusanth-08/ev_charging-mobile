@@ -63,3 +63,38 @@ data class EvOwnerRegisterResponse(
     val isActive: Boolean,
     val createdAt: String
 )
+
+// Backend DTOs for nearby station endpoint
+// Previous BackendStation used PascalCase names. New API returns a wrapper with different shape.
+data class BackendLocation(
+    val address: String?,
+    val city: String?,
+    val latitude: Double,
+    val longitude: Double
+)
+
+data class BackendSlot(
+    val slotNumber: Int,
+    val isAvailable: Boolean = true,
+    val powerRating: Int,
+    val connectorType: String
+)
+
+data class BackendStationV2(
+    val stationId: String,
+    val name: String,
+    val location: BackendLocation,
+    val type: String?,
+    val slots: List<BackendSlot> = emptyList(),
+    val operatorId: String? = null,
+    val isActive: Boolean = true,
+    val totalSlots: Int? = null,
+    val availableSlots: Int? = null,
+    val createdAt: String? = null,
+    val updatedAt: String? = null
+)
+
+data class BackendNearbyItem(
+    val station: BackendStationV2,
+    val distanceKm: Double?
+)

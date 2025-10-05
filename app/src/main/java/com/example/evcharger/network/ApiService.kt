@@ -42,7 +42,7 @@ interface ApiService {
         @Query("longitude") lng: Double,
         // default radius is 10 (units depend on your backend; commonly kilometers)
         @Query("radius") radius: Int = 10
-    ): Response<ApiResponse<List<Station>>>
+    ): Response<ApiResponse<List<BackendNearbyItem>>>
 
     @GET("reservations/by-qr")
     suspend fun getReservationByQr(@Query("payload") payload: String): Response<ApiResponse<Reservation>>
