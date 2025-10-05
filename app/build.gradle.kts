@@ -24,10 +24,8 @@ android {
         compose = true
     }
 
-    // Use Compose compiler extension compatible with your Kotlin/Compose versions.
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
+    // With Kotlin Compose plugin 2.1.x, the Compose compiler is bundled.
+    // No explicit composeOptions.kotlinCompilerExtensionVersion needed.
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -46,8 +44,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     // AndroidX + Material
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
+    implementation("com.google.android.material:material:1.13.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.recyclerview:recyclerview:1.3.1")
     implementation("androidx.fragment:fragment-ktx:1.6.1")
@@ -55,7 +53,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     implementation("androidx.activity:activity-ktx:1.7.2")
     // Retrofit + OkHttp + Gson
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.14")
 
