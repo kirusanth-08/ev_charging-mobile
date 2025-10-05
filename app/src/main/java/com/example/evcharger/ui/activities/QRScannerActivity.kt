@@ -8,6 +8,7 @@ import com.journeyapps.barcodescanner.ScanOptions
 import com.journeyapps.barcodescanner.ScanContract
 import com.example.evcharger.databinding.ActivityQrscannerBinding
 import com.example.evcharger.viewmodel.OperatorViewModel
+import com.example.evcharger.auth.UserSessionManager
 
 /**
  * Operator login and QR scanning screen.
@@ -61,6 +62,14 @@ class QRScannerActivity : AppCompatActivity() {
 
         vm.operatorToken.observe(this) {
             // token set, wait for role check to enable actions
+            // Persist session when token appears
+            val token = vm.operatorToken.value
+            val role = vm.role.value
+            val username = vm.operatorUsername.value
+            if (!token.isNullOrBlank()) {
+                val mgr = UserSessionManager(this)
+                mgr.saveSession(token, role ?: "", username ?: "", null)
+            }
         }
         vm.loading.observe(this) { isLoading ->
             binding.progressOperator.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE

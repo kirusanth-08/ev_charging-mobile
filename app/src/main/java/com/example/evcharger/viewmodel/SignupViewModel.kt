@@ -37,12 +37,11 @@ class SignupViewModel(app: Application) : AndroidViewModel(app) {
                 if (res.isSuccessful && res.body()?.success == true) {
                     successLive.postValue(true)
                 } else {
-                    // fallback to local registration
-                    val ok = repo.register(user)
-                    if (ok) successLive.postValue(true) else errorLive.postValue("Registration failed (NIC exists?)")
+                    // Server responded but registration failed (e.g., nic exists)
+                    errorLive.postValue(res.body()?.message ?: "Registration failed")
                 }
             } catch (e: Exception) {
-                // network error, fallback
+                // network error - fallback to local DB registration
                 val ok = repo.register(user)
                 if (ok) successLive.postValue(true) else errorLive.postValue(e.localizedMessage ?: "Registration failed")
             } finally {

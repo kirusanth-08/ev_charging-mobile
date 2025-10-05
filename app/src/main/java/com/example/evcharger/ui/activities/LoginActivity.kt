@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.example.evcharger.databinding.ActivityLoginBinding
 import com.example.evcharger.viewmodel.LoginViewModel
+import com.example.evcharger.auth.UserSessionManager
 
 /**
  * EV Owner login by NIC (local SQLite lookup).
@@ -49,6 +50,14 @@ class LoginActivity : AppCompatActivity() {
                 val i = Intent(this, DashboardActivity::class.java)
                 i.putExtra("NIC", it.nic)
                 startActivity(i)
+                // Persist the session token and related info when available
+                val token = vm.tokenLive.value
+                val role = vm.roleLive.value
+                val username = vm.usernameLive.value
+                if (!token.isNullOrBlank()) {
+                    val mgr = UserSessionManager(this)
+                    mgr.saveSession(token, role ?: "", username ?: "", null)
+                }
                 finish()
             }
         }

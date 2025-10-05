@@ -79,4 +79,6 @@ dependencies {
     // Google Maps & Location
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+    // EncryptedSharedPreferences for secure token storage
+    implementation("androidx.security:security-crypto:1.1.0")
 }

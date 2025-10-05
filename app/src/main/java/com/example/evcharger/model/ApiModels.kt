@@ -56,6 +56,10 @@ data class EvOwnerRegisterRequest(
 )
 
 data class EvOwnerRegisterResponse(
-    val id: String?,
-    val nic: String?
+    val nic: String,
+    val fullName: String,
+    val email: String,
+    val phoneNumber: String,
+    val isActive: Boolean,
+    val createdAt: String
 )

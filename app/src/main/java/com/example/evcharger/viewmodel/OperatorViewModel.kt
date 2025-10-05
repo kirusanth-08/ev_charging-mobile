@@ -35,6 +35,7 @@ class OperatorViewModel : ViewModel() {
                     operatorToken.postValue(token)
                     role.postValue(data.role)
                     operatorUsername.postValue(data.username)
+                    // Session persistence should be handled by the Activity (has Context)
                 } else error.postValue(res.body()?.message ?: "Login failed")
             } catch (e: Exception) {
                 error.postValue(e.localizedMessage ?: "Network error")
