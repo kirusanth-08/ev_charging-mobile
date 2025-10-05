@@ -38,9 +38,12 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
         }
 
-        // Top overlay button (z-layer above the map) — same action as bottom button
-        binding.btnViewBookingsOverlay.setOnClickListener {
-            startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
+        // Current location button — find the fragment and call the helper
+        binding.btnCurrentLocation.setOnClickListener {
+            val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+            if (frag is MapsFragment) {
+                frag.centerOnCurrentLocation()
+            }
         }
 
         vm.pendingCount.observe(this) { binding.txtPending.text = it.toString() }

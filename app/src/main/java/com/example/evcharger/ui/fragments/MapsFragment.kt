@@ -72,6 +72,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
             ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         ) {
             googleMap?.isMyLocationEnabled = true
+            googleMap?.uiSettings?.isMyLocationButtonEnabled = false
             val fused = LocationServices.getFusedLocationProviderClient(ctx)
             fused.lastLocation.addOnSuccessListener { loc: Location? ->
                 loc?.let {
@@ -156,6 +157,29 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Public helper to center the map on the device's last known location.
+     * If permissions are not granted this will trigger the permission flow.
+     */
+    fun centerOnCurrentLocation() {
+        val ctx = requireContext()
+        val fineGranted = ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (!fineGranted && !coarseGranted) {
+            // ask for permission; when granted the permissionLauncher will call enableMyLocationAndLoad()
+            permissionLauncher.launch(locationPermissions)
+            return
+        }
+
+        val fused = LocationServices.getFusedLocationProviderClient(ctx)
+        fused.lastLocation.addOnSuccessListener { loc: Location? ->
+            loc?.let {
+                val pos = LatLng(it.latitude, it.longitude)
+                googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(pos, 15f))
             }
         }
     }
