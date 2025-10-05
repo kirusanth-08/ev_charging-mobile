@@ -31,9 +31,6 @@ class DashboardActivity : AppCompatActivity() {
         binding.btnViewBookings.setOnClickListener {
             startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
         }
-        binding.btnNewReservation.setOnClickListener {
-            startActivity(Intent(this, ReservationFormActivity::class.java).putExtra("NIC", nic))
-        }
 
         vm.pendingCount.observe(this) { binding.txtPending.text = it.toString() }
         vm.approvedFutureCount.observe(this) { binding.txtApproved.text = it.toString() }

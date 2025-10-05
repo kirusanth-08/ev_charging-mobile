@@ -28,7 +28,8 @@
 
         <activity android:name=".ui.activities.QRScannerActivity" />
         <activity android:name=".ui.activities.ReservationFormActivity" />
-        <activity android:name=".ui.activities.BookingListActivity" />
+    <activity android:name=".ui.activities.BookingListActivity" />
+    <activity android:name=".ui.activities.PendingBookingsActivity" />
         <activity android:name=".ui.activities.DashboardActivity" />
         <activity android:name=".ui.activities.SignupActivity" />
 
