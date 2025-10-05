@@ -28,7 +28,12 @@ class ReservationFormActivity : AppCompatActivity() {
         binding = ActivityReservationFormBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        nic = intent.getStringExtra("NIC") ?: ""
+    // Read NIC from intent if provided, otherwise try to load from secure session
+    val intentNic = intent.getStringExtra("NIC")
+    val sessionNic = com.example.evcharger.auth.UserSessionManager(this).loadSession().username
+    nic = intentNic ?: sessionNic ?: ""
+    // Read stationId from intent (passed by StationDetailsBottomSheet)
+    stationId = intent.getStringExtra("stationId") ?: stationId
 
         binding.btnPickDate.setOnClickListener {
             val picker = MaterialDatePicker.Builder.datePicker().build()

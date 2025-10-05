@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="4dp">
+
+    <!-- Background: circular indicator showing status (available/busy/offline) -->
+    <ImageView
+        android:id="@+id/imgMarkerBg"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:src="@drawable/label_bg"
+        android:contentDescription="EV station marker background" />
+
+    <!-- Charging plug icon -->
+    <ImageView
+        android:id="@+id/imgChargerIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_ev_charger"
+        android:tint="#FFFFFF"
+        android:contentDescription="EV charger icon" />
+
+    <!-- Station name or power label -->
+    <TextView
+        android:id="@+id/txtStationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/label_bg"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="2dp"
+        android:text="AC 22kW"
+        android:textSize="10sp"
+        android:textColor="#FFFFFF"
+        android:elevation="2dp" />
+</FrameLayout>
