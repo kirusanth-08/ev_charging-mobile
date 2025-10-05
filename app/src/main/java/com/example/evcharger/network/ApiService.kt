@@ -39,22 +39,18 @@ interface ApiService {
     @GET("booking/upcoming")
     suspend fun getUpcoming(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>
 
-    // Backend endpoint expects: /api/station/nearby?latitude=...&longitude=...&radius=...
     @GET("station/nearby")
     suspend fun getNearbyStations(
         @Query("latitude") lat: Double,
         @Query("longitude") lng: Double,
-        // default radius is 10 (units depend on your backend; commonly kilometers)
         @Query("radius") radius: Int = 10
     ): Response<ApiResponse<List<BackendNearbyItem>>>
 
-    @GET("reservations/by-qr")
+    @GET("booking/confirm-arrival")
     suspend fun getReservationByQr(@Query("payload") payload: String): Response<ApiResponse<Reservation>>
 
-    @POST("reservations/confirm")
-    suspend fun confirmBooking(@Body body: ConfirmBookingRequest): Response<ApiResponse<Reservation>>
-
     @PATCH("booking/{id}/approve")
+    suspend fun confirmBooking(@Body body: ConfirmBookingRequest): Response<ApiResponse<Reservation>>
 
     @POST("evowner/register")
     suspend fun registerEvOwner(@Body body: EvOwnerRegisterRequest): Response<ApiResponse<EvOwnerRegisterResponse>>
