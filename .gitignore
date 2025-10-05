@@ -15,8 +15,8 @@ local.properties
 .env.*
 
 # IDEs
-/.idea/
-/*.iml
+.idea/
+*.iml
 *.iml
 .vscode/
 
