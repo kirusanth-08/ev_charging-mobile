@@ -32,6 +32,11 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
         }
 
+        // Top overlay button (z-layer above the map) — same action as bottom button
+        binding.btnViewBookingsOverlay.setOnClickListener {
+            startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
+        }
+
         vm.pendingCount.observe(this) { binding.txtPending.text = it.toString() }
         vm.approvedFutureCount.observe(this) { binding.txtApproved.text = it.toString() }
 

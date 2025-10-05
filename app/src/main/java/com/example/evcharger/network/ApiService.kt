@@ -14,12 +14,12 @@ interface ApiService {
     @POST("auth/login")
     suspend fun login(@Body body: LoginRequest): Response<ApiResponse<LoginResponse>>
 
-    @POST("reservations")
+    @POST("booking")
     suspend fun createReservation(@Body body: CreateReservationRequest): Response<ApiResponse<Reservation>>
 
     // New booking endpoint matching `/api/booking` that accepts PascalCase property names
-    @POST("booking")
-    suspend fun postBooking(@Body body: com.example.evcharger.model.BookingRequest): Response<com.example.evcharger.model.ApiResponse<com.example.evcharger.model.BookingResponseData>>
+//    @POST("booking")
+//    suspend fun postBooking(@Body body: com.example.evcharger.model.BookingRequest): Response<com.example.evcharger.model.ApiResponse<com.example.evcharger.model.BookingResponseData>>
 
     @PUT("booking/{id}")
     suspend fun modifyReservation(

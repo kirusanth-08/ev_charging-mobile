@@ -18,22 +18,32 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Summary card -->
+        <!-- Map container: fill the available content area to present a full-screen map under the overlays -->
+        <FrameLayout
+            android:id="@+id/mapContainer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Summary card (overlayed on top of the map) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardSummary"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:cardCornerRadius="10dp"
-            app:cardElevation="4dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:cardElevation="8dp"
+            app:layout_constraintTop_toTopOf="@id/mapContainer"
+            app:layout_constraintStart_toStartOf="@id/mapContainer"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="12dp"
@@ -54,9 +64,8 @@
                     android:textSize="16sp" />
 
                 <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    android:layout_width="8dp"
+                    android:layout_height="0dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -77,16 +86,20 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Map container fills the space between summary and bottom actions -->
-        <FrameLayout
-            android:id="@+id/mapContainer"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/cardSummary"
-            app:layout_constraintBottom_toTopOf="@id/actionBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+        <!-- Floating overlay button on top of the map (z-axis) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewBookingsOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View Bookings"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="@android:color/white"
+            app:cornerRadius="24dp"
+            app:layout_constraintTop_toTopOf="@id/mapContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:elevation="12dp" />
 
         <!-- Bottom action bar containing two buttons -->
         <com.google.android.material.card.MaterialCardView

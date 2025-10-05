@@ -57,8 +57,8 @@ class ReservationRepository {
         RetrofitClient.api.confirmBooking(ConfirmBookingRequest(reservationId, operatorId))
 
     // Create reservation with BookingRequest (PascalCase JSON keys). This wraps the /api/booking endpoint.
-    suspend fun createReservation(request: com.example.evcharger.model.BookingRequest) =
-        RetrofitClient.api.postBooking(request)
+//    suspend fun createReservation(request: com.example.evcharger.model.BookingRequest) =
+//        RetrofitClient.api.postBooking(request)
 
     // Station operator confirms arrival by scanning QR and posting { "QrCode": "..." }
     suspend fun confirmArrival(qrCode: String) =
