@@ -106,7 +106,19 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
                                 val marker = googleMap?.addMarker(
                                     MarkerOptions().position(LatLng(s.latitude, s.longitude)).title(s.name)
                                 )
-                                marker?.let { currentMarkers.add(it) }
+                                marker?.let {
+                                    it.tag = s
+                                    currentMarkers.add(it)
+                                }
+                            }
+                            // show station details when marker tapped
+                            googleMap?.setOnMarkerClickListener { m ->
+                                val st = m.tag as? com.example.evcharger.model.Station
+                                st?.let { s ->
+                                    val sheet = StationDetailsBottomSheet.newInstance(s)
+                                    sheet.show(childFragmentManager, "station_details")
+                                    true
+                                } ?: false
                             }
                         }
                     }
