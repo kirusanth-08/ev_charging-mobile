@@ -35,11 +35,13 @@ interface ApiService {
     @GET("reservations/upcoming")
     suspend fun getUpcoming(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>
 
-    @GET("stations/nearby")
+    // Backend endpoint expects: /api/station/nearby?latitude=...&longitude=...&radius=...
+    @GET("station/nearby")
     suspend fun getNearbyStations(
-        @Query("lat") lat: Double,
-        @Query("lng") lng: Double,
-        @Query("radiusMeters") radius: Int = 5000
+        @Query("latitude") lat: Double,
+        @Query("longitude") lng: Double,
+        // default radius is 10 (units depend on your backend; commonly kilometers)
+        @Query("radius") radius: Int = 10
     ): Response<ApiResponse<List<Station>>>
 
     @GET("reservations/by-qr")

@@ -17,6 +17,8 @@ android {
     }
     val apiBaseUrl: String = (localProps.getProperty("api.base.url")
         ?: "http://10.0.2.2:5000/api/") // emulator fallback; replace in local.properties for device testing
+    // Read Google Maps API key from local.properties (not committed). Leave empty for CI or env injection.
+    val googleMapsKey: String = (localProps.getProperty("google.maps.key") ?: "")
 
     defaultConfig {
         applicationId = "com.example.evcharger"
@@ -29,6 +31,13 @@ android {
 
         // Expose API base URL to BuildConfig so app code can access it
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        // Inject the Google Maps API key into a string resource at build time so the key isn't checked in
+        if (googleMapsKey.isNotBlank()) {
+            resValue("string", "google_maps_key", "\"$googleMapsKey\"")
+        } else {
+            // Provide an empty value so builds don't fail when the key isn't present
+            resValue("string", "google_maps_key", "\"\"")
+        }
     }
 
     buildFeatures {

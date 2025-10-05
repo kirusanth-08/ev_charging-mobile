@@ -13,6 +13,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.evcharger.R
 import com.example.evcharger.network.RetrofitClient
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 class MapsFragment : Fragment(R.layout.fragment_maps) {
 
     private var googleMap: GoogleMap? = null
+    private val currentMarkers = mutableListOf<Marker>()
 
     private val locationPermissions = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -91,14 +93,20 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
         fused.lastLocation.addOnSuccessListener { loc ->
             if (loc != null) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val res = RetrofitClient.api.getNearbyStations(loc.latitude, loc.longitude)
+                    // use a radius of 10 (units per backend; typically kilometers)
+                    val res = RetrofitClient.api.getNearbyStations(loc.latitude, loc.longitude, 10)
                     if (res.isSuccessful && res.body()?.data != null) {
                         val stations = res.body()!!.data!!
                         requireActivity().runOnUiThread {
+                            // clear old markers
+                            currentMarkers.forEach { it.remove() }
+                            currentMarkers.clear()
+                            // add fresh markers
                             stations.forEach { s ->
-                                googleMap?.addMarker(
+                                val marker = googleMap?.addMarker(
                                     MarkerOptions().position(LatLng(s.latitude, s.longitude)).title(s.name)
                                 )
+                                marker?.let { currentMarkers.add(it) }
                             }
                         }
                     }
