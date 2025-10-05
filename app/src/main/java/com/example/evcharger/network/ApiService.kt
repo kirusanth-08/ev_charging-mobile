@@ -17,22 +17,26 @@ interface ApiService {
     @POST("reservations")
     suspend fun createReservation(@Body body: CreateReservationRequest): Response<ApiResponse<Reservation>>
 
-    @PUT("reservations/{id}")
+    // New booking endpoint matching `/api/booking` that accepts PascalCase property names
+    @POST("booking")
+    suspend fun postBooking(@Body body: com.example.evcharger.model.BookingRequest): Response<com.example.evcharger.model.ApiResponse<com.example.evcharger.model.BookingResponseData>>
+
+    @PUT("booking/{id}")
     suspend fun modifyReservation(
         @Path("id") reservationId: String,
         @Body body: ModifyReservationRequest
     ): Response<ApiResponse<Reservation>>
 
-    @HTTP(method = "DELETE", path = "reservations/{id}", hasBody = true)
+    @DELETE("booking/{id}")
     suspend fun cancelReservation(
         @Path("id") reservationId: String,
         @Body body: CancelReservationRequest
     ): Response<ApiResponse<Unit>>
 
-    @GET("reservations/history")
+    @GET("booking/history")
     suspend fun getHistory(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>
 
-    @GET("reservations/upcoming")
+    @GET("booking/upcoming")
     suspend fun getUpcoming(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>
 
     // Backend endpoint expects: /api/station/nearby?latitude=...&longitude=...&radius=...
@@ -49,6 +53,8 @@ interface ApiService {
 
     @POST("reservations/confirm")
     suspend fun confirmBooking(@Body body: ConfirmBookingRequest): Response<ApiResponse<Reservation>>
+
+    @PATCH("booking/{id}/approve")
 
     @POST("evowner/register")
     suspend fun registerEvOwner(@Body body: EvOwnerRegisterRequest): Response<ApiResponse<EvOwnerRegisterResponse>>

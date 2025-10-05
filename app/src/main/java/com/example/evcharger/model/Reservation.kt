@@ -1,19 +1,44 @@
 package com.example.evcharger.model
 
-import java.time.LocalDateTime
+import com.google.gson.annotations.SerializedName
 
 /**
- * Reservation data class.
- * Most fields are synchronized with server; id provided by backend.
+ * Reservation data class. Fields are nullable to tolerate differences between API versions.
  */
 data class Reservation(
+    // common identifiers
     val id: String? = null,
-    val ownerNic: String,
+    @SerializedName("bookingId") val bookingId: String? = null,
+
+    // owner
+    @SerializedName("evOwnerNic") val evOwnerNic: String? = null,
+    val ownerNic: String? = null,
+
+    // station
     val stationId: String,
     val stationName: String? = null,
-    val startTime: LocalDateTime,
+    val stationLocation: String? = null,
+
+    // timing fields (ISO strings)
+    @SerializedName("reservationDateTime") val reservationDateTime: String? = null,
+    val startTime: String? = null,
+
+    // booking details
+    val slotNumber: Int? = null,
+    val duration: Int? = null,
+
+    // status and related metadata
     val status: ReservationStatus = ReservationStatus.PENDING,
-    val qrCodePayload: String? = null
+    val approvedBy: String? = null,
+    val approvedAt: String? = null,
+
+    // QR / tokens
+    @SerializedName("qrCode") val qrCode: String? = null,
+    val qrCodePayload: String? = null,
+
+    // UI helpers
+    val timeUntilReservation: String? = null,
+    val isExpired: Boolean? = null
 )
 
 enum class ReservationStatus { PENDING, APPROVED, CANCELLED, COMPLETED }

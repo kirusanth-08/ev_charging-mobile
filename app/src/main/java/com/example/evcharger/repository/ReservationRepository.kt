@@ -53,4 +53,7 @@ class ReservationRepository {
     suspend fun byQr(payload: String) = RetrofitClient.api.getReservationByQr(payload)
     suspend fun confirm(reservationId: String, operatorId: String) =
         RetrofitClient.api.confirmBooking(ConfirmBookingRequest(reservationId, operatorId))
+
+    suspend fun createBooking(request: com.example.evcharger.model.BookingRequest) =
+        RetrofitClient.api.postBooking(request)
 }
