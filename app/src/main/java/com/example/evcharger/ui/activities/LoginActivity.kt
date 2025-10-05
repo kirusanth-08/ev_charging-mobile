@@ -24,7 +24,8 @@ class LoginActivity : AppCompatActivity() {
 
         binding.btnLogin.setOnClickListener {
             val nic = binding.inputNic.text?.toString()?.trim().orEmpty()
-            vm.loginByNic(nic)
+            val pass = binding.inputPassword.text?.toString()?.trim().orEmpty()
+            vm.loginOwner(nic, pass)
         }
 
         binding.btnSignup.setOnClickListener {

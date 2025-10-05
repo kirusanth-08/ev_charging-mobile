@@ -4,9 +4,19 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+import java.util.Properties
+
 android {
     namespace = "com.example.evcharger"
     compileSdk = 36
+
+    // Read per-machine API base URL from local.properties (not committed)
+    val localProps = Properties().apply {
+        val lp = rootProject.file("local.properties")
+        if (lp.exists()) load(lp.inputStream())
+    }
+    val apiBaseUrl: String = (localProps.getProperty("api.base.url")
+        ?: "http://10.0.2.2:5000/") // emulator fallback; replace in local.properties for device testing
 
     defaultConfig {
         applicationId = "com.example.evcharger"
@@ -16,12 +26,17 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Expose API base URL to BuildConfig so app code can access it
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildFeatures {
         viewBinding = true
         // enable Jetpack Compose
         compose = true
+        // required to use buildConfigField
+        buildConfig = true
     }
 
     // With Kotlin Compose plugin 2.1.x, the Compose compiler is bundled.

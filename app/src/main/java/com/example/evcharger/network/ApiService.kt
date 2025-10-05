@@ -10,8 +10,9 @@ import retrofit2.http.*
  */
 interface ApiService {
 
-    @POST("auth/operator/login")
-    suspend fun operatorLogin(@Body body: OperatorLoginRequest): Response<ApiResponse<OperatorLoginResponse>>
+    // Unified login for both StationOperator and evOwner
+    @POST("auth/login")
+    suspend fun login(@Body body: LoginRequest): Response<ApiResponse<LoginResponse>>
 
     @POST("reservations")
     suspend fun createReservation(@Body body: CreateReservationRequest): Response<ApiResponse<Reservation>>
