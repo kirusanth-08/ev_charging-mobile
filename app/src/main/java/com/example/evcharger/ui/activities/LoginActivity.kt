@@ -37,6 +37,13 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, QRScannerActivity::class.java))
         }
 
+        vm.loading.observe(this) { isLoading ->
+            binding.progressLogin.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
+            binding.btnLogin.isEnabled = isLoading != true
+            binding.btnSignup.isEnabled = isLoading != true
+            binding.btnOperator.isEnabled = isLoading != true
+        }
+
         vm.userLive.observe(this) {
             if (it != null) {
                 val i = Intent(this, DashboardActivity::class.java)

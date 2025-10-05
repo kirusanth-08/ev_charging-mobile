@@ -19,12 +19,14 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
 
     val userLive = MutableLiveData<User?>()
     val errorLive = MutableLiveData<String?>()
+    val loading = MutableLiveData(false)
 
     fun loginOwner(nic: String, password: String) {
         if (nic.isBlank() || password.isBlank()) {
             errorLive.postValue("NIC and password are required")
             return
         }
+        loading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val res = RetrofitClient.api.login(LoginRequest(username = nic, password = password))
@@ -36,6 +38,8 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
                 }
             } catch (e: Exception) {
                 errorLive.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
             }
         }
     }

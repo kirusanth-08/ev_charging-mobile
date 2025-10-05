@@ -21,8 +21,10 @@ class OperatorViewModel : ViewModel() {
     val role = MutableLiveData<String?>()
     val error = MutableLiveData<String?>()
     val operatorUsername = MutableLiveData<String?>()
+    val loading = MutableLiveData(false)
 
     fun login(username: String, password: String) {
+        loading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val res = RetrofitClient.api.login(LoginRequest(username, password))
@@ -36,11 +38,14 @@ class OperatorViewModel : ViewModel() {
                 } else error.postValue(res.body()?.message ?: "Login failed")
             } catch (e: Exception) {
                 error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
             }
         }
     }
 
     fun lookupByQr(payload: String) {
+        loading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val res = repo.byQr(payload)
@@ -49,11 +54,14 @@ class OperatorViewModel : ViewModel() {
                 } else error.postValue(res.body()?.message ?: "Not found")
             } catch (e: Exception) {
                 error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
             }
         }
     }
 
     fun confirm(reservationId: String, operatorId: String) {
+        loading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val res = repo.confirm(reservationId, operatorId)
@@ -62,6 +70,8 @@ class OperatorViewModel : ViewModel() {
                 } else error.postValue(res.body()?.message ?: "Confirm failed")
             } catch (e: Exception) {
                 error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
             }
         }
     }

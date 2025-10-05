@@ -62,6 +62,13 @@ class QRScannerActivity : AppCompatActivity() {
         vm.operatorToken.observe(this) {
             // token set, wait for role check to enable actions
         }
+        vm.loading.observe(this) { isLoading ->
+            binding.progressOperator.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
+            // Disable inputs during operations to prevent duplicate calls
+            binding.btnOperatorLogin.isEnabled = isLoading != true
+            binding.btnScan.isEnabled = (isLoading != true) && (vm.role.value.equals("StationOperator", true))
+            binding.btnConfirm.isEnabled = (isLoading != true) && (vm.role.value.equals("StationOperator", true))
+        }
         vm.role.observe(this) { r ->
             if (r.equals("StationOperator", ignoreCase = true)) {
                 Snackbar.make(binding.root, "Operator logged in", Snackbar.LENGTH_SHORT).show()

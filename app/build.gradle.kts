@@ -16,7 +16,7 @@ android {
         if (lp.exists()) load(lp.inputStream())
     }
     val apiBaseUrl: String = (localProps.getProperty("api.base.url")
-        ?: "http://10.0.2.2:5000/") // emulator fallback; replace in local.properties for device testing
+        ?: "http://10.0.2.2:5000/api/") // emulator fallback; replace in local.properties for device testing
 
     defaultConfig {
         applicationId = "com.example.evcharger"
