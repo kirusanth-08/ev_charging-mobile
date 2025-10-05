@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     // Base URL now provided by BuildConfig from local.properties (api.base.url)
-    private val BASE_URL: String = BuildConfig.API_BASE_URL
+    private const val BASE_URL: String = BuildConfig.API_BASE_URL
 
     @Volatile private var authToken: String? = null
 
