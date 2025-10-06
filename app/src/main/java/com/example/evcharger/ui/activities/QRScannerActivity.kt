@@ -34,6 +34,23 @@ class QRScannerActivity : AppCompatActivity() {
         binding = ActivityQrscannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // If there's a persisted operator session, apply it and hide login inputs
+        val mgr = UserSessionManager(this)
+        val sess = mgr.loadSession()
+        if (!sess.token.isNullOrBlank()) {
+            com.example.evcharger.network.RetrofitClient.setAuthToken(sess.token)
+            vm.operatorToken.postValue(sess.token)
+            vm.role.postValue(sess.role)
+            vm.operatorUsername.postValue(sess.username)
+
+            // Hide login inputs when a session is available
+            binding.inputOperatorUser.visibility = android.view.View.GONE
+            binding.inputOperatorPass.visibility = android.view.View.GONE
+            binding.btnOperatorLogin.visibility = android.view.View.GONE
+
+            Snackbar.make(binding.root, "Operator session restored: ${sess.username}", Snackbar.LENGTH_SHORT).show()
+        }
+
         binding.btnOperatorLogin.setOnClickListener {
             val user = binding.inputOperatorUser.text.toString().trim()
             val pass = binding.inputOperatorPass.text.toString().trim()
