@@ -105,15 +105,15 @@
                         android:id="@+id/txtUpcomingBooking"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No upcoming bookings"
+                        android:text="Loading..."
                         android:layout_marginTop="8dp" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnViewBookingsHome"
+                        android:id="@+id/btnManageBooking"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="View Bookings" />
+                        android:text="Manage Booking" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
