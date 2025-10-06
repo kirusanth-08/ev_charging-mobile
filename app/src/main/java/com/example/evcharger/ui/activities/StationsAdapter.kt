@@ -18,7 +18,7 @@ class StationsAdapter(
             b.txtStationAddrManage.text = s.location.address ?: ""
             val slots = s.slots
             b.rvStationSlots.layoutManager = LinearLayoutManager(b.root.context)
-            b.rvStationSlots.adapter = SlotManageAdapter(slots) { slot, enabled -> onToggle(slot, enabled) }
+            b.rvStationSlots.adapter = SlotManageAdapter(slots, { slot, enabled -> onToggle(slot, enabled) })
         }
     }
 

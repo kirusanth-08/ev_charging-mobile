@@ -4,148 +4,196 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/operatorTopAppBar"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="?attr/colorPrimary"
-        app:title="Operator Dashboard"
-        app:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/ic_baseline_person_24" />
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <TextView
-            android:id="@+id/txtOperatorInfo"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/operatorTopAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Welcome, Station Operator"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:backgroundTint="?attr/colorPrimary"
+            app:title="Operator Dashboard"
+            app:titleTextColor="@android:color/white"
+            app:navigationIcon="@drawable/ic_baseline_person_24" />
 
-        <TextView
-            android:id="@+id/txtOperatorSub"
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Manage your stations and bookings quickly"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp"/>
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp">
 
-    </LinearLayout>
-
-    <!-- Primary actions -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:weightSum="2">
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardScan"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="120dp"
-            android:layout_marginEnd="8dp"
-            app:cardElevation="4dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_baseline_qr_code_24"
-                    android:contentDescription="Scan" />
-
-                <TextView
-                    android:id="@+id/cardScanText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Scan"
-                    android:layout_marginTop="8dp" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardManage"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="120dp"
-            android:layout_marginStart="8dp"
-            app:cardElevation="4dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_baseline_store_24"
-                    android:contentDescription="Manage" />
-
-                <TextView
-                    android:id="@+id/cardManageText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Manage Station"
-                    android:layout_marginTop="8dp" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-    </LinearLayout>
-
-    <!-- Quick summary and recent scans -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardElevation="2dp"
-            android:padding="12dp">
-
+            <!-- Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/txtStationSummary"
+                    android:id="@+id/txtOperatorInfo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Stations: 0  •  Available slots: 0"
+                    android:text="Welcome, Station Operator"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/txtRecentScans"
+                    android:id="@+id/txtOperatorSub"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No recent scans"
-                    android:layout_marginTop="8dp" />
+                    android:text="Manage your stations and bookings quickly"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp"/>
 
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+            <!-- Primary actions -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:weightSum="2">
 
-    </LinearLayout>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardScan"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="120dp"
+                    android:layout_marginEnd="8dp"
+                    app:cardElevation="4dp"
+                    app:cardUseCompatPadding="true"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/ic_baseline_qr_code_24"
+                            android:contentDescription="Scan" />
+
+                        <TextView
+                            android:id="@+id/cardScanText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Scan"
+                            android:layout_marginTop="8dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardManage"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="120dp"
+                    android:layout_marginStart="8dp"
+                    app:cardElevation="4dp"
+                    app:cardUseCompatPadding="true"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@drawable/ic_baseline_store_24"
+                            android:contentDescription="Manage" />
+
+                        <TextView
+                            android:id="@+id/cardManageText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Manage Station"
+                            android:layout_marginTop="8dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Quick summary and recent scans -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardElevation="2dp"
+                    android:padding="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/txtStationSummary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Stations: 0  •  Available slots: 0"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/txtRecentScans"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="No recent scans"
+                            android:layout_marginTop="8dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Stations list (cards) -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Your Stations"
+                android:textStyle="bold"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="6dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvOperatorStations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:nestedScrollingEnabled="false" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

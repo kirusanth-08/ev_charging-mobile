@@ -32,8 +32,30 @@ class ManageStationActivity : AppCompatActivity() {
                 if (res.isSuccessful) {
                     val stations = res.body()?.data ?: emptyList()
                     val adapter = StationsAdapter(stations) { slot, enabled ->
-                        // Placeholder: call API to set slot availability if endpoint available
-                        Snackbar.make(binding.root, "Set slot ${slot.slotNumber} available=$enabled", Snackbar.LENGTH_SHORT).show()
+                        // Find station id for this slot (slots belong to stations) — we must search stations list
+                        val station = stations.find { it.slots.any { st -> st.slotNumber == slot.slotNumber } }
+                        val sid = station?.stationId
+                        if (sid.isNullOrEmpty()) {
+                            Snackbar.make(binding.root, "Station not found for slot", Snackbar.LENGTH_LONG).show()
+                            return@StationsAdapter
+                        }
+
+                        // Perform network update in lifecycleScope
+                        lifecycleScope.launch {
+                            try {
+                                val r = withContext(Dispatchers.IO) { stationRepo.updateSlotAvailability(sid, slot.slotNumber, enabled) }
+                                if (r.isSuccessful) {
+                                    // update UI in adapter
+                                    // StationsAdapter uses nested SlotManageAdapter; we can refresh the whole list for simplicity
+                                    binding.rvStations.adapter = StationsAdapter(stations) { s2, en2 -> /* no-op for brevity */ }
+                                    Snackbar.make(binding.root, "Slot ${slot.slotNumber} updated", Snackbar.LENGTH_SHORT).show()
+                                } else {
+                                    Snackbar.make(binding.root, "Failed to update slot", Snackbar.LENGTH_LONG).show()
+                                }
+                            } catch (t: Throwable) {
+                                Snackbar.make(binding.root, t.localizedMessage ?: "Error", Snackbar.LENGTH_LONG).show()
+                            }
+                        }
                     }
                     binding.rvStations.adapter = adapter
                 } else {

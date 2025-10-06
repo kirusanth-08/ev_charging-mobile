@@ -46,7 +46,10 @@ class OperatorDashboardActivity : AppCompatActivity() {
             startActivity(i)
         }
 
-        // Fetch station summary counts
+        // Fetch station summary counts and populate station cards list
+        val rvStations = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvOperatorStations)
+        rvStations.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val resp = stationRepo.getOperatorStations()
@@ -65,6 +68,7 @@ class OperatorDashboardActivity : AppCompatActivity() {
                     launch(Dispatchers.Main) {
                         txtStationSummary.text = "Stations: $stationCount  •  Available slots: $availableSlots / $totalSlots"
                         txtRecentScans.text = "Recent scans: —"
+                        rvStations.adapter = StationCardAdapter(data)
                     }
                 } else {
                     launch(Dispatchers.Main) {
