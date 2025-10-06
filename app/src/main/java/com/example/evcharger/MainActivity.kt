@@ -13,20 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.evcharger.ui.theme.EVChargerTheme
 
+@Deprecated("MainActivity removed - not used in app flow")
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            EVChargerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
+        // This activity is deprecated and should not be launched. Immediately finish.
+        finish()
     }
 }
 
@@ -38,10 +30,9 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Deprecated("Preview removed")
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    EVChargerTheme {
-        Greeting("Android")
-    }
+    // No-op preview for deprecated MainActivity
 }

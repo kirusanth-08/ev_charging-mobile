@@ -34,30 +34,18 @@ class QRScannerActivity : AppCompatActivity() {
         binding = ActivityQrscannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Disable actions until logged in as StationOperator
-        binding.btnScan.isEnabled = false
-        binding.btnConfirm.isEnabled = false
-
         binding.btnOperatorLogin.setOnClickListener {
             val user = binding.inputOperatorUser.text.toString().trim()
             val pass = binding.inputOperatorPass.text.toString().trim()
             vm.login(user, pass)
         }
 
-        binding.btnScan.setOnClickListener {
+        // Support autoScan flow: if launched with autoScan=true, immediately start scanner
+        val autoScan = intent?.getBooleanExtra("autoScan", false) ?: false
+        if (autoScan) {
             val opts = ScanOptions().setDesiredBarcodeFormats(ScanOptions.QR_CODE)
             opts.setPrompt("Scan reservation QR")
             launcher.launch(opts)
-        }
-
-        binding.btnConfirm.setOnClickListener {
-            val res = vm.scannedReservation.value ?: return@setOnClickListener
-            val opUser = vm.operatorUsername.value
-            if (opUser.isNullOrBlank()) {
-                Snackbar.make(binding.root, "Missing operator identity", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            vm.confirm(res.id ?: return@setOnClickListener, opUser)
         }
 
         vm.operatorToken.observe(this) {
@@ -75,14 +63,10 @@ class QRScannerActivity : AppCompatActivity() {
             binding.progressOperator.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
             // Disable inputs during operations to prevent duplicate calls
             binding.btnOperatorLogin.isEnabled = isLoading != true
-            binding.btnScan.isEnabled = (isLoading != true) && (vm.role.value.equals("StationOperator", true))
-            binding.btnConfirm.isEnabled = (isLoading != true) && (vm.role.value.equals("StationOperator", true))
         }
         vm.role.observe(this) { r ->
             if (r.equals("StationOperator", ignoreCase = true)) {
                 Snackbar.make(binding.root, "Operator logged in", Snackbar.LENGTH_SHORT).show()
-                binding.btnScan.isEnabled = true
-                binding.btnConfirm.isEnabled = true
             } else if (!r.isNullOrBlank()) {
                 Snackbar.make(binding.root, "Access denied: requires StationOperator", Snackbar.LENGTH_LONG).show()
             }

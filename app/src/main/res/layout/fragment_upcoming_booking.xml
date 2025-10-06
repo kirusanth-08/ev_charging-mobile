@@ -4,33 +4,11 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/txtUpcomingTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Upcoming booking"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtUpcomingContent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Loading..."
-            android:layout_marginTop="8dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnManageBooking"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Manage Booking" />
-
-    </LinearLayout>
+        android:text="(Deprecated fragment - not used)"
+        android:gravity="center"
+        android:textSize="14sp" />
 
 </FrameLayout>
