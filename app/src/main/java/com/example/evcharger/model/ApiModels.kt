@@ -1,5 +1,7 @@
 package com.example.evcharger.model
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * DTOs for interacting with the C# Web API via Retrofit.
  * Adjust fields to match your backend contract.
@@ -8,6 +10,7 @@ package com.example.evcharger.model
 data class ApiResponse<T>(
     val success: Boolean,
     val message: String? = null,
+    val count: Int? = null,
     val data: T? = null
 )
 
@@ -15,6 +18,47 @@ data class CreateReservationRequest(
     val nic: String,
     val stationId: String,
     val startTimeIso: String
+)
+
+// Request payload matching: {"StationId":"...","SlotNumber":1,"ReservationDateTime":"...","Duration":4}
+data class BookingRequest(
+    @SerializedName("StationId") val stationId: String,
+    @SerializedName("SlotNumber") val slotNumber: Int,
+    @SerializedName("ReservationDateTime") val reservationDateTime: String,
+    @SerializedName("Duration") val duration: Int
+)
+
+// Response data returned under "data" for the booking endpoint
+data class BookingResponseData(
+    val bookingId: String,
+    val evOwnerNic: String?,
+    val stationId: String?,
+    val stationName: String?,
+    val stationLocation: String?,
+    val slotNumber: Int?,
+    val reservationDateTime: String?,
+    val duration: Int?,
+    val status: String?,
+    val qrCode: String?,
+    val energyConsumed: Double?,
+    val cost: Double?,
+    val cancelReason: String?,
+    val approvedBy: String?,
+    val approvedAt: String?,
+    val confirmedAt: String?,
+    val completedAt: String?,
+    val cancelledAt: String?,
+    val createdAt: String?,
+    val updatedAt: String?,
+    val canModify: Boolean?,
+    val canCancel: Boolean?,
+    val timeUntilReservation: String?,
+    val isExpired: Boolean?
+)
+
+// Request payload for confirming arrival via QR code: { "QrCode": "<QR_CODE_STRING>" }
+data class ConfirmArrivalRequest(
+    @SerializedName("QrCode") val qrCode: String
 )
 
 data class ModifyReservationRequest(

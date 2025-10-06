@@ -51,6 +51,16 @@ class ReservationRepository {
     suspend fun getHistory(nic: String) = RetrofitClient.api.getHistory(nic)
     suspend fun getNearby(lat: Double, lng: Double) = RetrofitClient.api.getNearbyStations(lat, lng)
     suspend fun byQr(payload: String) = RetrofitClient.api.getReservationByQr(payload)
+    suspend fun getPending() = RetrofitClient.api.getPending()
+
     suspend fun confirm(reservationId: String, operatorId: String) =
         RetrofitClient.api.confirmBooking(ConfirmBookingRequest(reservationId, operatorId))
+
+    // Create reservation with BookingRequest (PascalCase JSON keys). This wraps the /api/booking endpoint.
+//    suspend fun createReservation(request: com.example.evcharger.model.BookingRequest) =
+//        RetrofitClient.api.postBooking(request)
+
+    // Station operator confirms arrival by scanning QR and posting { "QrCode": "..." }
+    suspend fun confirmArrival(qrCode: String) =
+        RetrofitClient.api.confirmArrival(com.example.evcharger.model.ConfirmArrivalRequest(qrCode))
 }

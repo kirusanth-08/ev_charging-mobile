@@ -72,6 +72,34 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
                 startActivity(i)
                 dismiss()
             }
+
+            binding.btnViewSlots.setOnClickListener {
+                // Convert station connector info into BackendSlot objects to show inside this bottom sheet
+                val backendSlots = s.connectorTypes.mapIndexed { idx, ct ->
+                    com.example.evcharger.model.BackendSlot(
+                        slotNumber = idx + 1,
+                        connectorType = ct,
+                        isAvailable = true,
+                        powerRating = s.chargingPowerKw ?: 0
+                    )
+                }
+
+                // populate rvSlots inside this fragment and make it visible
+                val rv = binding.root.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvSlots)
+                rv?.let {
+                    it.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+                    it.adapter = com.example.evcharger.ui.activities.SlotAdapter(backendSlots) { slot ->
+                        // launch reservation form with selected slot
+                        val i = Intent(requireContext(), com.example.evcharger.ui.activities.ReservationFormActivity::class.java)
+                        i.putExtra("NIC", "")
+                        i.putExtra("stationId", s.id)
+                        i.putExtra("SlotNumber", slot.slotNumber)
+                        startActivity(i)
+                        dismiss()
+                    }
+                    it.visibility = View.VISIBLE
+                }
+            }
         }
     }
 

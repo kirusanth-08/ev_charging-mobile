@@ -82,6 +82,9 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.14")
 
+    // Swipe-to-refresh support
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
     // ZXing (QR) - generation and embedded scanner
     implementation(libs.core)
     implementation(libs.zxing.android.embedded) // Scanner Activity

@@ -47,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
 
         vm.userLive.observe(this) {
             if (it != null) {
-                val i = Intent(this, DashboardActivity::class.java)
+                val i = Intent(this, HomeActivity::class.java)
                 i.putExtra("NIC", it.nic)
                 startActivity(i)
                 // Persist the session token and related info when available

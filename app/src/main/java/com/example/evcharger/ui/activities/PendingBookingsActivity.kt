@@ -6,30 +6,24 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
-import com.example.evcharger.databinding.ActivityBookingListBinding
+import com.example.evcharger.databinding.ActivityPendingBookingsBinding
 import com.example.evcharger.model.Reservation
 import com.example.evcharger.repository.ReservationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * Shows upcoming and past bookings in a list (RecyclerView).
- */
-class BookingListActivity : AppCompatActivity() {
+class PendingBookingsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityBookingListBinding
-    private lateinit var nic: String
+    private lateinit var binding: ActivityPendingBookingsBinding
     private val adapter = ReservationAdapter()
     private val repo = ReservationRepository()
     private var loadJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityBookingListBinding.inflate(layoutInflater)
+        binding = ActivityPendingBookingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        nic = intent.getStringExtra("NIC") ?: ""
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
@@ -40,23 +34,21 @@ class BookingListActivity : AppCompatActivity() {
     }
 
     private fun loadData() {
+        // Cancel any existing refresh job so we don't run multiple parallel requests
         loadJob?.cancel()
         binding.swipeRefresh.isRefreshing = true
 
         loadJob = lifecycleScope.launch {
             try {
-                val upcoming = withContext(Dispatchers.IO) { repo.getUpcoming(nic) }
-                val history = withContext(Dispatchers.IO) { repo.getHistory(nic) }
-                if (upcoming.isSuccessful && history.isSuccessful) {
-                    val list = mutableListOf<Reservation>()
-                    upcoming.body()?.data?.let { list.addAll(it) }
-                    history.body()?.data?.let { list.addAll(it) }
-                    adapter.submitList(list)
+                val res = withContext(Dispatchers.IO) { repo.getPending() }
+                if (res.isSuccessful) {
+                    adapter.submitList(res.body()?.data ?: emptyList<Reservation>())
                 } else {
-                    Snackbar.make(binding.root, "Failed to load bookings", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(binding.root, res.body()?.message ?: "Failed to load pending", Snackbar.LENGTH_LONG).show()
                 }
             } catch (t: Throwable) {
-                Snackbar.make(binding.root, t.localizedMessage ?: "Error loading bookings", Snackbar.LENGTH_LONG).show()
+                // Handle network / unexpected errors and ensure UI is updated
+                Snackbar.make(binding.root, t.localizedMessage ?: "Error fetching pending bookings", Snackbar.LENGTH_LONG).show()
             } finally {
                 binding.swipeRefresh.isRefreshing = false
             }
