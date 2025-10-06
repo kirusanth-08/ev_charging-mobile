@@ -33,5 +33,9 @@ class OperatorDashboardActivity : AppCompatActivity() {
             Snackbar.make(binding.root, "Open Scanner to confirm a booking", Snackbar.LENGTH_SHORT).show()
             startActivity(i)
         }
+
+        binding.btnManageStation.setOnClickListener {
+            startActivity(Intent(this, ManageStationActivity::class.java))
+        }
     }
 }

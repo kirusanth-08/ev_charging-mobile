@@ -49,6 +49,10 @@ interface ApiService {
         @Query("radius") radius: Int = 10
     ): Response<ApiResponse<List<BackendNearbyItem>>>
 
+    // Get stations assigned to the currently-authenticated operator (JWT required)
+    @GET("station/operator/stations")
+    suspend fun getOperatorStations(): Response<ApiResponse<List<BackendStationV2>>>
+
     // Fetch reservation by QR payload (used by scanner/lookup). Backend expects query param 'payload'
     @GET("booking/confirm-arrival")
     suspend fun getReservationByQr(@Query("payload") payload: String): Response<ApiResponse<Reservation>>

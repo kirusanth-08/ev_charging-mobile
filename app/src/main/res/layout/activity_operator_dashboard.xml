@@ -21,14 +21,34 @@
         android:gravity="center"
         android:textSize="18sp" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnScan"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Scan QR"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"/>
+        android:orientation="vertical"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnScan"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="Scan Booking"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:textAllCaps="false"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnManageStation"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="Manage Station"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:textAllCaps="false"/>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/txtReservationInfo"
