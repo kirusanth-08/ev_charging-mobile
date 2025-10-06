@@ -1,41 +1,81 @@
 package com.example.evcharger.ui.activities
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.example.evcharger.databinding.ActivityOperatorDashboardBinding
 import android.content.Intent
-import com.example.evcharger.ui.activities.QRScannerActivity
-import com.google.android.material.snackbar.Snackbar
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.TextView
+import android.widget.Toast
+import com.google.android.material.card.MaterialCardView
+import androidx.lifecycle.lifecycleScope
+import com.example.evcharger.R
+import com.example.evcharger.repository.StationRepository
+import com.example.evcharger.auth.UserSessionManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class OperatorDashboardActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityOperatorDashboardBinding
+    private lateinit var sessionManager: UserSessionManager
+    private val stationRepo = StationRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityOperatorDashboardBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_operator_dashboard)
 
-        // TODO: implement operator-specific features (scan, confirm, station management)
-        binding.txtOperatorInfo.text = "Welcome, Station Operator"
+        sessionManager = UserSessionManager(this)
 
-        // Launch scanner activity to handle operator login / scan / confirm flows
-        binding.btnScan.setOnClickListener {
+    val txtOperatorInfo = findViewById<TextView>(R.id.txtOperatorInfo)
+    val cardScan = findViewById<MaterialCardView>(R.id.cardScan)
+    val cardManage = findViewById<MaterialCardView>(R.id.cardManage)
+        val txtStationSummary = findViewById<TextView>(R.id.txtStationSummary)
+        val txtRecentScans = findViewById<TextView>(R.id.txtRecentScans)
+
+        val username = sessionManager.loadSession().username
+        if (username != null && username.isNotEmpty()) {
+            txtOperatorInfo.text = "Welcome, $username"
+        }
+
+        cardScan.setOnClickListener {
             val i = Intent(this, QRScannerActivity::class.java)
             i.putExtra("autoScan", true)
             startActivity(i)
         }
 
-        binding.btnConfirm.setOnClickListener {
-            // Delegate confirm flow to QRScannerActivity; open scanner flow for operator
-            val i = Intent(this, QRScannerActivity::class.java)
-            i.putExtra("autoScan", true)
-            Snackbar.make(binding.root, "Open Scanner to confirm a booking", Snackbar.LENGTH_SHORT).show()
+        cardManage.setOnClickListener {
+            val i = Intent(this, ManageStationActivity::class.java)
             startActivity(i)
         }
 
-        binding.btnManageStation.setOnClickListener {
-            startActivity(Intent(this, ManageStationActivity::class.java))
+        // Fetch station summary counts
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val resp = stationRepo.getOperatorStations()
+                if (resp.isSuccessful) {
+                    val data = resp.body()?.data ?: emptyList()
+                    val stationCount = data.size
+                    var totalSlots = 0
+                    var availableSlots = 0
+                    for (s in data) {
+                        val slots = s.slots ?: emptyList()
+                        totalSlots += slots.size
+                        for (slot in slots) {
+                            if (slot.isAvailable == true) availableSlots++
+                        }
+                    }
+                    launch(Dispatchers.Main) {
+                        txtStationSummary.text = "Stations: $stationCount  •  Available slots: $availableSlots / $totalSlots"
+                        txtRecentScans.text = "Recent scans: —"
+                    }
+                } else {
+                    launch(Dispatchers.Main) {
+                        txtStationSummary.text = "Stations: 0  •  Available slots: 0"
+                    }
+                }
+            } catch (ex: Exception) {
+                launch(Dispatchers.Main) {
+                    Toast.makeText(this@OperatorDashboardActivity, "Failed to load stations", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }
