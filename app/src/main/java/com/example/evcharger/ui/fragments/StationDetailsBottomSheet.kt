@@ -31,7 +31,8 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        station = arguments?.getParcelable(ARG_STATION)
+    // Use the non-deprecated getParcelable overload with explicit class
+    station = arguments?.getParcelable(ARG_STATION, Station::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
