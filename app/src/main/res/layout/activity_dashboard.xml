@@ -13,10 +13,12 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="?attr/colorPrimary"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary"
+            android:elevation="4dp"
             android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
             app:title="Dashboard"
+            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
             app:titleTextColor="@android:color/white" />
 
         <!-- Content area -->
@@ -40,8 +42,9 @@
                 android:id="@+id/cardSummary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="@color/surface"
                 app:layout_constraintTop_toTopOf="@id/mapContainer"
                 app:layout_constraintStart_toStartOf="@id/mapContainer"
                 android:layout_marginStart="16dp"
@@ -51,41 +54,68 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="12dp"
+                    android:padding="16dp"
                     android:gravity="center_vertical">
 
-                    <TextView
+                    <!-- Pending Section -->
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pending:"
-                        android:textSize="14sp" />
+                        android:orientation="vertical"
+                        android:gravity="center">
 
-                    <TextView
-                        android:id="@+id/txtPending"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:textStyle="bold"
-                        android:textSize="16sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pending"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:textAllCaps="true" />
 
+                        <TextView
+                            android:id="@+id/txtPending"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textStyle="bold"
+                            android:textSize="20sp"
+                            android:textColor="@color/ev_busy" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
                     <View
-                        android:layout_width="8dp"
-                        android:layout_height="0dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Approved:"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
                         android:layout_marginStart="16dp"
-                        android:textSize="14sp" />
+                        android:layout_marginEnd="16dp"
+                        android:background="@color/divider" />
 
-                    <TextView
-                        android:id="@+id/txtApproved"
+                    <!-- Approved Section -->
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:textStyle="bold"
-                        android:textSize="16sp" />
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Approved"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:textAllCaps="true" />
+
+                        <TextView
+                            android:id="@+id/txtApproved"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textStyle="bold"
+                            android:textSize="20sp"
+                            android:textColor="@color/ev_available" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -99,12 +129,13 @@
                 android:contentDescription="Current location"
                 app:srcCompat="@android:drawable/ic_menu_mylocation"
                 app:tint="@android:color/white"
-                app:backgroundTint="?attr/colorPrimary"
+                app:backgroundTint="@color/primary"
                 app:layout_constraintBottom_toTopOf="@id/actionBar"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="24dp"
                 android:layout_marginEnd="16dp"
-                android:elevation="12dp" />
+                app:elevation="6dp"
+                app:borderWidth="0dp" />
 
             <!-- Bottom action bar containing two buttons -->
             <com.google.android.material.card.MaterialCardView
@@ -112,25 +143,31 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:cardElevation="8dp"
-                app:cardCornerRadius="12dp"
+                app:cardCornerRadius="0dp"
+                app:cardBackgroundColor="@color/surface"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="12dp">
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="12dp"
+                    android:padding="16dp"
                     android:gravity="center">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewBookings"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:layout_weight="1"
-                        android:text="Bookings" />
+                        android:text="View Bookings"
+                        android:textSize="16sp"
+                        app:cornerRadius="12dp"
+                        app:backgroundTint="@color/primary"
+                        app:icon="@android:drawable/ic_menu_agenda"
+                        app:iconGravity="textStart"
+                        style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
                 </LinearLayout>
 
