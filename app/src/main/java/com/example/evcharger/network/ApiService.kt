@@ -62,8 +62,8 @@ interface ApiService {
     ): Response<ApiResponse<Unit>>
 
     // Fetch reservation by QR payload (used by scanner/lookup). Backend expects query param 'payload'
-    @GET("booking/confirm-arrival")
-    suspend fun getReservationByQr(@Query("payload") payload: String): Response<ApiResponse<Reservation>>
+    // @GET("booking/confirm-arrival")
+    // suspend fun getReservationByQr(@Query("payload") payload: String): Response<ApiResponse<Reservation>>
 
     // Station operator scans QR and confirms arrival: POST /api/booking/confirm-arrival
     @POST("booking/confirm-arrival")

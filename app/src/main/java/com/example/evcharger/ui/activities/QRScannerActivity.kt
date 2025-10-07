@@ -23,9 +23,9 @@ class QRScannerActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult(ScanContract()) { result ->
         if (result != null && result.contents != null) {
-            // store payload for confirm action
+            // store payload and immediately confirm arrival by posting the QR payload
             lastScannedPayload = result.contents
-            vm.lookupByQr(result.contents)
+            vm.confirmArrival(result.contents)
         } else {
             Snackbar.make(binding.root, "Scan cancelled", Snackbar.LENGTH_SHORT).show()
         }
@@ -100,31 +100,26 @@ class QRScannerActivity : AppCompatActivity() {
                 Snackbar.make(binding.root, "Access denied: requires StationOperator", Snackbar.LENGTH_LONG).show()
             }
         }
+        // After calling confirmArrival the ViewModel will update scannedReservation if the API returns data
         vm.scannedReservation.observe(this) {
             if (it != null) {
-                binding.txtReservationInfo.text = "Reservation: ${it.id}\nStatus: ${it.status}\nStart: ${it.startTime}"
-                // Show confirm button once a reservation is found
+                binding.txtReservationInfo.text = "Reservation: ${it.id}\nStatus: ${it.status}\nStart: ${it.startTime}\nScanned QR: ${lastScannedPayload ?: "(unknown)"}"
+                // Confirm button still available for manual retry if needed
                 binding.btnConfirmArrival.visibility = android.view.View.VISIBLE
-                // Last scanned payload is populated by the lookup flow; store for confirm
-                // If the lookup originally came from a scan, OperatorViewModel doesn't expose payload,
-                // so we conservatively preserve the last payload variable (set when launching scan)
-                // Note: If lookup was manual in the future, this would need to be adapted.
-                // Keep UI responsive
-                lastScannedPayload = lastScannedPayload ?: ""
             }
         }
         vm.error.observe(this) { msg ->
             msg?.let { Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show() }
         }
         
-        // Confirm arrival button: post scanned QR payload to backend
+        // Confirm arrival button: post scanned QR payload to backend (manual retry)
         binding.btnConfirmArrival.setOnClickListener {
             val payload = lastScannedPayload ?: ""
             if (payload.isBlank()) {
                 Snackbar.make(binding.root, "No scanned QR available to confirm", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            vm.confirmArrivalByQr(payload)
+            vm.confirmArrival(payload)
         }
     }
 }

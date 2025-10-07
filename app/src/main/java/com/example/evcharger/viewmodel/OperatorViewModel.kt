@@ -45,21 +45,8 @@ class OperatorViewModel : ViewModel() {
         }
     }
 
-    fun lookupByQr(payload: String) {
-        loading.postValue(true)
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val res = repo.byQr(payload)
-                if (res.isSuccessful && res.body()?.data != null) {
-                    scannedReservation.postValue(res.body()!!.data!!)
-                } else error.postValue(res.body()?.message ?: "Not found")
-            } catch (e: Exception) {
-                error.postValue(e.localizedMessage ?: "Network error")
-            } finally {
-                loading.postValue(false)
-            }
-        }
-    }
+    // Removed lookupByQr: backend does not expose a GET reservation-by-QR endpoint.
+    // Operators should POST the scanned QR to confirm arrival (confirmArrivalByQr / confirmArrival).
 
     fun confirm(reservationId: String, operatorId: String) {
         loading.postValue(true)
@@ -95,5 +82,10 @@ class OperatorViewModel : ViewModel() {
                 loading.postValue(false)
             }
         }
+    }
+
+    // Alias to match naming in other parts of the app: calls the same repository method
+    fun confirmArrival(qrCode: String) {
+        confirmArrivalByQr(qrCode)
     }
 }

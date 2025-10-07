@@ -50,7 +50,8 @@ class ReservationRepository {
     suspend fun getUpcoming(nic: String) = RetrofitClient.api.getUpcoming(nic)
     suspend fun getHistory(nic: String) = RetrofitClient.api.getHistory(nic)
     suspend fun getNearby(lat: Double, lng: Double) = RetrofitClient.api.getNearbyStations(lat, lng)
-    suspend fun byQr(payload: String) = RetrofitClient.api.getReservationByQr(payload)
+    // Note: backend does not provide a GET reservation-by-QR endpoint.
+    // Confirmation of arrival is done via POST /booking/confirm-arrival with { "QrCode": "..." }.
     suspend fun getPending() = RetrofitClient.api.getPending()
 
     suspend fun confirm(reservationId: String, operatorId: String) =
