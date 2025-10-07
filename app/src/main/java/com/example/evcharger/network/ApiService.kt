@@ -49,12 +49,24 @@ interface ApiService {
         @Query("radius") radius: Int = 10
     ): Response<ApiResponse<List<BackendNearbyItem>>>
 
+    // Get stations assigned to the currently-authenticated operator (JWT required)
+    @GET("station/operator/stations")
+    suspend fun getOperatorStations(): Response<ApiResponse<List<BackendStationV2>>>
+
+    // Update a slot's availability for a station (operator only)
+    @PATCH("station/{stationId}/slots/{slotNumber}/availability")
+    suspend fun updateSlotAvailability(
+        @Path("stationId") stationId: String,
+        @Path("slotNumber") slotNumber: Int,
+        @Body body: Map<String, Boolean>
+    ): Response<ApiResponse<Unit>>
+
     // Fetch reservation by QR payload (used by scanner/lookup). Backend expects query param 'payload'
-    @GET("booking/confirm-arrival")
-    suspend fun getReservationByQr(@Query("payload") payload: String): Response<ApiResponse<Reservation>>
+    // @GET("booking/confirm-arrival")
+    // suspend fun getReservationByQr(@Query("payload") payload: String): Response<ApiResponse<Reservation>>
 
     // Station operator scans QR and confirms arrival: POST /api/booking/confirm-arrival
-    @POST("api/booking/confirm-arrival")
+    @POST("booking/confirm-arrival")
     suspend fun confirmArrival(@Body body: com.example.evcharger.model.ConfirmArrivalRequest): Response<ApiResponse<Reservation>>
 
     @PATCH("booking/{id}/approve")

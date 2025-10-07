@@ -33,6 +33,9 @@
         <activity android:name=".ui.activities.DashboardActivity" />
         <activity android:name=".ui.activities.HomeActivity" />
         <activity android:name=".ui.activities.ProfileActivity" />
+        <activity android:name=".ui.activities.OperatorDashboardActivity" />
+        <activity android:name=".ui.activities.ManageStationActivity" />
+        <activity android:name=".ui.activities.StationDetailActivity" />
         <activity android:name=".ui.activities.SignupActivity" />
 
         <!-- Launcher activity with intent filter must declare exported on Android 12+ -->

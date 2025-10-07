@@ -8,6 +8,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.example.evcharger.databinding.ActivityLoginBinding
 import com.example.evcharger.viewmodel.LoginViewModel
 import com.example.evcharger.auth.UserSessionManager
+import android.util.Log
+import android.widget.Toast
 
 /**
  * EV Owner login by NIC (local SQLite lookup).
@@ -33,31 +35,38 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, SignupActivity::class.java))
         }
 
-        binding.btnOperator.setOnClickListener {
-            // Operator can head to scanner screen (with an operator login prompt there)
-            startActivity(Intent(this, QRScannerActivity::class.java))
-        }
 
         vm.loading.observe(this) { isLoading ->
             binding.progressLogin.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
             binding.btnLogin.isEnabled = isLoading != true
             binding.btnSignup.isEnabled = isLoading != true
-            binding.btnOperator.isEnabled = isLoading != true
         }
 
         vm.userLive.observe(this) {
             if (it != null) {
-                val i = Intent(this, HomeActivity::class.java)
-                i.putExtra("NIC", it.nic)
-                startActivity(i)
-                // Persist the session token and related info when available
+                val role = vm.roleLive.value ?: ""
                 val token = vm.tokenLive.value
-                val role = vm.roleLive.value
                 val username = vm.usernameLive.value
+
+                // Persist session
                 if (!token.isNullOrBlank()) {
                     val mgr = UserSessionManager(this)
-                    mgr.saveSession(token, role ?: "", username ?: "", null)
+                    mgr.saveSession(token, role, username ?: "", null)
                 }
+
+                // Route based on role
+                Log.d("LoginActivity", "Routing after login, role='$role' username='$username'")
+                Toast.makeText(this, "Logged in as: $role", Toast.LENGTH_SHORT).show()
+                if (role.equals("StationOperator", ignoreCase = true) || role.equals("Operator", ignoreCase = true)) {
+                    val i = Intent(this, OperatorDashboardActivity::class.java)
+                    i.putExtra("USERNAME", username)
+                    startActivity(i)
+                } else {
+                    val i = Intent(this, HomeActivity::class.java)
+                    i.putExtra("NIC", it.nic)
+                    startActivity(i)
+                }
+
                 finish()
             }
         }

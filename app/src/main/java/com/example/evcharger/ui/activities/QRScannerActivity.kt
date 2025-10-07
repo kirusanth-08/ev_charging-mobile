@@ -23,20 +23,38 @@ class QRScannerActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult(ScanContract()) { result ->
         if (result != null && result.contents != null) {
-            vm.lookupByQr(result.contents)
+            // store payload and immediately confirm arrival by posting the QR payload
+            lastScannedPayload = result.contents
+            vm.confirmArrival(result.contents)
         } else {
             Snackbar.make(binding.root, "Scan cancelled", Snackbar.LENGTH_SHORT).show()
         }
     }
+
+    // Keep track of last scanned payload so operator can confirm arrival
+    private var lastScannedPayload: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityQrscannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Disable actions until logged in as StationOperator
-        binding.btnScan.isEnabled = false
-        binding.btnConfirm.isEnabled = false
+        // If there's a persisted operator session, apply it and hide login inputs
+        val mgr = UserSessionManager(this)
+        val sess = mgr.loadSession()
+        if (!sess.token.isNullOrBlank()) {
+            com.example.evcharger.network.RetrofitClient.setAuthToken(sess.token)
+            vm.operatorToken.postValue(sess.token)
+            vm.role.postValue(sess.role)
+            vm.operatorUsername.postValue(sess.username)
+
+            // Hide login inputs when a session is available
+            binding.inputOperatorUser.visibility = android.view.View.GONE
+            binding.inputOperatorPass.visibility = android.view.View.GONE
+            binding.btnOperatorLogin.visibility = android.view.View.GONE
+
+            Snackbar.make(binding.root, "Operator session restored: ${sess.username}", Snackbar.LENGTH_SHORT).show()
+        }
 
         binding.btnOperatorLogin.setOnClickListener {
             val user = binding.inputOperatorUser.text.toString().trim()
@@ -44,20 +62,19 @@ class QRScannerActivity : AppCompatActivity() {
             vm.login(user, pass)
         }
 
-        binding.btnScan.setOnClickListener {
+        // Support autoScan flow: if launched with autoScan=true, immediately start scanner
+        val autoScan = intent?.getBooleanExtra("autoScan", false) ?: false
+        if (autoScan) {
+            // Allow the capture activity to rotate with the device (don't force landscape)
             val opts = ScanOptions().setDesiredBarcodeFormats(ScanOptions.QR_CODE)
             opts.setPrompt("Scan reservation QR")
-            launcher.launch(opts)
-        }
-
-        binding.btnConfirm.setOnClickListener {
-            val res = vm.scannedReservation.value ?: return@setOnClickListener
-            val opUser = vm.operatorUsername.value
-            if (opUser.isNullOrBlank()) {
-                Snackbar.make(binding.root, "Missing operator identity", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
+            // By default the embedded capture activity may lock orientation; disable that so portrait works
+            try {
+                opts.setOrientationLocked(false)
+            } catch (ignored: Throwable) {
+                // If the runtime library version doesn't expose this, ignore and continue
             }
-            vm.confirm(res.id ?: return@setOnClickListener, opUser)
+            launcher.launch(opts)
         }
 
         vm.operatorToken.observe(this) {
@@ -75,25 +92,34 @@ class QRScannerActivity : AppCompatActivity() {
             binding.progressOperator.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
             // Disable inputs during operations to prevent duplicate calls
             binding.btnOperatorLogin.isEnabled = isLoading != true
-            binding.btnScan.isEnabled = (isLoading != true) && (vm.role.value.equals("StationOperator", true))
-            binding.btnConfirm.isEnabled = (isLoading != true) && (vm.role.value.equals("StationOperator", true))
         }
         vm.role.observe(this) { r ->
             if (r.equals("StationOperator", ignoreCase = true)) {
                 Snackbar.make(binding.root, "Operator logged in", Snackbar.LENGTH_SHORT).show()
-                binding.btnScan.isEnabled = true
-                binding.btnConfirm.isEnabled = true
             } else if (!r.isNullOrBlank()) {
                 Snackbar.make(binding.root, "Access denied: requires StationOperator", Snackbar.LENGTH_LONG).show()
             }
         }
+        // After calling confirmArrival the ViewModel will update scannedReservation if the API returns data
         vm.scannedReservation.observe(this) {
             if (it != null) {
-                binding.txtReservationInfo.text = "Reservation: ${it.id}\nStatus: ${it.status}\nStart: ${it.startTime}"
+                binding.txtReservationInfo.text = "Reservation: ${it.id}\nStatus: ${it.status}\nStart: ${it.startTime}\nScanned QR: ${lastScannedPayload ?: "(unknown)"}"
+                // Confirm button still available for manual retry if needed
+                binding.btnConfirmArrival.visibility = android.view.View.VISIBLE
             }
         }
         vm.error.observe(this) { msg ->
             msg?.let { Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show() }
+        }
+        
+        // Confirm arrival button: post scanned QR payload to backend (manual retry)
+        binding.btnConfirmArrival.setOnClickListener {
+            val payload = lastScannedPayload ?: ""
+            if (payload.isBlank()) {
+                Snackbar.make(binding.root, "No scanned QR available to confirm", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            vm.confirmArrival(payload)
         }
     }
 }

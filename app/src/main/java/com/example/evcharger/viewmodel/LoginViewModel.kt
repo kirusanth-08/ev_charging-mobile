@@ -9,6 +9,7 @@ import com.example.evcharger.model.LoginRequest
 import com.example.evcharger.network.RetrofitClient
 import com.example.evcharger.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 /**
@@ -36,12 +37,16 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
                 if (res.isSuccessful && res.body()?.success == true) {
                     val data = res.body()!!.data!!
                     val local = repo.getByNic(nic) ?: User(nic, fullName = nic, email = "", phone = "")
-                    userLive.postValue(local)
+                    // Post token and role first so observers that react to userLive can read role immediately
                     tokenLive.postValue(data.token)
-                    roleLive.postValue(data.role)
+                    // Normalize and canonicalize role strings (robust against casing/spaces/variants)
+                    val canonicalRole = normalizeRole(data.role)
+                    roleLive.postValue(canonicalRole)
                     usernameLive.postValue(data.username)
                     // also set token for Retrofit immediately
                     RetrofitClient.setAuthToken(data.token)
+                    // finally publish the local user object
+                    userLive.postValue(local)
                 } else {
                     errorLive.postValue(res.body()?.message ?: "Login failed")
                 }
@@ -50,6 +55,21 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
             } finally {
                 loading.postValue(false)
             }
+        }
+    }
+
+    private fun normalizeRole(role: String?): String {
+        if (role.isNullOrBlank()) return ""
+        val r = role.trim().lowercase(Locale.ROOT)
+        return when {
+            r.contains("station") && r.contains("operator") -> "StationOperator"
+            r.contains("operator") -> "StationOperator"
+            r.contains("ev") && r.contains("owner") -> "EVOwner"
+            r.contains("owner") && r.contains("ev").not() -> "EVOwner"
+            r.contains("evowner") -> "EVOwner"
+            r.contains("ev_owner") -> "EVOwner"
+            r.contains("owner") -> "EVOwner"
+            else -> role.trim()
         }
     }
 }
