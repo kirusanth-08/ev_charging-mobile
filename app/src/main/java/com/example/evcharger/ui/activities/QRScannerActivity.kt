@@ -23,11 +23,16 @@ class QRScannerActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult(ScanContract()) { result ->
         if (result != null && result.contents != null) {
+            // store payload for confirm action
+            lastScannedPayload = result.contents
             vm.lookupByQr(result.contents)
         } else {
             Snackbar.make(binding.root, "Scan cancelled", Snackbar.LENGTH_SHORT).show()
         }
     }
+
+    // Keep track of last scanned payload so operator can confirm arrival
+    private var lastScannedPayload: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +65,15 @@ class QRScannerActivity : AppCompatActivity() {
         // Support autoScan flow: if launched with autoScan=true, immediately start scanner
         val autoScan = intent?.getBooleanExtra("autoScan", false) ?: false
         if (autoScan) {
+            // Allow the capture activity to rotate with the device (don't force landscape)
             val opts = ScanOptions().setDesiredBarcodeFormats(ScanOptions.QR_CODE)
             opts.setPrompt("Scan reservation QR")
+            // By default the embedded capture activity may lock orientation; disable that so portrait works
+            try {
+                opts.setOrientationLocked(false)
+            } catch (ignored: Throwable) {
+                // If the runtime library version doesn't expose this, ignore and continue
+            }
             launcher.launch(opts)
         }
 
@@ -91,10 +103,28 @@ class QRScannerActivity : AppCompatActivity() {
         vm.scannedReservation.observe(this) {
             if (it != null) {
                 binding.txtReservationInfo.text = "Reservation: ${it.id}\nStatus: ${it.status}\nStart: ${it.startTime}"
+                // Show confirm button once a reservation is found
+                binding.btnConfirmArrival.visibility = android.view.View.VISIBLE
+                // Last scanned payload is populated by the lookup flow; store for confirm
+                // If the lookup originally came from a scan, OperatorViewModel doesn't expose payload,
+                // so we conservatively preserve the last payload variable (set when launching scan)
+                // Note: If lookup was manual in the future, this would need to be adapted.
+                // Keep UI responsive
+                lastScannedPayload = lastScannedPayload ?: ""
             }
         }
         vm.error.observe(this) { msg ->
             msg?.let { Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show() }
+        }
+        
+        // Confirm arrival button: post scanned QR payload to backend
+        binding.btnConfirmArrival.setOnClickListener {
+            val payload = lastScannedPayload ?: ""
+            if (payload.isBlank()) {
+                Snackbar.make(binding.root, "No scanned QR available to confirm", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            vm.confirmArrivalByQr(payload)
         }
     }
 }

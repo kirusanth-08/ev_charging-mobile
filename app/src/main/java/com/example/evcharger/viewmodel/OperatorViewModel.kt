@@ -76,4 +76,24 @@ class OperatorViewModel : ViewModel() {
             }
         }
     }
+
+    /**
+     * Confirm arrival by QR payload. Station operator scans a QR and posts the QR string
+     * to the backend which marks the reservation as arrived.
+     */
+    fun confirmArrivalByQr(qrCode: String) {
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val res = repo.confirmArrival(qrCode)
+                if (res.isSuccessful && res.body()?.data != null) {
+                    scannedReservation.postValue(res.body()!!.data!!)
+                } else error.postValue(res.body()?.message ?: "Confirm arrival failed")
+            } catch (e: Exception) {
+                error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
+            }
+        }
+    }
 }

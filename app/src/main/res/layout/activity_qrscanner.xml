@@ -32,6 +32,14 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:text="Reservation details will appear here"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmArrival"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Confirm Arrival"
+        android:layout_marginTop="12dp"
+        android:visibility="gone" />
+
     <ProgressBar
         android:id="@+id/progressOperator"
         style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
