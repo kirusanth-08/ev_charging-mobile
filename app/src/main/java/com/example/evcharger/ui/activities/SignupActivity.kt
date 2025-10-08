@@ -9,7 +9,7 @@ import com.example.evcharger.model.User
 import com.example.evcharger.viewmodel.SignupViewModel
 
 /**
- * Signup/Update/Deactivate local EV Owner account (SQLite).
+ * Signup local EV Owner account (SQLite).
  */
 class SignupActivity : AppCompatActivity() {
 
@@ -20,6 +20,11 @@ class SignupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Back button handler
+        binding.btnBack.setOnClickListener {
+            finish()
+        }
 
         binding.btnRegister.setOnClickListener {
             val user = User(
@@ -33,22 +38,6 @@ class SignupActivity : AppCompatActivity() {
             vm.register(user.copy(), pwd)
         }
 
-        binding.btnUpdate.setOnClickListener {
-            val user = User(
-                nic = binding.inputNic.text.toString().trim(),
-                fullName = binding.inputName.text.toString().trim(),
-                email = binding.inputEmail.text.toString().trim(),
-                phone = binding.inputPhone.text.toString().trim(),
-                isActive = true
-            )
-            vm.update(user)
-        }
-
-        binding.btnDeactivate.setOnClickListener {
-            val nic = binding.inputNic.text.toString().trim()
-            vm.deactivate(nic)
-        }
-
         vm.successLive.observe(this) {
             if (it) Snackbar.make(binding.root, "Success", Snackbar.LENGTH_SHORT).show()
         }
@@ -58,8 +47,6 @@ class SignupActivity : AppCompatActivity() {
         vm.loading.observe(this) { isLoading ->
             binding.progressSignup.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
             binding.btnRegister.isEnabled = isLoading != true
-            binding.btnUpdate.isEnabled = isLoading != true
-            binding.btnDeactivate.isEnabled = isLoading != true
         }
     }
 }

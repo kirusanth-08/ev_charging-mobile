@@ -12,6 +12,20 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <!-- Back Button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_arrow_back"
+            app:fabCustomSize="48dp"
+            app:fabSize="auto"
+            app:tint="@android:color/white"
+            app:backgroundTint="@color/primary"
+            app:elevation="4dp"
+            android:contentDescription="Back" />
+
         <!-- Header -->
         <TextView
             android:layout_width="wrap_content"
@@ -171,32 +185,6 @@
                     app:cornerRadius="12dp"
                     app:backgroundTint="@color/primary"
                     style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnUpdate"
-                    android:text="Update Profile"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="12dp"
-                    android:textSize="16sp"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/primary"
-                    app:strokeWidth="2dp"
-                    android:textColor="@color/primary"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDeactivate"
-                    android:text="Deactivate Account"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="12dp"
-                    android:textSize="16sp"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/error"
-                    app:strokeWidth="2dp"
-                    android:textColor="@color/error"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
                 <ProgressBar
                     android:id="@+id/progressSignup"
