@@ -12,6 +12,7 @@ import com.example.evcharger.repository.StationRepository
 import com.example.evcharger.auth.UserSessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.example.evcharger.utils.StatusBarUtil
 
 class OperatorDashboardActivity : AppCompatActivity() {
 
@@ -21,6 +22,9 @@ class OperatorDashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_operator_dashboard)
+
+        // Set green status bar to match hero card and toolbar
+        StatusBarUtil.setGreen(this)
 
         sessionManager = UserSessionManager(this)
 

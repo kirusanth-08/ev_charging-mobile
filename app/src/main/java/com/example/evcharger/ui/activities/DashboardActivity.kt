@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import com.example.evcharger.ui.fragments.MapsFragment
 import com.example.evcharger.R
+import com.example.evcharger.utils.StatusBarUtil
 
 /**
  * Dashboard shows counters and embedded map fragment.
@@ -27,6 +28,9 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Enable edge-to-edge for full-screen map experience
+        StatusBarUtil.enableEdgeToEdge(this)
 
         nic = intent.getStringExtra("NIC") ?: ""
 

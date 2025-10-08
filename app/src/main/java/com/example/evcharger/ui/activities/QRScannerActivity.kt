@@ -9,6 +9,7 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.example.evcharger.databinding.ActivityQrscannerBinding
 import com.example.evcharger.viewmodel.OperatorViewModel
 import com.example.evcharger.auth.UserSessionManager
+import com.example.evcharger.utils.StatusBarUtil
 
 /**
  * Operator login and QR scanning screen.
@@ -38,6 +39,9 @@ class QRScannerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityQrscannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Set black status bar for camera view
+        StatusBarUtil.setBlack(this)
 
         // If there's a persisted operator session, apply it and hide login inputs
         val mgr = UserSessionManager(this)

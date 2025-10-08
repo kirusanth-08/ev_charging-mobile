@@ -15,8 +15,10 @@
         <item name="colorOnBackground">@color/on_background_dark</item>
         <item name="colorOnSurface">@color/on_surface_dark</item>
         
-        <!-- Status bar color (Dark) -->\n        <item name="android:statusBarColor">@color/background_dark</item>
+        <!-- Status bar (Transparent for modern edge-to-edge design) -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         
         <!-- Navigation bar (Dark) -->\n        <item name="android:navigationBarColor">@color/surface_dark</item>
         <item name="android:windowLightNavigationBar">false</item>
