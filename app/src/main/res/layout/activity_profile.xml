@@ -92,6 +92,17 @@
                     android:textColor="@color/text_primary"
                     android:layout_marginBottom="16dp" />
 
+                <!-- Progress Bar -->
+                <ProgressBar
+                    android:id="@+id/progressProfile"
+                    style="@android:style/Widget.DeviceDefault.Light.ProgressBar"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:layout_marginVertical="24dp"
+                    android:indeterminateTint="@color/primary"
+                    android:visibility="gone"/>
+
                 <TextView
                     android:id="@+id/txtProfileInfo"
                     android:layout_width="match_parent"
@@ -105,6 +116,25 @@
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Edit Profile Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditProfile"
+            android:text="Edit Profile"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_edit"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:backgroundTint="@color/primary"
+            app:layout_constraintTop_toBottomOf="@id/cardProfileInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

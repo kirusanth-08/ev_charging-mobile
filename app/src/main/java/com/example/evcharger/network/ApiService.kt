@@ -74,4 +74,15 @@ interface ApiService {
 
     @POST("evowner/register")
     suspend fun registerEvOwner(@Body body: EvOwnerRegisterRequest): Response<ApiResponse<EvOwnerRegisterResponse>>
+
+    // Get EV Owner profile by NIC (authenticated with bearer token)
+    @GET("evowner/{nic}")
+    suspend fun getEvOwnerProfile(@Path("nic") nic: String): Response<ApiResponse<EvOwnerProfile>>
+
+    // Update EV Owner profile (authenticated with bearer token)
+    @PUT("evowner/{nic}")
+    suspend fun updateEvOwnerProfile(
+        @Path("nic") nic: String,
+        @Body body: EvOwnerUpdateRequest
+    ): Response<ApiResponse<EvOwnerProfile>>
 }
