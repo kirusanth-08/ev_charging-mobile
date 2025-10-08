@@ -5,15 +5,17 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import android.os.Build
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 /**
  * NetworkMonitor - Monitors network connectivity changes
  * Provides real-time network status updates and handles reconnection logic
+ * 
+ * @property context Application context for system services
  */
-class NetworkMonitor(private val context: Context) {
+class NetworkMonitor private constructor(context: Context) {
 
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     
@@ -25,6 +27,9 @@ class NetworkMonitor(private val context: Context) {
 
     private var isMonitoring = false
 
+    /**
+     * Enum representing different network connection types
+     */
     enum class NetworkType {
         WIFI,
         CELLULAR,
@@ -68,6 +73,7 @@ class NetworkMonitor(private val context: Context) {
 
     /**
      * Start monitoring network changes
+     * Safe to call multiple times - will only register callback once
      */
     fun startMonitoring() {
         if (isMonitoring) return
@@ -80,13 +86,15 @@ class NetworkMonitor(private val context: Context) {
         try {
             connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
             isMonitoring = true
+            Log.d(TAG, "Network monitoring started")
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Failed to start network monitoring", e)
         }
     }
 
     /**
      * Stop monitoring network changes
+     * Safe to call multiple times - will only unregister if currently monitoring
      */
     fun stopMonitoring() {
         if (!isMonitoring) return
@@ -94,8 +102,9 @@ class NetworkMonitor(private val context: Context) {
         try {
             connectivityManager.unregisterNetworkCallback(networkCallback)
             isMonitoring = false
+            Log.d(TAG, "Network monitoring stopped")
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Failed to stop network monitoring", e)
         }
     }
 
@@ -140,9 +149,18 @@ class NetworkMonitor(private val context: Context) {
     }
 
     companion object {
+        private const val TAG = "NetworkMonitor"
+        
         @Volatile
         private var instance: NetworkMonitor? = null
 
+        /**
+         * Get singleton instance of NetworkMonitor
+         * Thread-safe double-checked locking
+         * 
+         * @param context Context (will use applicationContext)
+         * @return Singleton NetworkMonitor instance
+         */
         fun getInstance(context: Context): NetworkMonitor {
             return instance ?: synchronized(this) {
                 instance ?: NetworkMonitor(context.applicationContext).also { instance = it }
