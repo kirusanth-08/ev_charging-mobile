@@ -8,7 +8,8 @@
     <!-- Main content: Full screen map with modern floating UI elements -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <!-- Map container: Full screen background -->
         <FrameLayout
@@ -21,24 +22,26 @@
             android:id="@+id/cardTopBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
             app:cardBackgroundColor="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp"
+                android:padding="12dp"
                 android:gravity="center_vertical">
 
                 <!-- Back Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBack"
                     style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:insetLeft="0dp"
                     android:insetTop="0dp"
                     android:insetRight="0dp"
@@ -55,13 +58,13 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:layout_marginStart="12dp">
+                    android:layout_marginStart="8dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Charging Stations"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
 
@@ -69,7 +72,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Find and book your station"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textColor="@color/text_secondary" />
 
                 </LinearLayout>
@@ -78,8 +81,8 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnViewBookings"
                     style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:insetLeft="0dp"
                     android:insetTop="0dp"
                     android:insetRight="0dp"
@@ -99,18 +102,18 @@
             android:id="@+id/cardStats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="96dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="6dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="76dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
             app:cardBackgroundColor="@color/surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <!-- Pending Bookings -->
                 <LinearLayout
@@ -119,15 +122,15 @@
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="12dp">
+                    android:padding="8dp">
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:src="@drawable/ic_battery_charging"
                         android:tint="@color/ev_busy"
                         android:contentDescription="Pending icon"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:id="@+id/txtPending"
@@ -135,17 +138,17 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textStyle="bold"
-                        android:textSize="28sp"
+                        android:textSize="22sp"
                         android:textColor="@color/ev_busy" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Pending"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textColor="@color/text_secondary"
                         android:textAllCaps="true"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="2dp" />
 
                 </LinearLayout>
 
@@ -154,7 +157,7 @@
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
                     android:background="@color/divider"
-                    android:layout_marginVertical="8dp" />
+                    android:layout_marginVertical="6dp" />
 
                 <!-- Approved Bookings -->
                 <LinearLayout
@@ -163,15 +166,15 @@
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:padding="12dp">
+                    android:padding="8dp">
 
                     <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:src="@drawable/ic_charging_station"
                         android:tint="@color/ev_available"
                         android:contentDescription="Approved icon"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:id="@+id/txtApproved"
@@ -179,17 +182,17 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textStyle="bold"
-                        android:textSize="28sp"
+                        android:textSize="22sp"
                         android:textColor="@color/ev_available" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Approved"
-                        android:textSize="12sp"
+                        android:textSize="11sp"
                         android:textColor="@color/text_secondary"
                         android:textAllCaps="true"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="2dp" />
 
                 </LinearLayout>
 
