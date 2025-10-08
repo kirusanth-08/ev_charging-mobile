@@ -136,6 +136,25 @@
             app:layout_constraintEnd_toEndOf="parent"
             style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
+        <!-- Logout Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogout"
+            android:text="Logout"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_logout"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:backgroundTint="@android:color/holo_red_light"
+            app:layout_constraintTop_toBottomOf="@id/btnEditProfile"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

@@ -24,7 +24,7 @@ class ProfileEditActivity : AppCompatActivity() {
         
         sessionManager = UserSessionManager(this)
         val session = sessionManager.loadSession()
-        userNic = session.username ?: ""
+        userNic = session.nic ?: session.username ?: ""
         
         setupUI()
         setupObservers()

@@ -28,9 +28,9 @@ class ProfileActivity : AppCompatActivity() {
 
         sessionManager = UserSessionManager(this)
         
-        // Get NIC from session or intent
+        // Get NIC from session (primary) or intent (fallback)
         val session = sessionManager.loadSession()
-        currentNic = intent.getStringExtra("NIC") ?: session.username
+        currentNic = session.nic ?: intent.getStringExtra("NIC")
 
         // Set up UI
         setupUI()
@@ -53,6 +53,11 @@ class ProfileActivity : AppCompatActivity() {
         binding.btnEditProfile.setOnClickListener {
             val intent = Intent(this, ProfileEditActivity::class.java)
             startActivity(intent)
+        }
+        
+        // Logout button
+        binding.btnLogout.setOnClickListener {
+            logout()
         }
     }
     
@@ -118,5 +123,34 @@ class ProfileActivity : AppCompatActivity() {
         } catch (e: Exception) {
             isoDate
         }
+    }
+    
+    private fun logout() {
+        // Show confirmation dialog
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Yes") { _, _ ->
+                performLogout()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun performLogout() {
+        // Clear session
+        sessionManager.clearSession()
+        
+        // Clear token from RetrofitClient
+        com.example.evcharger.network.RetrofitClient.setAuthToken(null)
+        
+        // Show success message
+        Snackbar.make(binding.root, "Logged out successfully", Snackbar.LENGTH_SHORT).show()
+        
+        // Navigate to login screen
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

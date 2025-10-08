@@ -48,10 +48,10 @@ class LoginActivity : AppCompatActivity() {
                 val token = vm.tokenLive.value
                 val username = vm.usernameLive.value
 
-                // Persist session
+                // Persist session with NIC
                 if (!token.isNullOrBlank()) {
                     val mgr = UserSessionManager(this)
-                    mgr.saveSession(token, role, username ?: "", null)
+                    mgr.saveSession(token, role, username ?: "", it.nic, null)
                 }
 
                 // Route based on role
