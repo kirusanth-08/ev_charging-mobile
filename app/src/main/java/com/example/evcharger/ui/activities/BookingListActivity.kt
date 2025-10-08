@@ -36,6 +36,11 @@ class BookingListActivity : AppCompatActivity() {
 
         binding.swipeRefresh.setOnRefreshListener { loadData() }
 
+        // Back button - navigate back to previous screen
+        binding.btnBack?.setOnClickListener {
+            finish()
+        }
+
         loadData()
     }
 

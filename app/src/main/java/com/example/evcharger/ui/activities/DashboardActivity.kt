@@ -34,6 +34,14 @@ class DashboardActivity : AppCompatActivity() {
             .replace(binding.mapContainer.id, MapsFragment())
             .commit()
 
+        // Back button - navigate to HomeActivity
+        binding.btnBack.setOnClickListener {
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }
+
         binding.btnViewBookings.setOnClickListener {
             startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
         }
