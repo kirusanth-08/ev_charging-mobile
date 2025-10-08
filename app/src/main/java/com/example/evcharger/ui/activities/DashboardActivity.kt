@@ -38,6 +38,13 @@ class DashboardActivity : AppCompatActivity() {
             .replace(binding.mapContainer.id, MapsFragment())
             .commit()
 
+        setupUI()
+        setupObservers()
+
+        vm.load(nic)
+    }
+    
+    private fun setupUI() {
         // Back button - navigate to HomeActivity
         binding.btnBack.setOnClickListener {
             val intent = Intent(this, HomeActivity::class.java)
@@ -57,11 +64,16 @@ class DashboardActivity : AppCompatActivity() {
                 frag.centerOnCurrentLocation()
             }
         }
-
-        vm.pendingCount.observe(this) { binding.txtPending.text = it.toString() }
-        vm.approvedFutureCount.observe(this) { binding.txtApproved.text = it.toString() }
-
-        vm.load(nic)
+    }
+    
+    private fun setupObservers() {
+        vm.pendingCount.observe(this) { 
+            binding.txtPending.text = it.toString() 
+        }
+        
+        vm.approvedFutureCount.observe(this) { 
+            binding.txtApproved.text = it.toString() 
+        }
     }
 
     /**

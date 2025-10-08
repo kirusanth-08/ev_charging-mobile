@@ -9,7 +9,13 @@ import android.view.ViewGroup
 import com.example.evcharger.R
 import com.example.evcharger.databinding.FragmentStationDetailsBinding
 import com.example.evcharger.model.Station
+import com.example.evcharger.model.BackendSlot
+import com.example.evcharger.ui.activities.SlotAdapter
+import com.example.evcharger.ui.activities.ReservationFormActivity
+import com.example.evcharger.auth.UserSessionManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.chip.Chip
+import androidx.recyclerview.widget.LinearLayoutManager
 
 class StationDetailsBottomSheet : BottomSheetDialogFragment() {
 
@@ -28,14 +34,18 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
     }
 
     private var station: Station? = null
+    private var slotsVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-    // Use the non-deprecated getParcelable overload with explicit class
-    station = arguments?.getParcelable(ARG_STATION, Station::class.java)
+        station = arguments?.getParcelable(ARG_STATION, Station::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentStationDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -43,64 +53,129 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         station?.let { s ->
+            // Set station name
             binding.txtStationName.text = s.name
-            binding.txtStationAddress.text = s.address ?: ""
-            val details = buildString {
-                s.connectorTypes.takeIf { it.isNotEmpty() }?.let { append("Connectors: ${it.joinToString()}") }
-                s.chargingPowerKw?.let { if (isNotEmpty()) append(" • ") ; append("Power: ${it}kW") }
-                s.status?.let { if (isNotEmpty()) append(" • ") ; append("Status: $it") }
-                s.distanceMeters?.let { if (isNotEmpty()) append(" • ") ; append("${it}m away") }
+            
+            // Set status with color
+            binding.txtStationStatus.text = when(s.status?.lowercase()) {
+                "available" -> "Available Now"
+                "busy" -> "Busy"
+                "offline" -> "Offline"
+                else -> s.status ?: "Unknown"
             }
-            binding.txtStationDetails.text = details
+            
+            // Set address
+            binding.txtStationAddress.text = s.address ?: "No address available"
+            
+            // Set distance
+            s.distanceMeters?.let { distance ->
+                binding.txtDistance.text = when {
+                    distance < 1000 -> "${distance}m"
+                    else -> String.format("%.1fkm", distance / 1000.0)
+                }
+            } ?: run {
+                binding.txtDistance.visibility = View.GONE
+            }
+            
+            // Add connector type chips
+            binding.chipGroupConnectors.removeAllViews()
+            s.connectorTypes.forEach { connectorType ->
+                val chip = Chip(requireContext()).apply {
+                    text = connectorType
+                    isCheckable = false
+                    setChipBackgroundColorResource(R.color.primary_light)
+                    setTextColor(resources.getColor(R.color.text_primary, null))
+                }
+                binding.chipGroupConnectors.addView(chip)
+            }
+            
+            // Set station details
+            val details = buildString {
+                s.chargingPowerKw?.let { 
+                    append("⚡ Power: ${it}kW\n") 
+                }
+                append("📊 Status: ${s.status ?: "Unknown"}\n")
+                s.lastUpdated?.let { 
+                    append("🕒 Updated: ${it.take(10)}") 
+                }
+            }
+            binding.txtStationDetails.text = details.trim()
 
+            // Get user NIC from session
+            val sessionManager = UserSessionManager(requireContext())
+            val session = sessionManager.loadSession()
+            val userNic = session.username ?: ""
+
+            // Navigate button
             binding.btnNavigate.setOnClickListener {
                 val uri = Uri.parse("google.navigation:q=${s.latitude},${s.longitude}&mode=d")
-                val intent = Intent(Intent.ACTION_VIEW, uri).apply { setPackage("com.google.android.apps.maps") }
+                val intent = Intent(Intent.ACTION_VIEW, uri).apply { 
+                    setPackage("com.google.android.apps.maps") 
+                }
                 if (intent.resolveActivity(requireContext().packageManager) != null) {
                     startActivity(intent)
                 } else {
-                    // fallback to browser maps
-                    val web = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/dir/?api=1&destination=${s.latitude},${s.longitude}"))
+                    // Fallback to browser maps
+                    val web = Intent(Intent.ACTION_VIEW, 
+                        Uri.parse("https://www.google.com/maps/dir/?api=1&destination=${s.latitude},${s.longitude}"))
                     startActivity(web)
                 }
             }
 
+            // Quick Reserve button - goes directly to reservation form
             binding.btnReserve.setOnClickListener {
-                // Launch ReservationFormActivity with station id
-                val i = Intent(requireContext(), com.example.evcharger.ui.activities.ReservationFormActivity::class.java)
-                i.putExtra("NIC", "") // keeper: NIC should be filled from user session or login
-                i.putExtra("stationId", s.id)
-                startActivity(i)
+                val intent = Intent(requireContext(), ReservationFormActivity::class.java).apply {
+                    putExtra("NIC", userNic)
+                    putExtra("stationId", s.id)
+                }
+                startActivity(intent)
                 dismiss()
             }
 
+            // View Slots button - shows available slots
             binding.btnViewSlots.setOnClickListener {
-                // Convert station connector info into BackendSlot objects to show inside this bottom sheet
-                val backendSlots = s.connectorTypes.mapIndexed { idx, ct ->
-                    com.example.evcharger.model.BackendSlot(
-                        slotNumber = idx + 1,
-                        connectorType = ct,
-                        isAvailable = true,
-                        powerRating = s.chargingPowerKw ?: 0
-                    )
-                }
-
-                // populate rvSlots inside this fragment and make it visible
-                val rv = binding.root.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvSlots)
-                rv?.let {
-                    it.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
-                    it.adapter = com.example.evcharger.ui.activities.SlotAdapter(backendSlots) { slot ->
-                        // launch reservation form with selected slot
-                        val i = Intent(requireContext(), com.example.evcharger.ui.activities.ReservationFormActivity::class.java)
-                        i.putExtra("NIC", "")
-                        i.putExtra("stationId", s.id)
-                        i.putExtra("SlotNumber", slot.slotNumber)
-                        startActivity(i)
-                        dismiss()
-                    }
-                    it.visibility = View.VISIBLE
-                }
+                toggleSlotsView(s, userNic)
             }
+        }
+    }
+
+    private fun toggleSlotsView(station: Station, userNic: String) {
+        slotsVisible = !slotsVisible
+        
+        if (slotsVisible) {
+            // Show slots
+            binding.cardSlots.visibility = View.VISIBLE
+            binding.btnViewSlots.text = "Hide Slots"
+            binding.btnViewSlots.icon = resources.getDrawable(R.drawable.ic_arrow_back, null)
+            
+            // Create mock slots from connector types
+            // In a real app, you'd fetch actual slot availability from the API
+            val backendSlots = station.connectorTypes.mapIndexed { idx, ct ->
+                BackendSlot(
+                    slotNumber = idx + 1,
+                    connectorType = ct,
+                    isAvailable = true, // Mock: assume all slots available
+                    powerRating = station.chargingPowerKw ?: 50
+                )
+            }
+            
+            // Set up RecyclerView
+            binding.rvSlots.layoutManager = LinearLayoutManager(requireContext())
+            binding.rvSlots.adapter = SlotAdapter(backendSlots) { slot ->
+                // When user selects a slot, launch reservation form with slot number
+                val intent = Intent(requireContext(), ReservationFormActivity::class.java).apply {
+                    putExtra("NIC", userNic)
+                    putExtra("stationId", station.id)
+                    putExtra("SlotNumber", slot.slotNumber)
+                }
+                startActivity(intent)
+                dismiss()
+            }
+        } else {
+            // Hide slots
+            binding.cardSlots.visibility = View.GONE
+            binding.btnViewSlots.text = "View Available Slots"
+            binding.btnViewSlots.icon = resources.getDrawable(R.drawable.ic_charging_station, null)
         }
     }
 
