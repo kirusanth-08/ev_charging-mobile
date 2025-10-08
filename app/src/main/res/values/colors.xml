@@ -33,9 +33,10 @@
     <!-- System Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="error">#CF6679</color>
+    <color name="error">#F44336</color>
     <color name="error_dark">#B00020</color>
     <color name="success">#4CAF50</color>
+    <color name="warning">#FF9800</color>
     
     <!-- Gradient Colors (Green) -->
     <color name="gradient_start">#4CAF50</color>

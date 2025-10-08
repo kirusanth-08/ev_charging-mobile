@@ -17,6 +17,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <!-- Error Bar at the very top -->
+        <include
+            android:id="@+id/errorBar"
+            layout="@layout/layout_error_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top" />
+
         <!-- Top bar with glass morphism effect -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardTopBar"

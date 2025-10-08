@@ -8,6 +8,8 @@ import com.example.evcharger.databinding.ActivityDashboardBinding
 import com.example.evcharger.viewmodel.DashboardViewModel
 import com.example.evcharger.model.BackendSlot
 import com.example.evcharger.utils.LocationUtils
+import com.example.evcharger.utils.NetworkMonitor
+import com.example.evcharger.utils.ErrorBarManager
 import com.google.android.material.navigation.NavigationView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,6 +26,10 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDashboardBinding
     private val vm: DashboardViewModel by viewModels()
     private lateinit var nic: String
+    
+    private lateinit var networkMonitor: NetworkMonitor
+    private lateinit var errorBarManager: ErrorBarManager
+    private var wasDisconnected = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +40,9 @@ class DashboardActivity : AppCompatActivity() {
         StatusBarUtil.enableEdgeToEdge(this)
 
         nic = intent.getStringExtra("NIC") ?: ""
+        
+        // Initialize network monitoring and error bar
+        setupNetworkMonitoring()
         
         // Check location is enabled on activity start
         if (!LocationUtils.isLocationEnabled(this)) {
@@ -65,12 +74,59 @@ class DashboardActivity : AppCompatActivity() {
     
     override fun onResume() {
         super.onResume()
+        // Start network monitoring
+        networkMonitor.startMonitoring()
+        
         // Recheck location when user returns (e.g., from settings)
         if (LocationUtils.isLocationEnabled(this)) {
             // Location is now enabled, refresh the map
             val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
             if (frag is MapsFragment) {
                 frag.refreshIfLocationEnabled()
+            }
+        }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // Stop network monitoring to save battery
+        networkMonitor.stopMonitoring()
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cleanup error bar resources
+        errorBarManager.cleanup()
+    }
+    
+    private fun setupNetworkMonitoring() {
+        // Initialize network monitor
+        networkMonitor = NetworkMonitor.getInstance(this)
+        
+        // Initialize error bar manager
+        errorBarManager = ErrorBarManager(binding.errorBar.root)
+        
+        // Observe network status changes
+        networkMonitor.isConnected.observe(this) { isConnected ->
+            handleNetworkStatusChange(isConnected)
+        }
+    }
+    
+    private fun handleNetworkStatusChange(isConnected: Boolean) {
+        when {
+            isConnected && wasDisconnected -> {
+                // Network reconnected after being disconnected
+                errorBarManager.showNetworkConnected()
+                wasDisconnected = false
+            }
+            !isConnected && !wasDisconnected -> {
+                // Network just disconnected
+                errorBarManager.showNetworkDisconnected()
+                wasDisconnected = true
+            }
+            !isConnected && wasDisconnected -> {
+                // Still disconnected, show reconnecting message
+                errorBarManager.showNetworkReconnecting()
             }
         }
     }
@@ -107,6 +163,15 @@ class DashboardActivity : AppCompatActivity() {
         
         vm.approvedFutureCount.observe(this) { 
             binding.txtApproved.text = it.toString() 
+        }
+        
+        // Observe errors from ViewModel if available
+        vm.error.observe(this) { errorMessage ->
+            errorMessage?.let {
+                if (it.isNotEmpty()) {
+                    errorBarManager.showApiError(it)
+                }
+            }
         }
     }
 
