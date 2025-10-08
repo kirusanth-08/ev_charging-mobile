@@ -89,7 +89,8 @@ class QRScannerActivity : AppCompatActivity() {
             val username = vm.operatorUsername.value
             if (!token.isNullOrBlank()) {
                 val mgr = UserSessionManager(this)
-                mgr.saveSession(token, role ?: "", username ?: "", null)
+                // Operators don't have NIC, so pass null for nic parameter
+                mgr.saveSession(token, role ?: "", username ?: "", null, null)
             }
         }
         vm.loading.observe(this) { isLoading ->

@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.evcharger.databinding.ActivityDashboardBinding
 import com.example.evcharger.viewmodel.DashboardViewModel
 import com.example.evcharger.model.BackendSlot
+import com.example.evcharger.utils.LocationUtils
 import com.google.android.material.navigation.NavigationView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +34,24 @@ class DashboardActivity : AppCompatActivity() {
         StatusBarUtil.enableEdgeToEdge(this)
 
         nic = intent.getStringExtra("NIC") ?: ""
+        
+        // Check location is enabled on activity start
+        if (!LocationUtils.isLocationEnabled(this)) {
+            LocationUtils.showEnableLocationDialog(
+                this,
+                onEnabled = {
+                    // User will return after enabling location
+                },
+                onCancelled = {
+                    // User cancelled, but let them stay on the screen
+                    android.widget.Toast.makeText(
+                        this,
+                        "Enable location for better experience",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+        }
 
         supportFragmentManager.beginTransaction()
             .replace(binding.mapContainer.id, MapsFragment())
@@ -42,6 +61,18 @@ class DashboardActivity : AppCompatActivity() {
         setupObservers()
 
         vm.load(nic)
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // Recheck location when user returns (e.g., from settings)
+        if (LocationUtils.isLocationEnabled(this)) {
+            // Location is now enabled, refresh the map
+            val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+            if (frag is MapsFragment) {
+                frag.refreshIfLocationEnabled()
+            }
+        }
     }
     
     private fun setupUI() {
@@ -59,9 +90,12 @@ class DashboardActivity : AppCompatActivity() {
 
         // Current location button — find the fragment and call the helper
         binding.btnCurrentLocation.setOnClickListener {
-            val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
-            if (frag is MapsFragment) {
-                frag.centerOnCurrentLocation()
+            // Check if location is enabled before centering
+            LocationUtils.checkAndPromptLocationEnabled(this) {
+                val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+                if (frag is MapsFragment) {
+                    frag.centerOnCurrentLocation()
+                }
             }
         }
     }

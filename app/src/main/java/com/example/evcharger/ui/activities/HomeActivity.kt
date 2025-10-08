@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.evcharger.databinding.ActivityHomeBinding
 import com.example.evcharger.repository.ReservationRepository
+import com.example.evcharger.utils.LocationUtils
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +34,10 @@ class HomeActivity : AppCompatActivity() {
     
     private fun setupUI(nic: String) {
         binding.btnBookNow.setOnClickListener {
-            startActivity(Intent(this, DashboardActivity::class.java).putExtra("NIC", nic))
+            // Check if location is enabled before navigating to find stations
+            LocationUtils.checkAndPromptLocationEnabled(this) {
+                startActivity(Intent(this, DashboardActivity::class.java).putExtra("NIC", nic))
+            }
         }
 
         binding.btnManageBooking.setOnClickListener {

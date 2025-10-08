@@ -183,4 +183,24 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
             }
         }
     }
+    
+    /**
+     * Refresh map if location is now enabled (called when returning from settings)
+     */
+    fun refreshIfLocationEnabled() {
+        val ctx = context ?: return
+        val locationManager = ctx.getSystemService(android.content.Context.LOCATION_SERVICE) as android.location.LocationManager
+        val isLocationEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
+        
+        if (isLocationEnabled) {
+            // Check if we have permission
+            val fineGranted = ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            val coarseGranted = ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            
+            if (fineGranted || coarseGranted) {
+                enableMyLocationAndLoad()
+            }
+        }
+    }
 }
