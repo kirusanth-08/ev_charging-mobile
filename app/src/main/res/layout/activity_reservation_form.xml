@@ -1,19 +1,408 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:padding="24dp"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true">
 
-    <TextView android:id="@+id/txtPicked"
-        android:text="No date/time selected"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnPickDate"
-        android:text="Pick Date"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"/>
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSubmit"
-        android:text="Submit Reservation"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"/>
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Header Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="3dp"
+            app:cardBackgroundColor="@color/primary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <!-- Back Button -->
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_arrow_back"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:tint="@android:color/white"
+                    android:contentDescription="Back"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reserve Charging Slot"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/txtStationName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Station Name"
+                    android:textSize="16sp"
+                    android:textColor="@color/primary_light" />
+
+                <TextView
+                    android:id="@+id/txtStationAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Location"
+                    android:textSize="14sp"
+                    android:textColor="@color/primary_light" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Date Selection Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📅 Select Date"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Choose Date"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_calendar"
+                    app:iconGravity="textStart"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/primary"
+                    app:strokeWidth="2dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <TextView
+                    android:id="@+id/txtSelectedDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="No date selected"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Time Selection Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏰ Select Time"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Start Time -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start Time"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickStartTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Select Start Time"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_time"
+                    app:iconGravity="textStart"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/primary"
+                    app:strokeWidth="2dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <TextView
+                    android:id="@+id/txtSelectedStartTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="No time selected"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary" />
+
+                <!-- End Time -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="End Time"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickEndTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Select End Time"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_time"
+                    app:iconGravity="textStart"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/primary"
+                    app:strokeWidth="2dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                <TextView
+                    android:id="@+id/txtSelectedEndTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="No time selected"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary" />
+
+                <!-- Duration Display -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="12dp"
+                    android:padding="12dp"
+                    android:background="@drawable/rounded_background">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_power"
+                        app:tint="@color/primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Duration: "
+                        android:textSize="14sp"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/txtDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 hours"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Slot Selection Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/surface"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔌 Select Slot"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Slot Spinner -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutSlotSelection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Choose Charging Slot"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:hintTextColor="@color/primary"
+                    app:endIconMode="dropdown_menu"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/spinnerSlot"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:textSize="16sp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Selected Slot Details -->
+                <LinearLayout
+                    android:id="@+id/layoutSlotDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="12dp"
+                    android:padding="12dp"
+                    android:background="@drawable/rounded_background"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Slot Details:"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/txtSlotDetails"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Connector: Type 2 • Power: 50kW"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Summary Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/primary_light"
+            app:strokeColor="@color/primary"
+            app:strokeWidth="2dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📋 Reservation Summary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/txtSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Complete all fields to see summary"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp"
+                    android:textColor="@color/text_primary" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Submit Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="Confirm Reservation"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:icon="@drawable/ic_check"
+            app:iconGravity="textStart"
+            app:cornerRadius="16dp"
+            app:backgroundTint="@color/primary"
+            android:enabled="false"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+        <!-- Progress Indicator -->
+        <ProgressBar
+            android:id="@+id/progressBooking"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:indeterminateTint="@color/primary"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -127,6 +127,9 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
                 val intent = Intent(requireContext(), ReservationFormActivity::class.java).apply {
                     putExtra("NIC", userNic)
                     putExtra("stationId", s.id)
+                    putExtra("StationId", s.id)
+                    putExtra("StationName", s.name)
+                    putExtra("StationAddress", s.address)
                 }
                 startActivity(intent)
                 dismiss()
@@ -166,6 +169,9 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
                 val intent = Intent(requireContext(), ReservationFormActivity::class.java).apply {
                     putExtra("NIC", userNic)
                     putExtra("stationId", station.id)
+                    putExtra("StationId", station.id)
+                    putExtra("StationName", station.name)
+                    putExtra("StationAddress", station.address)
                     putExtra("SlotNumber", slot.slotNumber)
                 }
                 startActivity(intent)
