@@ -158,17 +158,19 @@ class QRScannerActivity : AppCompatActivity() {
             if (it != null) {
                 // Show reservation details card with beautiful formatting
                 binding.reservationDetailsCard.visibility = android.view.View.VISIBLE
-                binding.txtReservationStatus.text = it.status ?: "CONFIRMED"
+                binding.txtReservationStatus.text = it.status.name
                 
                 // Format reservation info with emojis
                 val info = buildString {
-                    append("📋 Reservation ID: ${it.id}\n")
-                    append("👤 Customer: ${it.userId ?: "N/A"}\n")
-                    append("🔋 Slot: ${it.slotId ?: "N/A"}\n")
-                    append("⏰ Start: ${it.startTime ?: "N/A"}\n")
-                    append("⏱️ End: ${it.endTime ?: "N/A"}\n")
-                    append("📊 Status: ${it.status ?: "N/A"}\n")
-                    append("🔐 QR Code: ${lastScannedPayload ?: "N/A"}")
+                    append("📋 Reservation ID: ${it.id ?: it.bookingId ?: "N/A"}\n")
+                    append("👤 Customer: ${it.evOwnerNic ?: it.ownerNic ?: "N/A"}\n")
+                    append("🏢 Station: ${it.stationName ?: it.stationId}\n")
+                    append("📍 Location: ${it.stationLocation ?: "N/A"}\n")
+                    append("🔋 Slot: ${it.slotNumber ?: "N/A"}\n")
+                    append("⏰ Start: ${it.startTime ?: it.reservationDateTime ?: "N/A"}\n")
+                    append("⏱️ Duration: ${it.duration?.let { "$it mins" } ?: "N/A"}\n")
+                    append("📊 Status: ${it.status.name}\n")
+                    append("🔐 QR Code: ${lastScannedPayload ?: it.qrCode ?: it.qrCodePayload ?: "N/A"}")
                 }
                 binding.txtReservationInfo.text = info
                 
