@@ -93,6 +93,7 @@ object StatusBarUtil {
         } else {
             // Fallback for API < 23: Use dark status bar since light icons not available
             if (lightIcons) {
+                @Suppress("DEPRECATION")
                 activity.window.statusBarColor = ContextCompat.getColor(
                     activity, 
                     R.color.primary_dark
@@ -108,6 +109,7 @@ object StatusBarUtil {
      * @param activity The activity to apply the color to
      * @param colorRes The color resource ID
      */
+    @Suppress("DEPRECATION")
     private fun setStatusBarColor(activity: Activity, colorRes: Int) {
         activity.window.statusBarColor = ContextCompat.getColor(activity, colorRes)
     }
