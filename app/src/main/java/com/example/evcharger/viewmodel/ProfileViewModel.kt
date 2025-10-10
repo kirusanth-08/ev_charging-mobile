@@ -74,6 +74,9 @@ class ProfileViewModel(app: Application) : AndroidViewModel(app) {
         fullName: String,
         email: String,
         phoneNumber: String,
+        address: String? = null,
+        vehicleNumber: String? = null,
+        vehicleModel: String? = null,
         password: String? = null
     ) {
         // Validation
@@ -105,6 +108,9 @@ class ProfileViewModel(app: Application) : AndroidViewModel(app) {
                     fullName = fullName,
                     email = email,
                     phoneNumber = phoneNumber,
+                    address = address,
+                    vehicleNumber = vehicleNumber,
+                    vehicleModel = vehicleModel,
                     password = password
                 )
                 

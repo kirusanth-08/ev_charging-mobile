@@ -32,6 +32,9 @@ class ProfileRepository {
      * @param fullName Updated full name
      * @param email Updated email
      * @param phoneNumber Updated phone number
+     * @param address Optional address
+     * @param vehicleNumber Optional vehicle registration number
+     * @param vehicleModel Optional vehicle model
      * @param password Optional new password (null if not changing)
      */
     suspend fun updateProfile(
@@ -39,6 +42,9 @@ class ProfileRepository {
         fullName: String,
         email: String,
         phoneNumber: String,
+        address: String? = null,
+        vehicleNumber: String? = null,
+        vehicleModel: String? = null,
         password: String? = null
     ): Response<ApiResponse<EvOwnerProfile>> {
         val updateRequest = EvOwnerUpdateRequest(
@@ -46,6 +52,9 @@ class ProfileRepository {
             fullName = fullName,
             email = email,
             phoneNumber = phoneNumber,
+            address = address,
+            vehicleNumber = vehicleNumber,
+            vehicleModel = vehicleModel,
             password = password
         )
         return api.updateEvOwnerProfile(nic, updateRequest)

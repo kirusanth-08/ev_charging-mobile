@@ -110,22 +110,29 @@ data class EvOwnerRegisterResponse(
 
 // EV Owner profile response from GET /api/evowner/{nic}
 data class EvOwnerProfile(
-    @SerializedName("NIC") val nic: String,
-    @SerializedName("FullName") val fullName: String,
-    @SerializedName("Email") val email: String,
-    @SerializedName("PhoneNumber") val phoneNumber: String,
-    @SerializedName("IsActive") val isActive: Boolean? = true,
-    @SerializedName("CreatedAt") val createdAt: String? = null,
-    @SerializedName("UpdatedAt") val updatedAt: String? = null
+    val nic: String,
+    val fullName: String,
+    val email: String,
+    val phoneNumber: String,
+    val address: String? = null,
+    val vehicleNumber: String? = null,
+    val vehicleModel: String? = null,
+    val isActive: Boolean = true,
+    val createdAt: String? = null,
+    val updatedAt: String? = null,
+    val deactivatedAt: String? = null
 )
 
 // EV Owner profile update request for PUT /api/evowner/{nic}
 data class EvOwnerUpdateRequest(
-    @SerializedName("NIC") val nic: String,
-    @SerializedName("FullName") val fullName: String,
-    @SerializedName("Email") val email: String,
-    @SerializedName("PhoneNumber") val phoneNumber: String,
-    @SerializedName("Password") val password: String? = null  // Optional password update
+    val nic: String,
+    val fullName: String,
+    val email: String,
+    val phoneNumber: String,
+    val address: String? = null,
+    val vehicleNumber: String? = null,
+    val vehicleModel: String? = null,
+    val password: String? = null  // Optional password update
 )
 
 // Backend DTOs for nearby station endpoint

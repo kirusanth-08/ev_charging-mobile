@@ -28,9 +28,20 @@ class ProfileActivity : AppCompatActivity() {
 
         sessionManager = UserSessionManager(this)
         
-        // Get NIC from session (primary) or intent (fallback)
+        // Get NIC and token from session
         val session = sessionManager.loadSession()
         currentNic = session.nic ?: intent.getStringExtra("NIC")
+        
+        // ✅ IMPORTANT: Set auth token in RetrofitClient before making API calls
+        // This ensures the Authorization header is included in the profile API request
+        session.token?.let { token ->
+            com.example.evcharger.network.RetrofitClient.setAuthToken(token)
+        } ?: run {
+            // No token found - redirect to login
+            Snackbar.make(binding.root, "Session expired. Please login again.", Snackbar.LENGTH_LONG).show()
+            navigateToLogin()
+            return
+        }
 
         // Set up UI
         setupUI()
@@ -75,16 +86,47 @@ class ProfileActivity : AppCompatActivity() {
         viewModel.profile.observe(this) { profile ->
             profile?.let {
                 val profileText = buildString {
+                    append("📋 Personal Information\n")
+                    append("━━━━━━━━━━━━━━━━━━━━━━━━\n\n")
+                    
                     append("NIC: ${it.nic}\n\n")
                     append("Full Name: ${it.fullName}\n\n")
                     append("Email: ${it.email}\n\n")
                     append("Phone: ${it.phoneNumber}\n\n")
-                    append("Status: ${if (it.isActive == true) "Active" else "Inactive"}\n\n")
+                    
+                    // Address (if available)
+                    if (!it.address.isNullOrBlank()) {
+                        append("Address: ${it.address}\n\n")
+                    }
+                    
+                    append("\n🚗 Vehicle Information\n")
+                    append("━━━━━━━━━━━━━━━━━━━━━━━━\n\n")
+                    
+                    if (!it.vehicleNumber.isNullOrBlank()) {
+                        append("Vehicle Number: ${it.vehicleNumber}\n\n")
+                    } else {
+                        append("Vehicle Number: Not set\n\n")
+                    }
+                    
+                    if (!it.vehicleModel.isNullOrBlank()) {
+                        append("Vehicle Model: ${it.vehicleModel}\n\n")
+                    } else {
+                        append("Vehicle Model: Not set\n\n")
+                    }
+                    
+                    append("\n📊 Account Status\n")
+                    append("━━━━━━━━━━━━━━━━━━━━━━━━\n\n")
+                    
+                    append("Status: ${if (it.isActive) "✅ Active" else "❌ Inactive"}\n\n")
+                    
                     it.createdAt?.let { created ->
                         append("Member Since: ${formatDate(created)}\n\n")
                     }
                     it.updatedAt?.let { updated ->
-                        append("Last Updated: ${formatDate(updated)}")
+                        append("Last Updated: ${formatDate(updated)}\n\n")
+                    }
+                    it.deactivatedAt?.let { deactivated ->
+                        append("Deactivated On: ${formatDate(deactivated)}")
                     }
                 }
                 binding.txtProfileInfo.text = profileText
@@ -148,6 +190,10 @@ class ProfileActivity : AppCompatActivity() {
         Snackbar.make(binding.root, "Logged out successfully", Snackbar.LENGTH_SHORT).show()
         
         // Navigate to login screen
+        navigateToLogin()
+    }
+    
+    private fun navigateToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
