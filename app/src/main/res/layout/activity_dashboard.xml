@@ -5,93 +5,219 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Main content: Full screen map with modern floating UI elements -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
-        <!-- Top app bar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
+        <!-- Map container: Full screen background -->
+        <FrameLayout
+            android:id="@+id/mapContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Error Bar at the very top -->
+        <include
+            android:id="@+id/errorBar"
+            layout="@layout/layout_error_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-            app:title="Dashboard"
-            app:titleTextColor="@android:color/white" />
+            android:layout_gravity="top" />
 
-        <!-- Content area -->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Top bar with glass morphism effect -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTopBar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="@color/surface">
 
-            <!-- Map container: fill the available content area to present a full-screen map under the overlays -->
-            <FrameLayout
-                android:id="@+id/mapContainer"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- Summary card (overlayed on top of the map) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardSummary"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="10dp"
-                app:cardElevation="8dp"
-                app:layout_constraintTop_toTopOf="@id/mapContainer"
-                app:layout_constraintStart_toStartOf="@id/mapContainer"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp">
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical">
 
+                <!-- Back Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBack"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_arrow_back"
+                    app:iconTint="@color/text_primary"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:contentDescription="Back" />
+
+                <!-- Title Section -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="12dp"
-                    android:gravity="center_vertical">
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pending:"
-                        android:textSize="14sp" />
+                        android:text="Charging Stations"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Find and book your station"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary" />
+
+                </LinearLayout>
+
+                <!-- View Bookings Icon Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnViewBookings"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_bookings"
+                    app:iconTint="@color/primary"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:contentDescription="View Bookings" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Statistics Card (Below top bar) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="76dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <!-- Pending Bookings -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_battery_charging"
+                        android:tint="@color/ev_busy"
+                        android:contentDescription="Pending icon"
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:id="@+id/txtPending"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:text="0"
                         android:textStyle="bold"
-                        android:textSize="16sp" />
-
-                    <View
-                        android:layout_width="8dp"
-                        android:layout_height="0dp" />
+                        android:textSize="22sp"
+                        android:textColor="@color/ev_busy" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Approved:"
-                        android:layout_marginStart="16dp"
-                        android:textSize="14sp" />
+                        android:text="Pending"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary"
+                        android:textAllCaps="true"
+                        android:layout_marginTop="2dp" />
+
+                </LinearLayout>
+
+                <!-- Vertical Divider -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/divider"
+                    android:layout_marginVertical="6dp" />
+
+                <!-- Approved Bookings -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_charging_station"
+                        android:tint="@color/ev_available"
+                        android:contentDescription="Approved icon"
+                        android:layout_marginBottom="6dp" />
 
                     <TextView
                         android:id="@+id/txtApproved"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:text="0"
                         android:textStyle="bold"
-                        android:textSize="16sp" />
+                        android:textSize="22sp"
+                        android:textColor="@color/ev_available" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Approved"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary"
+                        android:textAllCaps="true"
+                        android:layout_marginTop="2dp" />
 
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
-            <!-- Current location floating action button (bottom-right above action bar) -->
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Floating Action Buttons (Bottom Right) -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="24dp">
+
+            <!-- Current Location Button -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnCurrentLocation"
                 android:layout_width="wrap_content"
@@ -99,44 +225,27 @@
                 android:contentDescription="Current location"
                 app:srcCompat="@android:drawable/ic_menu_mylocation"
                 app:tint="@android:color/white"
-                app:backgroundTint="?attr/colorPrimary"
-                app:layout_constraintBottom_toTopOf="@id/actionBar"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginBottom="20dp"
-                android:layout_marginEnd="16dp"
-                android:elevation="12dp" />
+                app:backgroundTint="@color/primary"
+                app:elevation="6dp"
+                app:borderWidth="0dp"
+                app:fabSize="normal"
+                android:layout_marginBottom="16dp" />
 
-            <!-- Bottom action bar containing two buttons -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/actionBar"
-                android:layout_width="0dp"
+            <!-- Filter/Settings Button (Optional for future enhancement) -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnFilter"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardElevation="8dp"
-                app:cardCornerRadius="12dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="12dp">
+                android:contentDescription="Filter stations"
+                app:srcCompat="@android:drawable/ic_menu_search"
+                app:tint="@android:color/white"
+                app:backgroundTint="@color/surface"
+                app:elevation="6dp"
+                app:borderWidth="0dp"
+                app:fabSize="mini"
+                android:visibility="gone" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="12dp"
-                    android:gravity="center">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnViewBookings"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Bookings" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -12,6 +12,7 @@ import com.example.evcharger.repository.ReservationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.example.evcharger.utils.StatusBarUtil
 
 /**
  * Shows upcoming and past bookings in a list (RecyclerView).
@@ -29,12 +30,20 @@ class BookingListActivity : AppCompatActivity() {
         binding = ActivityBookingListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Set green status bar to match header
+        StatusBarUtil.setGreen(this)
+
         nic = intent.getStringExtra("NIC") ?: ""
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
 
         binding.swipeRefresh.setOnRefreshListener { loadData() }
+
+        // Back button - navigate back to previous screen
+        binding.btnBack?.setOnClickListener {
+            finish()
+        }
 
         loadData()
     }

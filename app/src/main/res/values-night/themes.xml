@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Dark Theme -->\n    <style name="Theme.EVCharger" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color (Green) -->\n        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        
+        <!-- Secondary brand color -->\n        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/primary_variant</item>
+        <item name="colorOnSecondary">@color/on_primary</item>
+        
+        <!-- Background colors (Dark) -->\n        <item name="android:colorBackground">@color/background_dark</item>
+        <item name="colorSurface">@color/surface_dark</item>
+        <item name="colorOnBackground">@color/on_background_dark</item>
+        <item name="colorOnSurface">@color/on_surface_dark</item>
+        
+        <!-- Status bar (Transparent for modern edge-to-edge design) -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        
+        <!-- Navigation bar (Dark) -->\n        <item name="android:navigationBarColor">@color/surface_dark</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        
+        <!-- Error color -->\n        <item name="colorError">@color/error</item>
+        
+        <!-- Text colors (Dark) -->\n        <item name="android:textColorPrimary">@color/text_primary_dark</item>
+        <item name="android:textColorSecondary">@color/text_secondary_dark</item>
+        <item name="android:textColorHint">@color/text_hint_dark</item>
+        
+        <!-- Widget styles -->\n        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
+        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.MaterialComponents.CardView</item>
+        
+        <!-- Card elevation for dark mode -->\n        <item name="elevationOverlayEnabled">true</item>
+        <item name="elevationOverlayColor">@color/white</item>
+    </style>
+
+</resources>

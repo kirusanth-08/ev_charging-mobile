@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme-aware color aliases for Dark Mode -->
+    <color name="background">@color/background_dark</color>
+    <color name="surface">@color/surface_dark</color>
+    <color name="surface_variant">@color/surface_variant_dark</color>
+    <color name="text_primary">@color/text_primary_dark</color>
+    <color name="text_secondary">@color/text_secondary_dark</color>
+    <color name="text_hint">@color/text_hint_dark</color>
+    <color name="divider">@color/divider_dark</color>
+    <color name="on_background">@color/on_background_dark</color>
+    <color name="on_surface">@color/on_surface_dark</color>
+</resources>

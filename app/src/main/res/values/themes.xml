@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.EVCharger" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Base Light Theme -->
+    <style name="Theme.EVCharger" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color (Green) -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/primary_variant</item>
+        <item name="colorOnSecondary">@color/on_primary</item>
+        
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/background_light</item>
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="colorOnBackground">@color/on_background_light</item>
+        <item name="colorOnSurface">@color/on_surface_light</item>
+        
+        <!-- Status bar (Transparent for modern edge-to-edge design) -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/surface_light</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        
+        <!-- Error color -->
+        <item name="colorError">@color/error</item>
+        
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/text_primary_light</item>
+        <item name="android:textColorSecondary">@color/text_secondary_light</item>
+        <item name="android:textColorHint">@color/text_hint_light</item>
+        
+        <!-- Widget styles -->
+        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
+        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.MaterialComponents.CardView</item>
+        
+        <!-- Card elevation -->
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
 </resources>

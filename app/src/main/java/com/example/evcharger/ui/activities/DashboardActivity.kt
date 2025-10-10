@@ -7,12 +7,16 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.evcharger.databinding.ActivityDashboardBinding
 import com.example.evcharger.viewmodel.DashboardViewModel
 import com.example.evcharger.model.BackendSlot
+import com.example.evcharger.utils.LocationUtils
+import com.example.evcharger.utils.NetworkMonitor
+import com.example.evcharger.utils.ErrorBarManager
 import com.google.android.material.navigation.NavigationView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import com.example.evcharger.ui.fragments.MapsFragment
 import com.example.evcharger.R
+import com.example.evcharger.utils.StatusBarUtil
 
 /**
  * Dashboard shows counters and embedded map fragment.
@@ -22,17 +26,119 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDashboardBinding
     private val vm: DashboardViewModel by viewModels()
     private lateinit var nic: String
+    
+    private lateinit var networkMonitor: NetworkMonitor
+    private lateinit var errorBarManager: ErrorBarManager
+    private var wasDisconnected = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Enable edge-to-edge for full-screen map experience
+        StatusBarUtil.enableEdgeToEdge(this)
+
         nic = intent.getStringExtra("NIC") ?: ""
+        
+        // Initialize network monitoring and error bar
+        setupNetworkMonitoring()
+        
+        // Check location is enabled on activity start
+        if (!LocationUtils.isLocationEnabled(this)) {
+            LocationUtils.showEnableLocationDialog(
+                this,
+                onEnabled = {
+                    // User will return after enabling location
+                },
+                onCancelled = {
+                    // User cancelled, but let them stay on the screen
+                    android.widget.Toast.makeText(
+                        this,
+                        "Enable location for better experience",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+            )
+        }
 
         supportFragmentManager.beginTransaction()
             .replace(binding.mapContainer.id, MapsFragment())
             .commit()
+
+        setupUI()
+        setupObservers()
+
+        vm.load(nic)
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // Start network monitoring
+        networkMonitor.startMonitoring()
+        
+        // Recheck location when user returns (e.g., from settings)
+        if (LocationUtils.isLocationEnabled(this)) {
+            // Location is now enabled, refresh the map
+            val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+            if (frag is MapsFragment) {
+                frag.refreshIfLocationEnabled()
+            }
+        }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // Stop network monitoring to save battery
+        networkMonitor.stopMonitoring()
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cleanup error bar resources
+        errorBarManager.cleanup()
+    }
+    
+    private fun setupNetworkMonitoring() {
+        // Initialize network monitor
+        networkMonitor = NetworkMonitor.getInstance(this)
+        
+        // Initialize error bar manager
+        errorBarManager = ErrorBarManager(binding.errorBar.root)
+        
+        // Observe network status changes
+        networkMonitor.isConnected.observe(this) { isConnected ->
+            handleNetworkStatusChange(isConnected)
+        }
+    }
+    
+    private fun handleNetworkStatusChange(isConnected: Boolean) {
+        when {
+            isConnected && wasDisconnected -> {
+                // Network reconnected after being disconnected
+                errorBarManager.showNetworkConnected()
+                wasDisconnected = false
+            }
+            !isConnected && !wasDisconnected -> {
+                // Network just disconnected
+                errorBarManager.showNetworkDisconnected()
+                wasDisconnected = true
+            }
+            !isConnected && wasDisconnected -> {
+                // Still disconnected, show reconnecting message
+                errorBarManager.showNetworkReconnecting()
+            }
+        }
+    }
+    
+    private fun setupUI() {
+        // Back button - navigate to HomeActivity
+        binding.btnBack.setOnClickListener {
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }
 
         binding.btnViewBookings.setOnClickListener {
             startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
@@ -40,16 +146,33 @@ class DashboardActivity : AppCompatActivity() {
 
         // Current location button — find the fragment and call the helper
         binding.btnCurrentLocation.setOnClickListener {
-            val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
-            if (frag is MapsFragment) {
-                frag.centerOnCurrentLocation()
+            // Check if location is enabled before centering
+            LocationUtils.checkAndPromptLocationEnabled(this) {
+                val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+                if (frag is MapsFragment) {
+                    frag.centerOnCurrentLocation()
+                }
             }
         }
-
-        vm.pendingCount.observe(this) { binding.txtPending.text = it.toString() }
-        vm.approvedFutureCount.observe(this) { binding.txtApproved.text = it.toString() }
-
-        vm.load(nic)
+    }
+    
+    private fun setupObservers() {
+        vm.pendingCount.observe(this) { 
+            binding.txtPending.text = it.toString() 
+        }
+        
+        vm.approvedFutureCount.observe(this) { 
+            binding.txtApproved.text = it.toString() 
+        }
+        
+        // Observe errors from ViewModel if available
+        vm.error.observe(this) { errorMessage ->
+            errorMessage?.let {
+                if (it.isNotEmpty()) {
+                    errorBarManager.showApiError(it)
+                }
+            }
+        }
     }
 
     /**

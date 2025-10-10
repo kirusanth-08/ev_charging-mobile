@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme-aware color aliases for Light Mode -->
+    <color name="background">@color/background_light</color>
+    <color name="surface">@color/surface_light</color>
+    <color name="surface_variant">@color/surface_variant_light</color>
+    <color name="text_primary">@color/text_primary_light</color>
+    <color name="text_secondary">@color/text_secondary_light</color>
+    <color name="text_hint">@color/text_hint_light</color>
+    <color name="divider">@color/divider_light</color>
+    <color name="on_background">@color/on_background_light</color>
+    <color name="on_surface">@color/on_surface_light</color>
+</resources>
