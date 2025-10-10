@@ -40,8 +40,8 @@ class QRScannerActivity : AppCompatActivity() {
         binding = ActivityQrscannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set transparent status bar with dark icons for modern look
-        StatusBarUtil.makeTransparent(this, lightIcons = false)
+        // Set green status bar to match operator dashboard theme
+        StatusBarUtil.setGreen(this)
 
         // If there's a persisted operator session, apply it and hide login inputs
         val mgr = UserSessionManager(this)

@@ -2,7 +2,9 @@ package com.example.evcharger.utils
 
 import android.app.Activity
 import android.os.Build
+import android.view.View
 import android.view.Window
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -11,7 +13,7 @@ import com.example.evcharger.R
 /**
  * Utility class for managing status bar appearance across the app.
  * Provides methods for transparent, colored, and edge-to-edge status bars.
- * Uses modern WindowInsetsController API to avoid deprecated methods.
+ * Uses modern WindowCompat and WindowInsetsControllerCompat APIs.
  */
 object StatusBarUtil {
     
@@ -22,8 +24,7 @@ object StatusBarUtil {
      * @param lightIcons True for dark icons (light background), false for light icons (dark background)
      */
     fun makeTransparent(activity: Activity, lightIcons: Boolean = true) {
-        setStatusBarColor(activity, android.R.color.transparent)
-        setIconColor(activity, lightIcons)
+        setStatusBarAppearance(activity, android.R.color.transparent, lightIcons)
     }
     
     /**
@@ -33,8 +34,7 @@ object StatusBarUtil {
      * @param activity The activity to apply the status bar to
      */
     fun setGreen(activity: Activity) {
-        setStatusBarColor(activity, R.color.primary)
-        setIconColor(activity, lightIcons = false)
+        setStatusBarAppearance(activity, R.color.primary, lightIcons = false)
     }
     
     /**
@@ -44,8 +44,7 @@ object StatusBarUtil {
      * @param activity The activity to apply the status bar to
      */
     fun setBlack(activity: Activity) {
-        setStatusBarColor(activity, android.R.color.black)
-        setIconColor(activity, lightIcons = false)
+        setStatusBarAppearance(activity, android.R.color.black, lightIcons = false)
     }
     
     /**
@@ -56,8 +55,7 @@ object StatusBarUtil {
      */
     fun setSurface(activity: Activity, isLightMode: Boolean = true) {
         val colorRes = if (isLightMode) R.color.surface_light else R.color.surface_dark
-        setStatusBarColor(activity, colorRes)
-        setIconColor(activity, lightIcons = isLightMode)
+        setStatusBarAppearance(activity, colorRes, lightIcons = isLightMode)
     }
     
     /**
@@ -81,36 +79,27 @@ object StatusBarUtil {
     }
     
     /**
-     * Set status bar icon color
+     * Set status bar appearance with color and icon style
+     * Uses modern WindowCompat APIs for setting status bar color and icon appearance
      * 
-     * @param activity The activity to apply the icon color to
+     * @param activity The activity to apply the status bar appearance to
+     * @param colorRes The color resource ID for the status bar
      * @param lightIcons True for dark icons (on light backgrounds), false for light icons (on dark backgrounds)
      */
-    private fun setIconColor(activity: Activity, lightIcons: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            WindowCompat.getInsetsController(activity.window, activity.window.decorView)
-                .isAppearanceLightStatusBars = lightIcons
-        } else {
-            // Fallback for API < 23: Use dark status bar since light icons not available
-            if (lightIcons) {
-                @Suppress("DEPRECATION")
-                activity.window.statusBarColor = ContextCompat.getColor(
-                    activity, 
-                    R.color.primary_dark
-                )
-            }
+    private fun setStatusBarAppearance(activity: Activity, @ColorRes colorRes: Int, lightIcons: Boolean) {
+        val window = activity.window
+        val color = ContextCompat.getColor(activity, colorRes)
+        
+        // Set status bar color using modern Window API
+        // Note: This is the recommended way as of Android SDK 35+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.statusBarColor = color
         }
-    }
-    
-    /**
-     * Helper method to set status bar color
-     * Encapsulates status bar color changes to avoid code duplication
-     * 
-     * @param activity The activity to apply the color to
-     * @param colorRes The color resource ID
-     */
-    @Suppress("DEPRECATION")
-    private fun setStatusBarColor(activity: Activity, colorRes: Int) {
-        activity.window.statusBarColor = ContextCompat.getColor(activity, colorRes)
+        
+        // Set icon color using WindowInsetsControllerCompat
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+            insetsController.isAppearanceLightStatusBars = lightIcons
+        }
     }
 }

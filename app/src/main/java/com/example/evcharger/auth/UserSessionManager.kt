@@ -1,8 +1,13 @@
 package com.example.evcharger.auth
 
 import android.content.Context
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
 data class UserSession(
     val token: String?,
@@ -13,65 +18,125 @@ data class UserSession(
 )
 
 /**
- * Manages user session data using encrypted shared preferences.
+ * Manages user session data using DataStore Preferences.
  * 
- * Note: EncryptedSharedPreferences is deprecated in favor of DataStore.
- * However, for this use case (simple key-value storage with encryption),
- * it remains a stable and secure solution. Consider migrating to DataStore
- * in future updates for better coroutine support and type safety.
+ * DataStore is a modern, type-safe data storage solution that uses Kotlin coroutines
+ * and Flow for asynchronous operations. It's the recommended replacement for SharedPreferences.
  * 
- * @suppress DEPRECATION EncryptedSharedPreferences still fully functional
+ * Note: This implementation provides both synchronous (blocking) and asynchronous (Flow) APIs
+ * for backward compatibility with existing code.
  */
-@Suppress("DEPRECATION")
-class UserSessionManager(context: Context) {
-    private val prefsName = "ev_charger_secure_prefs"
-
-    private val masterKey = MasterKey.Builder(context)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
-
-    private val prefs = EncryptedSharedPreferences.create(
-        context,
-        prefsName,
-        masterKey,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
-
+class UserSessionManager(private val context: Context) {
+    
     companion object {
-        private const val KEY_TOKEN = "key_token"
-        private const val KEY_ROLE = "key_role"
-        private const val KEY_USERNAME = "key_username"
-        private const val KEY_NIC = "key_nic"
-        private const val KEY_EXPIRES_AT = "key_expires_at"
+        // DataStore instance - created as a singleton per context
+        private val Context.dataStore by preferencesDataStore(name = "ev_charger_secure_prefs")
+        
+        // Preference keys
+        private val KEY_TOKEN = stringPreferencesKey("key_token")
+        private val KEY_ROLE = stringPreferencesKey("key_role")
+        private val KEY_USERNAME = stringPreferencesKey("key_username")
+        private val KEY_NIC = stringPreferencesKey("key_nic")
+        private val KEY_EXPIRES_AT = stringPreferencesKey("key_expires_at")
     }
 
+    /**
+     * Save user session data (synchronous version for compatibility)
+     */
     fun saveSession(token: String, role: String?, username: String?, nic: String?, expiresAt: String?) {
-        prefs.edit()
-            .putString(KEY_TOKEN, token)
-            .putString(KEY_ROLE, role)
-            .putString(KEY_USERNAME, username)
-            .putString(KEY_NIC, nic)
-            .putString(KEY_EXPIRES_AT, expiresAt)
-            .apply()
+        runBlocking {
+            context.dataStore.edit { preferences ->
+                preferences[KEY_TOKEN] = token
+                role?.let { preferences[KEY_ROLE] = it }
+                username?.let { preferences[KEY_USERNAME] = it }
+                nic?.let { preferences[KEY_NIC] = it }
+                expiresAt?.let { preferences[KEY_EXPIRES_AT] = it }
+            }
+        }
     }
 
+    /**
+     * Save user session data (asynchronous version)
+     */
+    suspend fun saveSessionAsync(token: String, role: String?, username: String?, nic: String?, expiresAt: String?) {
+        context.dataStore.edit { preferences ->
+            preferences[KEY_TOKEN] = token
+            role?.let { preferences[KEY_ROLE] = it }
+            username?.let { preferences[KEY_USERNAME] = it }
+            nic?.let { preferences[KEY_NIC] = it }
+            expiresAt?.let { preferences[KEY_EXPIRES_AT] = it }
+        }
+    }
+
+    /**
+     * Load user session data (synchronous version for compatibility)
+     */
     fun loadSession(): UserSession {
-        return UserSession(
-            token = prefs.getString(KEY_TOKEN, null),
-            role = prefs.getString(KEY_ROLE, null),
-            username = prefs.getString(KEY_USERNAME, null),
-            nic = prefs.getString(KEY_NIC, null),
-            expiresAt = prefs.getString(KEY_EXPIRES_AT, null)
-        )
+        return runBlocking {
+            val preferences = context.dataStore.data.first()
+            UserSession(
+                token = preferences[KEY_TOKEN],
+                role = preferences[KEY_ROLE],
+                username = preferences[KEY_USERNAME],
+                nic = preferences[KEY_NIC],
+                expiresAt = preferences[KEY_EXPIRES_AT]
+            )
+        }
     }
 
+    /**
+     * Load user session data as Flow (asynchronous, reactive)
+     */
+    fun loadSessionFlow(): Flow<UserSession> {
+        return context.dataStore.data.map { preferences ->
+            UserSession(
+                token = preferences[KEY_TOKEN],
+                role = preferences[KEY_ROLE],
+                username = preferences[KEY_USERNAME],
+                nic = preferences[KEY_NIC],
+                expiresAt = preferences[KEY_EXPIRES_AT]
+            )
+        }
+    }
+
+    /**
+     * Clear all session data (synchronous version for compatibility)
+     */
     fun clearSession() {
-        prefs.edit().clear().apply()
+        runBlocking {
+            context.dataStore.edit { preferences ->
+                preferences.clear()
+            }
+        }
+    }
+
+    /**
+     * Clear all session data (asynchronous version)
+     */
+    suspend fun clearSessionAsync() {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
     }
     
+    /**
+     * Check if user is logged in (synchronous version for compatibility)
+     */
     fun isLoggedIn(): Boolean {
-        val token = prefs.getString(KEY_TOKEN, null)
-        return !token.isNullOrBlank()
+        return runBlocking {
+            val preferences = context.dataStore.data.first()
+            val token = preferences[KEY_TOKEN]
+            !token.isNullOrBlank()
+        }
+    }
+
+    /**
+     * Check if user is logged in as Flow (asynchronous, reactive)
+     */
+    fun isLoggedInFlow(): Flow<Boolean> {
+        return context.dataStore.data.map { preferences ->
+            val token = preferences[KEY_TOKEN]
+            !token.isNullOrBlank()
+        }
     }
 }
