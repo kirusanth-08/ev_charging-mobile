@@ -146,21 +146,17 @@ class QRScannerActivity : AppCompatActivity() {
         vm.role.observe(this) { r ->
             if (r.equals("StationOperator", ignoreCase = true)) {
                 Snackbar.make(binding.root, "Operator logged in successfully!", Snackbar.LENGTH_SHORT).show()
-                // Hide login section after successful login
                 binding.loginSection.visibility = android.view.View.GONE
             } else if (!r.isNullOrBlank()) {
                 Snackbar.make(binding.root, "Access denied: requires StationOperator role", Snackbar.LENGTH_LONG).show()
             }
         }
         
-        // After calling confirmArrival the ViewModel will update scannedReservation if the API returns data
         vm.scannedReservation.observe(this) {
             if (it != null) {
-                // Show reservation details card with beautiful formatting
                 binding.reservationDetailsCard.visibility = android.view.View.VISIBLE
                 binding.txtReservationStatus.text = it.status.name
                 
-                // Format reservation info
                 val info = buildString {
                     append("Reservation ID: ${it.id ?: it.bookingId ?: "N/A"}\n")
                     append("Customer: ${it.evOwnerNic ?: it.ownerNic ?: "N/A"}\n")
