@@ -12,6 +12,12 @@ import com.google.android.material.snackbar.Snackbar
 import com.example.evcharger.databinding.ActivityReservationFormBinding
 import com.example.evcharger.viewmodel.ReservationViewModel
 import com.example.evcharger.model.BackendSlot
+import com.example.evcharger.model.StationAvailabilitySlot
+import com.example.evcharger.network.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -39,6 +45,7 @@ class ReservationFormActivity : AppCompatActivity() {
     private var selectedSlotNumber: Int? = null
     
     private val availableSlots = mutableListOf<BackendSlot>()
+    private var isLoadingAvailability = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,37 +105,94 @@ class ReservationFormActivity : AppCompatActivity() {
     }
     
     private fun loadAvailableSlots() {
-        // For now, create mock slots - in production, fetch from API based on station
-        availableSlots.clear()
-        availableSlots.addAll(listOf(
-            BackendSlot(1, true, 50, "Type 2"),
-            BackendSlot(2, true, 50, "Type 2"),
-            BackendSlot(3, true, 22, "Type 1"),
-            BackendSlot(4, true, 150, "CCS"),
-            BackendSlot(5, false, 50, "Type 2")
-        ))
+        if (isLoadingAvailability) return
         
-        setupSlotSpinner()
+        isLoadingAvailability = true
+        binding.progressSlots.visibility = android.view.View.VISIBLE
+        binding.txtSlotStatus.text = "Checking availability..."
+        
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = RetrofitClient.api.getStationAvailability(stationId)
+                
+                withContext(Dispatchers.Main) {
+                    binding.progressSlots.visibility = android.view.View.GONE
+                    isLoadingAvailability = false
+                    
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        val availabilityData = response.body()?.data
+                        
+                        if (availabilityData != null) {
+                            availableSlots.clear()
+                            
+                            val actuallyAvailableSlots = availabilityData.slotDetails.filter { it.isAvailable }
+                            
+                            if (actuallyAvailableSlots.isEmpty()) {
+                                binding.txtSlotStatus.text = "No slots currently available"
+                                binding.spinnerSlot.isEnabled = false
+                                binding.btnSubmit.isEnabled = false
+                                Snackbar.make(
+                                    binding.root,
+                                    "All slots are currently booked. Please try another station or time.",
+                                    Snackbar.LENGTH_LONG
+                                ).show()
+                            } else {
+                                actuallyAvailableSlots.forEach { slot ->
+                                    availableSlots.add(
+                                        BackendSlot(
+                                            slotNumber = slot.slotNumber,
+                                            isAvailable = true,
+                                            powerRating = slot.powerRating,
+                                            connectorType = slot.connectorType
+                                        )
+                                    )
+                                }
+                                
+                                binding.txtSlotStatus.text = "${availableSlots.size} slot(s) available"
+                                setupSlotSpinner()
+                            }
+                        } else {
+                            showAvailabilityError("No availability data received")
+                        }
+                    } else {
+                        showAvailabilityError(response.body()?.message ?: "Failed to check availability")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding.progressSlots.visibility = android.view.View.GONE
+                    isLoadingAvailability = false
+                    showAvailabilityError("Error: ${e.localizedMessage}")
+                }
+            }
+        }
+    }
+    
+    private fun showAvailabilityError(message: String) {
+        binding.txtSlotStatus.text = "Unable to check availability"
+        binding.spinnerSlot.isEnabled = false
+        binding.btnSubmit.isEnabled = false
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+            .setBackgroundTint(getColor(android.R.color.holo_red_dark))
+            .show()
     }
     
     private fun setupSlotSpinner() {
         val slotOptions = availableSlots.map { slot ->
-            "Slot ${slot.slotNumber} - ${slot.connectorType} (${slot.powerRating}kW) ${if (slot.isAvailable) "Available" else "Unavailable"}"
+            "Slot ${slot.slotNumber} - ${slot.connectorType} (${slot.powerRating}kW)"
         }
         
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, slotOptions)
         binding.spinnerSlot.setAdapter(adapter)
+        binding.spinnerSlot.isEnabled = true
         
         binding.spinnerSlot.setOnItemClickListener { parent, view, position, id ->
             val slot = availableSlots[position]
             selectedSlotNumber = slot.slotNumber
             
-            // Show slot details
             binding.layoutSlotDetails.visibility = android.view.View.VISIBLE
-            binding.txtSlotDetails.text = "Connector: ${slot.connectorType} • Power: ${slot.powerRating}kW • " +
-                    "Status: ${if (slot.isAvailable) "Available" else "Occupied"}"
+            binding.txtSlotDetails.text = "Connector: ${slot.connectorType} • Power: ${slot.powerRating}kW • Status: Available"
             
-            // Update summary
             updateSummary()
         }
     }

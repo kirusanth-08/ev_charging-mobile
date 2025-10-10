@@ -169,3 +169,25 @@ data class BackendNearbyItem(
     val station: BackendStationV2,
     val distanceKm: Double?
 )
+
+// Station availability response models
+data class StationAvailabilitySlot(
+    val slotNumber: Int,
+    val powerRating: Int,
+    val connectorType: String,
+    val isAvailable: Boolean,
+    val isCurrentlyOccupied: Boolean,
+    val currentBookingId: String?,
+    val nextBookingTime: String?,
+    val nextBookingId: String?
+)
+
+data class StationAvailabilityData(
+    val stationId: String,
+    val stationName: String,
+    val location: BackendLocation,
+    val totalSlots: Int,
+    val availableSlots: Int,
+    val occupiedSlots: Int,
+    val slotDetails: List<StationAvailabilitySlot>
+)

@@ -50,6 +50,12 @@ interface ApiService {
         @Query("radius") radius: Int = 10
     ): Response<ApiResponse<List<BackendNearbyItem>>>
 
+    // Get station availability with slot details
+    @GET("station/{stationId}/availability")
+    suspend fun getStationAvailability(
+        @Path("stationId") stationId: String
+    ): Response<ApiResponse<StationAvailabilityData>>
+
     // Get stations assigned to the currently-authenticated operator (JWT required)
     @GET("station/operator/stations")
     suspend fun getOperatorStations(): Response<ApiResponse<List<BackendStationV2>>>
