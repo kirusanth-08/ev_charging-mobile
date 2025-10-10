@@ -55,7 +55,7 @@ class QRScannerActivity : AppCompatActivity() {
             // Hide login section when a session is available
             binding.loginSection.visibility = android.view.View.GONE
 
-            Snackbar.make(binding.root, "Welcome back, ${sess.username}! ⚡", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, "Welcome back, ${sess.username}!", Snackbar.LENGTH_SHORT).show()
         }
 
         // Login button click handler
@@ -108,7 +108,7 @@ class QRScannerActivity : AppCompatActivity() {
      */
     private fun startQRScanner() {
         val opts = ScanOptions().setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-        opts.setPrompt("📱 Scan reservation QR code")
+        opts.setPrompt("Scan reservation QR code")
         opts.setBeepEnabled(true)
         try {
             opts.setOrientationLocked(false) // Allow rotation
@@ -145,11 +145,11 @@ class QRScannerActivity : AppCompatActivity() {
         
         vm.role.observe(this) { r ->
             if (r.equals("StationOperator", ignoreCase = true)) {
-                Snackbar.make(binding.root, "✅ Operator logged in successfully!", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Operator logged in successfully!", Snackbar.LENGTH_SHORT).show()
                 // Hide login section after successful login
                 binding.loginSection.visibility = android.view.View.GONE
             } else if (!r.isNullOrBlank()) {
-                Snackbar.make(binding.root, "❌ Access denied: requires StationOperator role", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, "Access denied: requires StationOperator role", Snackbar.LENGTH_LONG).show()
             }
         }
         
@@ -160,27 +160,27 @@ class QRScannerActivity : AppCompatActivity() {
                 binding.reservationDetailsCard.visibility = android.view.View.VISIBLE
                 binding.txtReservationStatus.text = it.status.name
                 
-                // Format reservation info with emojis
+                // Format reservation info
                 val info = buildString {
-                    append("📋 Reservation ID: ${it.id ?: it.bookingId ?: "N/A"}\n")
-                    append("👤 Customer: ${it.evOwnerNic ?: it.ownerNic ?: "N/A"}\n")
-                    append("🏢 Station: ${it.stationName ?: it.stationId}\n")
-                    append("📍 Location: ${it.stationLocation ?: "N/A"}\n")
-                    append("🔋 Slot: ${it.slotNumber ?: "N/A"}\n")
-                    append("⏰ Start: ${it.startTime ?: it.reservationDateTime ?: "N/A"}\n")
-                    append("⏱️ Duration: ${it.duration?.let { "$it mins" } ?: "N/A"}\n")
-                    append("📊 Status: ${it.status.name}\n")
-                    append("🔐 QR Code: ${lastScannedPayload ?: it.qrCode ?: it.qrCodePayload ?: "N/A"}")
+                    append("Reservation ID: ${it.id ?: it.bookingId ?: "N/A"}\n")
+                    append("Customer: ${it.evOwnerNic ?: it.ownerNic ?: "N/A"}\n")
+                    append("Station: ${it.stationName ?: it.stationId}\n")
+                    append("Location: ${it.stationLocation ?: "N/A"}\n")
+                    append("Slot: ${it.slotNumber ?: "N/A"}\n")
+                    append("Start: ${it.startTime ?: it.reservationDateTime ?: "N/A"}\n")
+                    append("Duration: ${it.duration?.let { "$it mins" } ?: "N/A"}\n")
+                    append("Status: ${it.status.name}\n")
+                    append("QR Code: ${lastScannedPayload ?: it.qrCode ?: it.qrCodePayload ?: "N/A"}")
                 }
                 binding.txtReservationInfo.text = info
                 
-                Snackbar.make(binding.root, "✅ Arrival confirmed successfully!", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, "Arrival confirmed successfully!", Snackbar.LENGTH_LONG).show()
             }
         }
         
         vm.error.observe(this) { msg ->
             msg?.let { 
-                Snackbar.make(binding.root, "❌ $it", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
             }
         }
     }

@@ -125,7 +125,7 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
                                     ?: appStation.connectorTypes.firstOrNull()
                                     ?: "EV"
 
-                                // ⚡ Marker color depends on station status
+                                // Marker color depends on station status
                                 val markerIcon = MarkerUtils.createEvMarkerBitmap(
                                     context = requireContext(),
                                     label = powerLabel,

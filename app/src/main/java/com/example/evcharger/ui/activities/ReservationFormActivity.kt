@@ -113,7 +113,7 @@ class ReservationFormActivity : AppCompatActivity() {
     
     private fun setupSlotSpinner() {
         val slotOptions = availableSlots.map { slot ->
-            "Slot ${slot.slotNumber} - ${slot.connectorType} (${slot.powerRating}kW) ${if (slot.isAvailable) "✓" else "✗"}"
+            "Slot ${slot.slotNumber} - ${slot.connectorType} (${slot.powerRating}kW) ${if (slot.isAvailable) "Available" else "Unavailable"}"
         }
         
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, slotOptions)
@@ -237,11 +237,11 @@ class ReservationFormActivity : AppCompatActivity() {
             
             binding.cardSummary.visibility = android.view.View.VISIBLE
             binding.txtSummary.text = buildString {
-                append("📍 Station: $stationName\n")
-                append("📅 Date: ${date.format(dateFormatter)}\n")
-                append("⏰ Time: ${startTime.format(timeFormatter)} - ${endTime.format(timeFormatter)}\n")
-                append("⚡ Duration: $duration hours\n")
-                append("🔌 Slot: #$slotNum (${slot?.connectorType ?: "Unknown"}, ${slot?.powerRating ?: 0}kW)")
+                append("Station: $stationName\n")
+                append("Date: ${date.format(dateFormatter)}\n")
+                append("Time: ${startTime.format(timeFormatter)} - ${endTime.format(timeFormatter)}\n")
+                append("Duration: $duration hours\n")
+                append("Slot: #$slotNum (${slot?.connectorType ?: "Unknown"}, ${slot?.powerRating ?: 0}kW)")
             }
             
             // Enable submit button if end time is after start time
@@ -299,7 +299,7 @@ class ReservationFormActivity : AppCompatActivity() {
                 binding.progressBooking.visibility = android.view.View.GONE
                 Snackbar.make(
                     binding.root, 
-                    "✓ Reservation confirmed! ID: ${it.id}", 
+                    "Reservation confirmed! ID: ${it.id}", 
                     Snackbar.LENGTH_LONG
                 ).show()
                 

@@ -92,11 +92,11 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
             // Set station details
             val details = buildString {
                 s.chargingPowerKw?.let { 
-                    append("⚡ Power: ${it}kW\n") 
+                    append("Power: ${it}kW\n") 
                 }
-                append("📊 Status: ${s.status ?: "Unknown"}\n")
+                append("Status: ${s.status ?: "Unknown"}\n")
                 s.lastUpdated?.let { 
-                    append("🕒 Updated: ${it.take(10)}") 
+                    append("Updated: ${it.take(10)}") 
                 }
             }
             binding.txtStationDetails.text = details.trim()

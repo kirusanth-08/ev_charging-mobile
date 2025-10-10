@@ -109,7 +109,7 @@
                         style="@style/CustomButtonPrimary"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:text="⚡ Login as Operator"
+                        android:text="Login as Operator"
                         android:textSize="16sp"
                         android:textStyle="bold"/>
                 </LinearLayout>
@@ -130,11 +130,11 @@
                         android:layout_height="120dp"
                         android:background="@drawable/bg_qr_container"
                         android:layout_marginBottom="20dp">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="📱"
-                            android:textSize="64sp"
+                        <ImageView
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:src="@android:drawable/ic_menu_camera"
+                            android:tint="@color/primary"
                             android:layout_gravity="center"/>
                     </FrameLayout>
                     <TextView
@@ -185,7 +185,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="✅ QR Code Scanned"
+                            android:text="QR Code Scanned"
                             android:textSize="18sp"
                             android:textColor="@color/primary"
                             android:textStyle="bold"/>
@@ -231,7 +231,7 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="⚡ Confirm Again"
+                            android:text="Confirm Again"
                             android:textSize="14sp"
                             android:layout_marginStart="8dp"/>
                     </LinearLayout>

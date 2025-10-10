@@ -46,7 +46,7 @@ class ProfileActivity : AppCompatActivity() {
         val session = sessionManager.loadSession()
         currentNic = session.nic ?: intent.getStringExtra("NIC")
         
-        // ✅ IMPORTANT: Set auth token in RetrofitClient before making API calls
+        // IMPORTANT: Set auth token in RetrofitClient before making API calls
         // This ensures the Authorization header is included in the profile API request
         session.token?.let { token ->
             com.example.evcharger.network.RetrofitClient.setAuthToken(token)
