@@ -12,6 +12,17 @@ data class UserSession(
     val expiresAt: String?
 )
 
+/**
+ * Manages user session data using encrypted shared preferences.
+ * 
+ * Note: EncryptedSharedPreferences is deprecated in favor of DataStore.
+ * However, for this use case (simple key-value storage with encryption),
+ * it remains a stable and secure solution. Consider migrating to DataStore
+ * in future updates for better coroutine support and type safety.
+ * 
+ * @suppress DEPRECATION EncryptedSharedPreferences still fully functional
+ */
+@Suppress("DEPRECATION")
 class UserSessionManager(context: Context) {
     private val prefsName = "ev_charger_secure_prefs"
 

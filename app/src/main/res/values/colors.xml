@@ -48,4 +48,9 @@
     <color name="on_surface_dark">#FFFFFF</color>
     <color name="on_background_light">#212121</color>
     <color name="on_background_dark">#FFFFFF</color>
+    
+    <!-- Lightning Yellow Theme (Custom UI) -->
+    <color name="lightning_yellow">#FDD835</color>
+    <color name="lightning_yellow_dark">#F9A825</color>
+    <color name="lightning_yellow_light">#FFF9C4</color>
 </resources>

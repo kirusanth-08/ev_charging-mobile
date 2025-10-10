@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!-- ==================== Custom Card Styles ==================== -->
+    
+    <style name="CustomCard" parent="">
+        <item name="android:background">@drawable/bg_custom_card</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    
+    <style name="CustomCardElevated" parent="">
+        <item name="android:background">@drawable/bg_custom_card_elevated</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    
+    <style name="CustomStatsCard" parent="">
+        <item name="android:background">@drawable/bg_stats_card_gradient</item>
+        <item name="android:padding">16dp</item>
+    </style>
+    
+    <!-- ==================== Custom Button Styles ==================== -->
+    
+    <style name="CustomButtonPrimary" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/bg_custom_button_primary</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:minHeight">50dp</item>
+        <item name="android:elevation">4dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+    
+    <style name="CustomButtonOutline" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/bg_custom_button_outline</item>
+        <item name="android:textColor">@color/lightning_yellow</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:minHeight">50dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+    
+    <style name="CustomButtonSmall" parent="CustomButtonPrimary">
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+    
+    <!-- ==================== Custom Input/EditText Styles ==================== -->
+    
+    <style name="CustomEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/bg_custom_input_selector</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:minHeight">54dp</item>
+    </style>
+    
+    <!-- ==================== Custom Toolbar/AppBar Styles ==================== -->
+    
+    <style name="CustomToolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@drawable/bg_custom_toolbar</item>
+        <item name="android:elevation">8dp</item>
+        <item name="titleTextColor">@color/text_primary</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
+    
+    <!-- ==================== Custom Text Styles ==================== -->
+    
+    <style name="CustomTitle">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+    
+    <style name="CustomSubtitle">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <style name="CustomHeading">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+    
+    <style name="CustomBody">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+    
+    <style name="CustomCaption">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+    
+    <!-- ==================== Icon Button Styles ==================== -->
+    
+    <style name="CustomIconButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:tint">@color/text_primary</item>
+    </style>
+    
+    <!-- ==================== Divider Style ==================== -->
+    
+    <style name="CustomDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/divider</item>
+    </style>
+
+</resources>

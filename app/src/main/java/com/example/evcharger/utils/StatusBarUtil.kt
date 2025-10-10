@@ -5,11 +5,13 @@ import android.os.Build
 import android.view.Window
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.example.evcharger.R
 
 /**
  * Utility class for managing status bar appearance across the app.
  * Provides methods for transparent, colored, and edge-to-edge status bars.
+ * Uses modern WindowInsetsController API to avoid deprecated methods.
  */
 object StatusBarUtil {
     
@@ -20,10 +22,7 @@ object StatusBarUtil {
      * @param lightIcons True for dark icons (light background), false for light icons (dark background)
      */
     fun makeTransparent(activity: Activity, lightIcons: Boolean = true) {
-        activity.window.statusBarColor = ContextCompat.getColor(
-            activity, 
-            android.R.color.transparent
-        )
+        setStatusBarColor(activity, android.R.color.transparent)
         setIconColor(activity, lightIcons)
     }
     
@@ -34,10 +33,7 @@ object StatusBarUtil {
      * @param activity The activity to apply the status bar to
      */
     fun setGreen(activity: Activity) {
-        activity.window.statusBarColor = ContextCompat.getColor(
-            activity, 
-            R.color.primary
-        )
+        setStatusBarColor(activity, R.color.primary)
         setIconColor(activity, lightIcons = false)
     }
     
@@ -48,10 +44,7 @@ object StatusBarUtil {
      * @param activity The activity to apply the status bar to
      */
     fun setBlack(activity: Activity) {
-        activity.window.statusBarColor = ContextCompat.getColor(
-            activity, 
-            android.R.color.black
-        )
+        setStatusBarColor(activity, android.R.color.black)
         setIconColor(activity, lightIcons = false)
     }
     
@@ -63,7 +56,7 @@ object StatusBarUtil {
      */
     fun setSurface(activity: Activity, isLightMode: Boolean = true) {
         val colorRes = if (isLightMode) R.color.surface_light else R.color.surface_dark
-        activity.window.statusBarColor = ContextCompat.getColor(activity, colorRes)
+        setStatusBarColor(activity, colorRes)
         setIconColor(activity, lightIcons = isLightMode)
     }
     
@@ -106,5 +99,16 @@ object StatusBarUtil {
                 )
             }
         }
+    }
+    
+    /**
+     * Helper method to set status bar color
+     * Encapsulates status bar color changes to avoid code duplication
+     * 
+     * @param activity The activity to apply the color to
+     * @param colorRes The color resource ID
+     */
+    private fun setStatusBarColor(activity: Activity, colorRes: Int) {
+        activity.window.statusBarColor = ContextCompat.getColor(activity, colorRes)
     }
 }
