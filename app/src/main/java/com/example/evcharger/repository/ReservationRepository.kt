@@ -57,9 +57,29 @@ class ReservationRepository {
     suspend fun confirm(reservationId: String, operatorId: String) =
         RetrofitClient.api.confirmBooking(ConfirmBookingRequest(reservationId, operatorId))
 
-    // Create reservation with BookingRequest (PascalCase JSON keys). This wraps the /api/booking endpoint.
-//    suspend fun createReservation(request: com.example.evcharger.model.BookingRequest) =
-//        RetrofitClient.api.postBooking(request)
+    /**
+     * Create a new booking using the new booking endpoint
+     * Body format: {"StationId":"ST20251005780","SlotNumber":1,"ReservationDateTime":"2025-10-11T10:00:00Z","Duration":4}
+     * @param stationId The ID of the charging station
+     * @param slotNumber The slot number to book (1-based)
+     * @param reservationDateTime ISO 8601 datetime string (e.g., "2025-10-11T10:00:00Z")
+     * @param duration Duration in hours (e.g., 4)
+     * @return ApiResponse containing BookingResponseData with QR code and booking details
+     */
+    suspend fun createBooking(
+        stationId: String,
+        slotNumber: Int,
+        reservationDateTime: String,
+        duration: Int
+    ): Result<BookingResponseData> {
+        val request = BookingRequest(stationId, slotNumber, reservationDateTime, duration)
+        val res = RetrofitClient.api.postBooking(request)
+        return if (res.isSuccessful && res.body()?.success == true && res.body()?.data != null) {
+            Result.success(res.body()!!.data!!)
+        } else {
+            Result.failure(Exception(res.body()?.message ?: "Failed to create booking"))
+        }
+    }
 
     // Station operator confirms arrival by scanning QR and posting { "QrCode": "..." }
     suspend fun confirmArrival(qrCode: String) =

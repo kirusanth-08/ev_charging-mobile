@@ -18,8 +18,9 @@ interface ApiService {
     suspend fun createReservation(@Body body: CreateReservationRequest): Response<ApiResponse<Reservation>>
 
     // New booking endpoint matching `/api/booking` that accepts PascalCase property names
-//    @POST("booking")
-//    suspend fun postBooking(@Body body: com.example.evcharger.model.BookingRequest): Response<com.example.evcharger.model.ApiResponse<com.example.evcharger.model.BookingResponseData>>
+    // Body: {"StationId":"ST20251005780","SlotNumber":1,"ReservationDateTime":"2025-10-11T10:00:00Z","Duration":4}
+    @POST("booking")
+    suspend fun postBooking(@Body body: BookingRequest): Response<ApiResponse<BookingResponseData>>
 
     @PUT("booking/{id}")
     suspend fun modifyReservation(
