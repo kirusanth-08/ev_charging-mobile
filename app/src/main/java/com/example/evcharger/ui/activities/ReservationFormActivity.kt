@@ -353,8 +353,18 @@ class ReservationFormActivity : AppCompatActivity() {
             return
         }
         
-        // Submit reservation
-        vm.create(nic, stationId, startDateTime)
+        // Calculate duration in hours
+        val duration = ChronoUnit.HOURS.between(startDateTime, endDateTime).toInt()
+        
+        // Format datetime to ISO 8601 with Z suffix (UTC)
+        val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        val reservationDateTime = startDateTime.format(formatter) + "Z"
+        
+        // Show progress
+        binding.progressBooking.visibility = android.view.View.VISIBLE
+        
+        // Submit booking using new API format
+        vm.createBooking(stationId, selectedSlotNumber!!, reservationDateTime, duration)
     }
     
     private fun setupObservers() {
@@ -364,6 +374,23 @@ class ReservationFormActivity : AppCompatActivity() {
                 Snackbar.make(
                     binding.root, 
                     "Reservation confirmed! ID: ${it.id}", 
+                    Snackbar.LENGTH_LONG
+                ).show()
+                
+                // Delay and finish
+                binding.root.postDelayed({
+                    finish()
+                }, 2000)
+            }
+        }
+        
+        // Observer for new booking API response
+        vm.bookingResult.observe(this) { bookingData ->
+            bookingData?.let {
+                binding.progressBooking.visibility = android.view.View.GONE
+                Snackbar.make(
+                    binding.root, 
+                    "Booking confirmed! ID: ${it.bookingId}", 
                     Snackbar.LENGTH_LONG
                 ).show()
                 
