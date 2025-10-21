@@ -3,6 +3,7 @@ package com.example.evcharger.ui.activities
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import com.journeyapps.barcodescanner.ScanOptions
 import com.journeyapps.barcodescanner.ScanContract
@@ -15,7 +16,8 @@ import com.example.evcharger.utils.StatusBarUtil
  * Operator login and QR scanning screen.
  * - Allows operator to login to obtain token
  * - Scans QR to retrieve booking
- * - Confirms booking
+ * - Shows confirmation dialog before confirming arrival
+ * - Confirms booking after operator verification
  */
 class QRScannerActivity : AppCompatActivity() {
 
@@ -24,9 +26,9 @@ class QRScannerActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult(ScanContract()) { result ->
         if (result != null && result.contents != null) {
-            // store payload and immediately confirm arrival by posting the QR payload
+            // Store payload and show confirmation dialog
             lastScannedPayload = result.contents
-            vm.confirmArrival(result.contents)
+            showArrivalConfirmationDialog(result.contents)
         } else {
             Snackbar.make(binding.root, "Scan cancelled", Snackbar.LENGTH_SHORT).show()
         }
@@ -104,18 +106,49 @@ class QRScannerActivity : AppCompatActivity() {
     }
     
     /**
-     * Start the QR code scanner
+     * Start the QR code scanner with portrait orientation locked
      */
     private fun startQRScanner() {
         val opts = ScanOptions().setDesiredBarcodeFormats(ScanOptions.QR_CODE)
         opts.setPrompt("Scan reservation QR code")
         opts.setBeepEnabled(true)
-        try {
-            opts.setOrientationLocked(false) // Allow rotation
-        } catch (ignored: Throwable) {
-            // If the runtime library version doesn't expose this, ignore and continue
-        }
+        opts.setOrientationLocked(true) // Lock to portrait orientation
         launcher.launch(opts)
+    }
+    
+    /**
+     * Show confirmation dialog after QR code is scanned
+     * Allows operator to verify booking details before confirming arrival
+     */
+    private fun showArrivalConfirmationDialog(qrPayload: String) {
+        AlertDialog.Builder(this)
+            .setTitle("🚗 Confirm Vehicle Arrival")
+            .setMessage(
+                "QR Code scanned successfully!\n\n" +
+                "QR Payload: ${qrPayload.take(50)}${if (qrPayload.length > 50) "..." else ""}\n\n" +
+                "Do you want to confirm the customer's arrival at the charging station?"
+            )
+            .setPositiveButton("✅ Confirm Arrival") { dialog, _ ->
+                // Operator confirmed - proceed with API call
+                vm.confirmArrival(qrPayload)
+                dialog.dismiss()
+            }
+            .setNegativeButton("❌ Cancel") { dialog, _ ->
+                // Operator cancelled - do nothing
+                Snackbar.make(
+                    binding.root, 
+                    "Arrival confirmation cancelled", 
+                    Snackbar.LENGTH_SHORT
+                ).show()
+                dialog.dismiss()
+            }
+            .setNeutralButton("🔄 Scan Again") { dialog, _ ->
+                // Rescan QR code
+                dialog.dismiss()
+                startQRScanner()
+            }
+            .setCancelable(false)
+            .show()
     }
     
     /**

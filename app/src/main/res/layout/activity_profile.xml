@@ -97,6 +97,22 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Offline Indicator Chip -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipOfflineIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:text="📱 Viewing Cached Data"
+                android:textColor="@color/primary"
+                app:chipIcon="@android:drawable/stat_sys_download_done"
+                app:chipIconTint="@color/primary"
+                app:chipBackgroundColor="#E3F2FD"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="@color/primary"
+                android:visibility="gone" />
+
             <!-- Loading Progress -->
             <ProgressBar
                 android:id="@+id/progressProfile"

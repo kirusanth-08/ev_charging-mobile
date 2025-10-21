@@ -178,6 +178,11 @@ class ProfileActivity : AppCompatActivity() {
                 viewModel.clearError()
             }
         }
+        
+        // Observe offline indicator
+        viewModel.isDataFromCache.observe(this) { isFromCache ->
+            binding.chipOfflineIndicator.visibility = if (isFromCache) View.VISIBLE else View.GONE
+        }
     }
 
     private fun formatDate(isoDate: String): String {

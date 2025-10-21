@@ -7,15 +7,24 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.evcharger.model.EvOwnerProfile
 import com.example.evcharger.repository.ProfileRepository
+import com.example.evcharger.repository.OfflineDataRepository
 import kotlinx.coroutines.launch
 
 /**
  * ViewModel for managing EV Owner profile operations.
- * Handles profile retrieval and updates.
+ * Handles profile retrieval and updates with offline caching support.
+ * 
+ * Caching Strategy:
+ * 1. Check local cache first
+ * 2. If cached data exists, display it immediately
+ * 3. Fetch fresh data from API in background
+ * 4. Update cache and UI with fresh data if API succeeds
+ * 5. If API fails but cache exists, keep showing cached data
  */
 class ProfileViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repository = ProfileRepository()
+    private val offlineRepository = OfflineDataRepository(app.applicationContext)
 
     // Profile data
     private val _profile = MutableLiveData<EvOwnerProfile?>()
@@ -32,34 +41,64 @@ class ProfileViewModel(app: Application) : AndroidViewModel(app) {
     // Success state
     private val _success = MutableLiveData<Boolean>()
     val success: LiveData<Boolean> get() = _success
+    
+    // Indicates if data is from cache (for offline indicator)
+    private val _isDataFromCache = MutableLiveData<Boolean>()
+    val isDataFromCache: LiveData<Boolean> get() = _isDataFromCache
 
     /**
-     * Load profile by NIC
+     * Load profile by NIC with offline caching support
+     * Strategy: Cache-first, then network update
      */
     fun loadProfile(nic: String) {
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
+            _isDataFromCache.value = false
             
+            // Step 1: Try to load from cache first
+            val cachedProfile = offlineRepository.getCachedUserProfile(nic)
+            if (cachedProfile != null) {
+                // Display cached data immediately
+                _profile.value = cachedProfile
+                _isDataFromCache.value = true
+                _loading.value = false
+            }
+            
+            // Step 2: Fetch fresh data from API (regardless of cache)
             try {
                 val response = repository.getProfile(nic)
                 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     if (apiResponse?.success == true && apiResponse.data != null) {
+                        // Update cache with fresh data
+                        offlineRepository.cacheUserProfile(apiResponse.data)
+                        
+                        // Update UI with fresh data
                         _profile.value = apiResponse.data
+                        _isDataFromCache.value = false
                     } else {
-                        _error.value = apiResponse?.message ?: "Failed to load profile"
+                        // API returned error - if we have cache, keep it, otherwise show error
+                        if (cachedProfile == null) {
+                            _error.value = apiResponse?.message ?: "Failed to load profile"
+                        }
                     }
                 } else {
-                    when (response.code()) {
-                        401 -> _error.value = "Unauthorized. Please login again."
-                        404 -> _error.value = "Profile not found"
-                        else -> _error.value = "Error: ${response.code()} - ${response.message()}"
+                    // HTTP error - if we have cache, keep it, otherwise show error
+                    if (cachedProfile == null) {
+                        when (response.code()) {
+                            401 -> _error.value = "Unauthorized. Please login again."
+                            404 -> _error.value = "Profile not found"
+                            else -> _error.value = "Error: ${response.code()} - ${response.message()}"
+                        }
                     }
                 }
             } catch (e: Exception) {
-                _error.value = "Network error: ${e.message}"
+                // Network error - if we have cache, keep it, otherwise show error
+                if (cachedProfile == null) {
+                    _error.value = "Network error: ${e.message}"
+                }
             } finally {
                 _loading.value = false
             }
@@ -67,7 +106,7 @@ class ProfileViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * Update profile information
+     * Update profile information with cache update
      */
     fun updateProfile(
         nic: String,
@@ -117,8 +156,13 @@ class ProfileViewModel(app: Application) : AndroidViewModel(app) {
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     if (apiResponse?.success == true && apiResponse.data != null) {
+                        // Update cache with new profile data
+                        offlineRepository.cacheUserProfile(apiResponse.data)
+                        
+                        // Update UI
                         _profile.value = apiResponse.data
                         _success.value = true
+                        _isDataFromCache.value = false
                     } else {
                         _error.value = apiResponse?.message ?: "Failed to update profile"
                     }
