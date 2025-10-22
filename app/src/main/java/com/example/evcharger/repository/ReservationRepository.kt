@@ -54,6 +54,13 @@ class ReservationRepository {
     // Confirmation of arrival is done via POST /booking/confirm-arrival with { "QrCode": "..." }.
     suspend fun getPending() = RetrofitClient.api.getPending()
 
+    /**
+     * Get pending bookings for a specific station (operator)
+     * @param stationId The station ID to filter bookings (e.g., "ST20251001123")
+     * @return Response containing list of BookingResponseData
+     */
+    suspend fun getOperatorBookings(stationId: String) = RetrofitClient.api.getOperatorBookings(stationId)
+
     suspend fun confirm(reservationId: String, operatorId: String) =
         RetrofitClient.api.confirmBooking(ConfirmBookingRequest(reservationId, operatorId))
 

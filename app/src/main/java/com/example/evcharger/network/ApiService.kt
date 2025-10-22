@@ -43,6 +43,10 @@ interface ApiService {
     @GET("booking/pending")
     suspend fun getPending(): Response<ApiResponse<List<Reservation>>>
 
+    // Get pending bookings for a specific station (operator)
+    @GET("booking/operator/bookings")
+    suspend fun getOperatorBookings(@Query("stationId") stationId: String): Response<ApiResponse<List<BookingResponseData>>>
+
     @GET("station/nearby")
     suspend fun getNearbyStations(
         @Query("latitude") lat: Double,
