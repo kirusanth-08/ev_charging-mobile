@@ -50,7 +50,8 @@ class ManageStationActivity : AppCompatActivity() {
                                     binding.rvStations.adapter = StationsAdapter(stations) { s2, en2 -> /* no-op for brevity */ }
                                     Snackbar.make(binding.root, "Slot ${slot.slotNumber} updated", Snackbar.LENGTH_SHORT).show()
                                 } else {
-                                    Snackbar.make(binding.root, "Failed to update slot", Snackbar.LENGTH_LONG).show()
+                                    val errorMsg = r.body()?.message ?: "Failed to update slot"
+                                    Snackbar.make(binding.root, errorMsg, Snackbar.LENGTH_LONG).show()
                                 }
                             } catch (t: Throwable) {
                                 Snackbar.make(binding.root, t.localizedMessage ?: "Error", Snackbar.LENGTH_LONG).show()
@@ -59,7 +60,8 @@ class ManageStationActivity : AppCompatActivity() {
                     }
                     binding.rvStations.adapter = adapter
                 } else {
-                    Snackbar.make(binding.root, "Failed to load operator stations", Snackbar.LENGTH_LONG).show()
+                    val errorMsg = res.body()?.message ?: "Failed to load operator stations"
+                    Snackbar.make(binding.root, errorMsg, Snackbar.LENGTH_LONG).show()
                 }
             } catch (t: Throwable) {
                 Snackbar.make(binding.root, t.localizedMessage ?: "Error", Snackbar.LENGTH_LONG).show()

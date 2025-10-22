@@ -42,6 +42,10 @@ class ProfileViewModel(app: Application) : AndroidViewModel(app) {
     private val _success = MutableLiveData<Boolean>()
     val success: LiveData<Boolean> get() = _success
     
+    // Deactivation success state
+    private val _deactivationSuccess = MutableLiveData<Boolean>()
+    val deactivationSuccess: LiveData<Boolean> get() = _deactivationSuccess
+    
     // Indicates if data is from cache (for offline indicator)
     private val _isDataFromCache = MutableLiveData<Boolean>()
     val isDataFromCache: LiveData<Boolean> get() = _isDataFromCache
@@ -194,5 +198,50 @@ class ProfileViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun clearSuccess() {
         _success.value = false
+    }
+
+    /**
+     * Deactivate account
+     * This will permanently deactivate the user's account
+     * @param nic The NIC of the account to deactivate
+     */
+    fun deactivateAccount(nic: String) {
+        if (nic.isBlank()) {
+            _error.value = "Invalid NIC"
+            return
+        }
+
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+            _deactivationSuccess.value = false
+            
+            try {
+                val response = repository.deactivateAccount(nic)
+                
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse?.success == true) {
+                        // Clear cached profile data
+                        offlineRepository.clearUserProfileCache(nic)
+                        
+                        _deactivationSuccess.value = true
+                    } else {
+                        _error.value = apiResponse?.message ?: "Failed to deactivate account"
+                    }
+                } else {
+                    when (response.code()) {
+                        401 -> _error.value = "Unauthorized. Please login again."
+                        404 -> _error.value = "Account not found"
+                        400 -> _error.value = "Cannot deactivate account at this time"
+                        else -> _error.value = "Error: ${response.code()} - ${response.message()}"
+                    }
+                }
+            } catch (e: Exception) {
+                _error.value = "Network error: ${e.message}"
+            } finally {
+                _loading.value = false
+            }
+        }
     }
 }

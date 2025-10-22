@@ -38,7 +38,22 @@ class SignupViewModel(app: Application) : AndroidViewModel(app) {
                     successLive.postValue(true)
                 } else {
                     // Server responded but registration failed (e.g., nic exists)
-                    errorLive.postValue(res.body()?.message ?: "Registration failed")
+                    // Extract error message from response body, even if HTTP status is not successful
+                    val errorMsg = if (res.isSuccessful) {
+                        res.body()?.message ?: "Registration failed"
+                    } else {
+                        // Try to parse error from unsuccessful response
+                        try {
+                            res.errorBody()?.string()?.let { errorBody ->
+                                // Try to parse JSON error response
+                                val jsonError = org.json.JSONObject(errorBody)
+                                jsonError.optString("message", "Registration failed")
+                            } ?: res.body()?.message ?: res.message() ?: "Registration failed"
+                        } catch (e: Exception) {
+                            res.body()?.message ?: res.message() ?: "Registration failed"
+                        }
+                    }
+                    errorLive.postValue(errorMsg)
                 }
             } catch (e: Exception) {
                 // network error - fallback to local DB registration

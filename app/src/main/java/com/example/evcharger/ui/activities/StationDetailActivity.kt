@@ -49,7 +49,8 @@ class StationDetailActivity : AppCompatActivity() {
                                         slotAdapter?.updateSlotAvailability(slot.slotNumber, enabled)
                                         Snackbar.make(binding.root, "Slot ${slot.slotNumber} updated", Snackbar.LENGTH_SHORT).show()
                                     } else {
-                                        Snackbar.make(binding.root, "Failed to update slot", Snackbar.LENGTH_LONG).show()
+                                        val errorMsg = r.body()?.message ?: "Failed to update slot"
+                                        Snackbar.make(binding.root, errorMsg, Snackbar.LENGTH_LONG).show()
                                     }
                                 } catch (t: Throwable) {
                                     Snackbar.make(binding.root, t.localizedMessage ?: "Error", Snackbar.LENGTH_LONG).show()
@@ -63,7 +64,8 @@ class StationDetailActivity : AppCompatActivity() {
                         finish()
                     }
                 } else {
-                    Snackbar.make(binding.root, "Failed to load stations", Snackbar.LENGTH_LONG).show()
+                    val errorMsg = res.body()?.message ?: "Failed to load stations"
+                    Snackbar.make(binding.root, errorMsg, Snackbar.LENGTH_LONG).show()
                     finish()
                 }
             } catch (t: Throwable) {

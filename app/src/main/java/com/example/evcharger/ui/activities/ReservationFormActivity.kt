@@ -55,6 +55,9 @@ class ReservationFormActivity : AppCompatActivity() {
         // Get data from intent
         loadIntentData()
         
+        // Check account status before allowing booking
+        checkAccountStatusBeforeBooking()
+        
         // Setup UI
         setupUI()
         setupObservers()
@@ -75,6 +78,49 @@ class ReservationFormActivity : AppCompatActivity() {
         // Update header
         binding.txtStationName.text = stationName
         binding.txtStationAddress.text = stationAddress
+    }
+    
+    private fun checkAccountStatusBeforeBooking() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val sessionManager = com.example.evcharger.auth.UserSessionManager(this@ReservationFormActivity)
+                val session = sessionManager.loadSession()
+                session.token?.let { token ->
+                    RetrofitClient.setAuthToken(token)
+                    
+                    val profileRepo = com.example.evcharger.repository.ProfileRepository()
+                    val response = profileRepo.getProfile(nic)
+                    
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        val profile = response.body()?.data
+                        val isActive = profile?.isActive ?: false
+                        
+                        if (!isActive) {
+                            withContext(Dispatchers.Main) {
+                                showAccountDeactivatedAndFinish()
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Continue if check fails
+            }
+        }
+    }
+    
+    private fun showAccountDeactivatedAndFinish() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Account Deactivated")
+            .setMessage(
+                "Your account is currently deactivated.\n\n" +
+                "Booking features are disabled.\n\n" +
+                "To reactivate your account, please contact:\n📧 contact@evcharge.com"
+            )
+            .setPositiveButton("OK") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
     }
     
     private fun setupUI() {

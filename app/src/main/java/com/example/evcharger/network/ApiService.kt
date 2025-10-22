@@ -96,4 +96,8 @@ interface ApiService {
         @Path("nic") nic: String,
         @Body body: EvOwnerUpdateRequest
     ): Response<ApiResponse<EvOwnerProfile>>
+
+    // Deactivate EV Owner account (authenticated with bearer token)
+    @PATCH("evowner/{nic}/deactivate")
+    suspend fun deactivateEvOwnerAccount(@Path("nic") nic: String): Response<ApiResponse<Unit>>
 }

@@ -85,11 +85,13 @@ class OperatorDashboardActivity : AppCompatActivity() {
                 } else {
                     launch(Dispatchers.Main) {
                         txtStationSummary.text = "Stations: 0  •  Available slots: 0"
+                        val errorMsg = resp.body()?.message ?: "Failed to load stations"
+                        Toast.makeText(this@OperatorDashboardActivity, errorMsg, Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (ex: Exception) {
                 launch(Dispatchers.Main) {
-                    Toast.makeText(this@OperatorDashboardActivity, "Failed to load stations", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@OperatorDashboardActivity, ex.localizedMessage ?: "Failed to load stations", Toast.LENGTH_SHORT).show()
                 }
             }
         }

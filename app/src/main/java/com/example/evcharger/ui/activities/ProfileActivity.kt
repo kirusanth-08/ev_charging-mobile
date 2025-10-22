@@ -80,6 +80,16 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(intent)
         }
         
+        // Deactivate account button
+        binding.btnDeactivateAccount.setOnClickListener {
+            showDeactivateAccountDialog()
+        }
+        
+        // Contact support button (for deactivated accounts)
+        binding.btnContactSupport.setOnClickListener {
+            showContactSupportDialog()
+        }
+        
         // Logout button
         binding.btnLogout.setOnClickListener {
             logout()
@@ -131,15 +141,25 @@ class ProfileActivity : AppCompatActivity() {
                     "Not set"
                 }
                 
-                // Account Status
+                // Account Status and Button State
                 if (it.isActive) {
                     binding.txtStatus.text = "Active"
                     binding.txtStatus.setTextColor(getColor(android.R.color.holo_green_dark))
                     binding.iconStatus.setColorFilter(getColor(android.R.color.holo_green_dark))
+                    
+                    // Show normal buttons for active accounts
+                    binding.btnEditProfile.visibility = View.VISIBLE
+                    binding.btnDeactivateAccount.visibility = View.VISIBLE
+                    binding.btnContactSupport.visibility = View.GONE
                 } else {
-                    binding.txtStatus.text = "Inactive"
+                    binding.txtStatus.text = "Deactivated"
                     binding.txtStatus.setTextColor(getColor(android.R.color.holo_red_dark))
                     binding.iconStatus.setColorFilter(getColor(android.R.color.holo_red_dark))
+                    
+                    // Show contact support button for deactivated accounts
+                    binding.btnEditProfile.visibility = View.GONE
+                    binding.btnDeactivateAccount.visibility = View.GONE
+                    binding.btnContactSupport.visibility = View.VISIBLE
                 }
                 
                 // Member Since
@@ -157,6 +177,7 @@ class ProfileActivity : AppCompatActivity() {
         viewModel.loading.observe(this) { isLoading ->
             binding.progressProfile.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.btnEditProfile.isEnabled = !isLoading
+            binding.btnDeactivateAccount.isEnabled = !isLoading
             binding.btnLogout.isEnabled = !isLoading
             
             if (isLoading) {
@@ -182,6 +203,13 @@ class ProfileActivity : AppCompatActivity() {
         // Observe offline indicator
         viewModel.isDataFromCache.observe(this) { isFromCache ->
             binding.chipOfflineIndicator.visibility = if (isFromCache) View.VISIBLE else View.GONE
+        }
+        
+        // Observe deactivation success
+        viewModel.deactivationSuccess.observe(this) { success ->
+            if (success) {
+                showDeactivationSuccessDialog()
+            }
         }
     }
 
@@ -232,5 +260,108 @@ class ProfileActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
+    }
+    
+    /**
+     * Show account deactivation confirmation dialog with best practices
+     */
+    private fun showDeactivateAccountDialog() {
+        // Create a multi-step confirmation dialog
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("⚠️ Deactivate Account")
+            .setMessage(
+                "Are you sure you want to deactivate your account?\n\n" +
+                "This action will:\n" +
+                "• Disable your login access\n" +
+                "• Cancel all pending bookings\n" +
+                "• Remove your data from active systems\n\n" +
+                "You can contact support to reactivate your account later."
+            )
+            .setPositiveButton("Continue") { _, _ ->
+                showFinalDeactivationConfirmation()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    /**
+     * Show final confirmation before deactivation
+     */
+    private fun showFinalDeactivationConfirmation() {
+        val editText = android.widget.EditText(this)
+        editText.hint = "Type 'DEACTIVATE' to confirm"
+        editText.setPadding(50, 30, 50, 30)
+        
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Final Confirmation")
+            .setMessage("This is your last chance to cancel.\n\nType 'DEACTIVATE' below to confirm:")
+            .setView(editText)
+            .setPositiveButton("Deactivate Account") { _, _ ->
+                val input = editText.text.toString()
+                if (input.equals("DEACTIVATE", ignoreCase = true)) {
+                    performDeactivation()
+                } else {
+                    Snackbar.make(
+                        binding.root, 
+                        "Confirmation text does not match. Account not deactivated.", 
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .setCancelable(false)
+            .show()
+    }
+    
+    /**
+     * Perform the actual account deactivation
+     */
+    private fun performDeactivation() {
+        currentNic?.let { nic ->
+            viewModel.deactivateAccount(nic)
+        } ?: run {
+            Snackbar.make(binding.root, "Error: Unable to deactivate account", Snackbar.LENGTH_LONG).show()
+        }
+    }
+    
+    /**
+     * Show success dialog after deactivation and logout
+     */
+    private fun showDeactivationSuccessDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Account Deactivated")
+            .setMessage(
+                "Your account has been successfully deactivated.\n\n" +
+                "Thank you for using our EV Charging service. " +
+                "If you wish to reactivate your account in the future, please contact our support team at:\n\n" +
+                "📧 contact@evcharge.com"
+            )
+            .setPositiveButton("OK") { _, _ ->
+                performLogout()
+            }
+            .setCancelable(false)
+            .show()
+    }
+    
+    /**
+     * Show contact support dialog for deactivated accounts
+     */
+    private fun showContactSupportDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Account Deactivated")
+            .setMessage(
+                "Your account is currently deactivated.\n\n" +
+                "To reactivate your account or for any assistance, please contact our support team:\n\n" +
+                "📧 Email: contact@evcharge.com\n\n" +
+                "Our team will respond to your request within 24-48 hours."
+            )
+            .setPositiveButton("Copy Email") { _, _ ->
+                val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Support Email", "contact@evcharge.com")
+                clipboard.setPrimaryClip(clip)
+                Snackbar.make(binding.root, "Email copied to clipboard", Snackbar.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Close", null)
+            .show()
     }
 }

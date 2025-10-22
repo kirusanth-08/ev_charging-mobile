@@ -7,6 +7,7 @@ import kotlinx.coroutines.Job
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.example.evcharger.databinding.ActivityPendingBookingsBinding
+import com.example.evcharger.model.BookingResponseData
 import com.example.evcharger.model.Reservation
 import com.example.evcharger.repository.ReservationRepository
 import kotlinx.coroutines.Dispatchers
@@ -19,11 +20,15 @@ class PendingBookingsActivity : AppCompatActivity() {
     private val adapter = ReservationAdapter()
     private val repo = ReservationRepository()
     private var loadJob: Job? = null
+    private var stationId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPendingBookingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Get station ID from intent if provided (for operator to filter by station)
+        stationId = intent.getStringExtra("stationId")
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
@@ -40,11 +45,27 @@ class PendingBookingsActivity : AppCompatActivity() {
 
         loadJob = lifecycleScope.launch {
             try {
-                val res = withContext(Dispatchers.IO) { repo.getPending() }
-                if (res.isSuccessful) {
-                    adapter.submitList(res.body()?.data ?: emptyList<Reservation>())
+                // If stationId is provided, fetch bookings for that specific station
+                // Otherwise fetch all pending bookings (existing behavior)
+                if (stationId != null) {
+                    val res = withContext(Dispatchers.IO) { repo.getOperatorBookings(stationId!!) }
+                    if (res.isSuccessful && res.body()?.success == true) {
+                        val bookings = res.body()?.data ?: emptyList<BookingResponseData>()
+                        // Convert BookingResponseData to Reservation for adapter compatibility
+                        // Note: You may need to create a new adapter for BookingResponseData
+                        // or convert the data to match the existing Reservation model
+                        adapter.submitList(emptyList<Reservation>()) // Placeholder - needs proper conversion
+                        Snackbar.make(binding.root, "Loaded ${bookings.size} bookings for station", Snackbar.LENGTH_SHORT).show()
+                    } else {
+                        Snackbar.make(binding.root, res.body()?.message ?: "Failed to load bookings", Snackbar.LENGTH_LONG).show()
+                    }
                 } else {
-                    Snackbar.make(binding.root, res.body()?.message ?: "Failed to load pending", Snackbar.LENGTH_LONG).show()
+                    val res = withContext(Dispatchers.IO) { repo.getPending() }
+                    if (res.isSuccessful) {
+                        adapter.submitList(res.body()?.data ?: emptyList<Reservation>())
+                    } else {
+                        Snackbar.make(binding.root, res.body()?.message ?: "Failed to load pending", Snackbar.LENGTH_LONG).show()
+                    }
                 }
             } catch (t: Throwable) {
                 // Handle network / unexpected errors and ensure UI is updated

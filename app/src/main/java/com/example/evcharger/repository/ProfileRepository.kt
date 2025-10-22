@@ -59,4 +59,16 @@ class ProfileRepository {
         )
         return api.updateEvOwnerProfile(nic, updateRequest)
     }
+
+    /**
+     * Deactivate EV Owner account
+     * POST /api/evowner/{nic}/deactivate
+     * Requires bearer token authentication
+     * 
+     * @param nic The NIC of the EV owner to deactivate
+     * @return Response with success/failure status
+     */
+    suspend fun deactivateAccount(nic: String): Response<ApiResponse<Unit>> {
+        return api.deactivateEvOwnerAccount(nic)
+    }
 }

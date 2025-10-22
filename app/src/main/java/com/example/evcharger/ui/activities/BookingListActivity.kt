@@ -9,6 +9,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.example.evcharger.databinding.ActivityBookingListBinding
 import com.example.evcharger.model.Reservation
 import com.example.evcharger.repository.ReservationRepository
+import com.example.evcharger.repository.ProfileRepository
+import com.example.evcharger.auth.UserSessionManager
+import com.example.evcharger.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,6 +27,7 @@ class BookingListActivity : AppCompatActivity() {
     private val adapter = ReservationAdapter()
     private val repo = ReservationRepository()
     private var loadJob: Job? = null
+    private var isAccountActive = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +49,30 @@ class BookingListActivity : AppCompatActivity() {
             finish()
         }
 
+        checkAccountStatus()
         loadData()
+    }
+    
+    private fun checkAccountStatus() {
+        lifecycleScope.launch {
+            try {
+                val sessionManager = UserSessionManager(this@BookingListActivity)
+                val session = sessionManager.loadSession()
+                session.token?.let { token ->
+                    RetrofitClient.setAuthToken(token)
+                    
+                    val profileRepo = ProfileRepository()
+                    val response = withContext(Dispatchers.IO) { profileRepo.getProfile(nic) }
+                    
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        val profile = response.body()?.data
+                        isAccountActive = profile?.isActive ?: false
+                    }
+                }
+            } catch (e: Exception) {
+                // Continue if check fails
+            }
+        }
     }
 
     private fun loadData() {
@@ -54,6 +81,18 @@ class BookingListActivity : AppCompatActivity() {
 
         loadJob = lifecycleScope.launch {
             try {
+                // Show message for deactivated accounts
+                if (!isAccountActive) {
+                    adapter.submitList(emptyList())
+                    Snackbar.make(
+                        binding.root, 
+                        "Your account is deactivated. No bookings available.", 
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    binding.swipeRefresh.isRefreshing = false
+                    return@launch
+                }
+                
                 val upcoming = withContext(Dispatchers.IO) { repo.getUpcoming(nic) }
                 val history = withContext(Dispatchers.IO) { repo.getHistory(nic) }
                 if (upcoming.isSuccessful && history.isSuccessful) {
@@ -62,7 +101,10 @@ class BookingListActivity : AppCompatActivity() {
                     history.body()?.data?.let { list.addAll(it) }
                     adapter.submitList(list)
                 } else {
-                    Snackbar.make(binding.root, "Failed to load bookings", Snackbar.LENGTH_LONG).show()
+                    val errorMsg = upcoming.body()?.message 
+                        ?: history.body()?.message 
+                        ?: "Failed to load bookings"
+                    Snackbar.make(binding.root, errorMsg, Snackbar.LENGTH_LONG).show()
                 }
             } catch (t: Throwable) {
                 Snackbar.make(binding.root, t.localizedMessage ?: "Error loading bookings", Snackbar.LENGTH_LONG).show()

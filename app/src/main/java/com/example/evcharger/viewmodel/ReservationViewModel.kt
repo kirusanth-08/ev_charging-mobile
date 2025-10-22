@@ -19,6 +19,7 @@ class ReservationViewModel : ViewModel() {
 
     val result = MutableLiveData<Reservation?>()
     val bookingResult = MutableLiveData<BookingResponseData?>()
+    val operatorBookings = MutableLiveData<List<BookingResponseData>?>()
     val error = MutableLiveData<String?>()
 
     fun create(nic: String, stationId: String, start: LocalDateTime) {
@@ -57,6 +58,25 @@ class ReservationViewModel : ViewModel() {
             repo.cancelReservation(resId, start)
                 .onSuccess { result.postValue(null) }
                 .onFailure { error.postValue(it.message) }
+        }
+    }
+
+    /**
+     * Get pending bookings for a specific station (operator)
+     * @param stationId The station ID to filter bookings (e.g., "ST20251001123")
+     */
+    fun getOperatorBookings(stationId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = repo.getOperatorBookings(stationId)
+                if (response.isSuccessful && response.body()?.success == true) {
+                    operatorBookings.postValue(response.body()?.data)
+                } else {
+                    error.postValue(response.body()?.message ?: "Failed to fetch bookings")
+                }
+            } catch (e: Exception) {
+                error.postValue(e.message ?: "Network error")
+            }
         }
     }
 }
