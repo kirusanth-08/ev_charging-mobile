@@ -94,6 +94,9 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
 
         fused.lastLocation.addOnSuccessListener { loc ->
             if (loc != null) {
+                // Show loading indicator
+                (activity as? com.example.evcharger.ui.activities.DashboardActivity)?.showLoadingIndicator()
+                
                 CoroutineScope(Dispatchers.IO).launch {
                     val res = RetrofitClient.api.getNearbyStations(loc.latitude, loc.longitude, 10)
                     if (res.isSuccessful && res.body()?.data != null) {
@@ -154,9 +157,20 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
                                     true
                                 } ?: false
                             }
+                            
+                            // Hide loading indicator
+                            (activity as? com.example.evcharger.ui.activities.DashboardActivity)?.hideLoadingIndicator()
+                        }
+                    } else {
+                        // Hide loading indicator on error
+                        requireActivity().runOnUiThread {
+                            (activity as? com.example.evcharger.ui.activities.DashboardActivity)?.hideLoadingIndicator()
                         }
                     }
                 }
+            } else {
+                // Hide loading indicator if no location
+                (activity as? com.example.evcharger.ui.activities.DashboardActivity)?.hideLoadingIndicator()
             }
         }
     }

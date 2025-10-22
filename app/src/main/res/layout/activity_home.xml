@@ -394,9 +394,9 @@
 
                 </LinearLayout>
 
-                <!-- Help -->
+                <!-- Pending Bookings -->
                 <LinearLayout
-                    android:id="@+id/btnQuickHelp"
+                    android:id="@+id/btnQuickPending"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -410,16 +410,16 @@
                     <ImageView
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@android:drawable/ic_menu_help"
-                        android:tint="@color/primary"
-                        android:contentDescription="Help"
+                        android:src="@drawable/ic_battery_charging"
+                        android:tint="@color/ev_busy"
+                        android:contentDescription="Pending"
                         android:padding="8dp"
                         android:background="@drawable/circle_background" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Help"
+                        android:text="Pending"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginTop="8dp"

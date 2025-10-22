@@ -71,6 +71,7 @@ class HomeActivity : AppCompatActivity() {
         binding.btnBookNow.visibility = View.GONE
         binding.btnManageBooking.visibility = View.GONE
         binding.btnQuickHistory.visibility = View.GONE
+        binding.btnQuickPending.visibility = View.GONE
         
         // Show deactivation notice
         binding.txtUpcomingBooking.text = "⚠️ Your account is deactivated\n\n" +
@@ -116,9 +117,12 @@ class HomeActivity : AppCompatActivity() {
             startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
         }
         
-        binding.btnQuickHelp.setOnClickListener {
-            // TODO: Add help/support screen
-            android.widget.Toast.makeText(this, "Help & Support - Coming Soon!", android.widget.Toast.LENGTH_SHORT).show()
+        binding.btnQuickPending.setOnClickListener {
+            if (!isAccountActive) {
+                showDeactivatedDialog()
+                return@setOnClickListener
+            }
+            startActivity(Intent(this, PendingBookingsActivity::class.java))
         }
     }
     

@@ -40,8 +40,9 @@ interface ApiService {
     @GET("booking/upcoming")
     suspend fun getUpcoming(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>
 
+    // Get all pending bookings for the authenticated user (requires auth token)
     @GET("booking/pending")
-    suspend fun getPending(): Response<ApiResponse<List<Reservation>>>
+    suspend fun getPending(): Response<ApiResponse<List<BookingResponseData>>>
 
     // Get pending bookings for a specific station (operator)
     @GET("booking/operator/bookings")

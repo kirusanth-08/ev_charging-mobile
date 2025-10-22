@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/surface"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/divider">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header: Booking ID and Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/txtBookingId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Booking ID: BK123"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/txtStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pending"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@drawable/status_pending_bg"
+                android:textColor="@color/ev_busy" />
+
+        </LinearLayout>
+
+        <!-- Station Information -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_charging_station"
+                android:tint="@color/primary"
+                android:contentDescription="Station"
+                android:layout_marginEnd="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txtStationName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Station Name"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/txtStationLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginTop="2dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider"
+            android:layout_marginVertical="8dp" />
+
+        <!-- Booking Details Grid -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <!-- Date/Time -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📅 Date &amp; Time"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary" />
+
+                <TextView
+                    android:id="@+id/txtDateTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Oct 25, 2025 12:00 PM"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+            <!-- Slot & Duration -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔌 Slot &amp; Duration"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:id="@+id/txtSlotNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Slot 2"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" • "
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/txtDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2 hours"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_primary" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Time Until Reservation (Countdown) -->
+        <TextView
+            android:id="@+id/txtTimeUntil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⏰ 2 days, 4 hours until reservation"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:textColor="@color/primary"
+            android:layout_marginTop="12dp"
+            android:padding="8dp"
+            android:background="@drawable/time_until_bg"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

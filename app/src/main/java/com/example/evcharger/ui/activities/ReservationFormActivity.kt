@@ -1,5 +1,6 @@
 package com.example.evcharger.ui.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.activity.viewModels
@@ -434,16 +435,30 @@ class ReservationFormActivity : AppCompatActivity() {
         vm.bookingResult.observe(this) { bookingData ->
             bookingData?.let {
                 binding.progressBooking.visibility = android.view.View.GONE
-                Snackbar.make(
-                    binding.root, 
-                    "Booking confirmed! ID: ${it.bookingId}", 
-                    Snackbar.LENGTH_LONG
-                ).show()
                 
-                // Delay and finish
-                binding.root.postDelayed({
-                    finish()
-                }, 2000)
+                // Show success dialog with pending status information
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("✅ Booking Requested")
+                    .setMessage(
+                        "Your booking request has been submitted successfully!\n\n" +
+                        "📋 Booking ID: ${it.bookingId}\n" +
+                        "📍 Station: ${it.stationId}\n" +
+                        "🔌 Slot: ${it.slotNumber}\n\n" +
+                        "⏳ Status: Pending Approval\n\n" +
+                        "Your booking is now pending and waiting for the station operator to accept it. " +
+                        "You can view your pending bookings in the 'My Bookings' section."
+                    )
+                    .setPositiveButton("View Pending Bookings") { _, _ ->
+                        // Navigate to pending bookings
+                        val intent = Intent(this, PendingBookingsActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                    .setNegativeButton("OK") { _, _ ->
+                        finish()
+                    }
+                    .setCancelable(false)
+                    .show()
             }
         }
         

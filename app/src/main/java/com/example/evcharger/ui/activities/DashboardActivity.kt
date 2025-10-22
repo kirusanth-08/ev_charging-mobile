@@ -67,9 +67,6 @@ class DashboardActivity : AppCompatActivity() {
             .commit()
 
         setupUI()
-        setupObservers()
-
-        vm.load(nic)
     }
     
     override fun onResume() {
@@ -156,22 +153,21 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
     
-    private fun setupObservers() {
-        vm.pendingCount.observe(this) { 
-            binding.txtPending.text = it.toString() 
+    /**
+     * Show loading indicator while fetching stations from API
+     */
+    fun showLoadingIndicator() {
+        runOnUiThread {
+            binding.cardLoadingIndicator.visibility = View.VISIBLE
         }
-        
-        vm.approvedFutureCount.observe(this) { 
-            binding.txtApproved.text = it.toString() 
-        }
-        
-        // Observe errors from ViewModel if available
-        vm.error.observe(this) { errorMessage ->
-            errorMessage?.let {
-                if (it.isNotEmpty()) {
-                    errorBarManager.showApiError(it)
-                }
-            }
+    }
+    
+    /**
+     * Hide loading indicator after stations are fetched
+     */
+    fun hideLoadingIndicator() {
+        runOnUiThread {
+            binding.cardLoadingIndicator.visibility = View.GONE
         }
     }
 
