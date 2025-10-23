@@ -196,6 +196,21 @@
             android:background="@drawable/time_until_bg"
             android:gravity="center" />
 
+        <!-- QR Code Indicator (shown only for approved bookings) -->
+        <TextView
+            android:id="@+id/txtQrIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📱 Tap to view QR code"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_marginTop="8dp"
+            android:padding="8dp"
+            android:background="@drawable/bg_qr_indicator"
+            android:gravity="center"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
