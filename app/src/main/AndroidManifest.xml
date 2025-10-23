@@ -32,6 +32,7 @@
         <activity android:name=".ui.activities.ReservationFormActivity" />
         <activity android:name=".ui.activities.BookingListActivity" />
         <activity android:name=".ui.activities.PendingBookingsActivity" />
+        <activity android:name=".ui.activities.UpdateBookingActivity" />
         <activity android:name=".ui.activities.DashboardActivity" />
         <activity android:name=".ui.activities.HomeActivity" />
         <activity android:name=".ui.activities.ProfileActivity" />

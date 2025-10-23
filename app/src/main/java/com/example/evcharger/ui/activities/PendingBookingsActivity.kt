@@ -127,14 +127,114 @@ class PendingBookingsActivity : AppCompatActivity() {
             }
             
             if (booking.canCancel == true) {
-                append("✓ You can cancel this booking")
+                append("✓ You can cancel this booking\n")
+            }
+            if (booking.canModify == true) {
+                append("✓ You can modify this booking")
             }
         }
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        val dialogBuilder = androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("📋 Booking Details")
             .setMessage(message)
-            .setPositiveButton("OK", null)
+            .setPositiveButton("Close", null)
+        
+        // Add update button if canModify is true
+        if (booking.canModify == true) {
+            dialogBuilder.setNeutralButton("Update") { _, _ ->
+                openUpdateBooking(booking)
+            }
+        }
+        
+        // Add cancel button if canCancel is true
+        if (booking.canCancel == true) {
+            dialogBuilder.setNegativeButton("Cancel Booking") { _, _ ->
+                confirmCancelBooking(booking)
+            }
+        }
+        
+        dialogBuilder.show()
+    }
+    
+    private fun openUpdateBooking(booking: BookingResponseData) {
+        val intent = android.content.Intent(this, UpdateBookingActivity::class.java).apply {
+            putExtra("bookingId", booking.bookingId)
+            putExtra("evOwnerNic", booking.evOwnerNic)
+            putExtra("stationId", booking.stationId)
+            putExtra("stationName", booking.stationName)
+            putExtra("stationLocation", booking.stationLocation)
+            putExtra("slotNumber", booking.slotNumber)
+            putExtra("reservationDateTime", booking.reservationDateTime)
+            putExtra("duration", booking.duration)
+            putExtra("status", booking.status)
+        }
+        startActivityForResult(intent, REQUEST_UPDATE_BOOKING)
+    }
+    
+    private fun confirmCancelBooking(booking: BookingResponseData) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("⚠️ Cancel Booking")
+            .setMessage(
+                "Are you sure you want to cancel this booking?\n\n" +
+                "Booking ID: ${booking.bookingId}\n" +
+                "Station: ${booking.stationName}\n" +
+                "Slot: ${booking.slotNumber}\n\n" +
+                "This action cannot be undone."
+            )
+            .setPositiveButton("Yes, Cancel") { _, _ ->
+                cancelBooking(booking.bookingId)
+            }
+            .setNegativeButton("No", null)
             .show()
+    }
+    
+    private fun cancelBooking(bookingId: String) {
+        binding.swipeRefresh.isRefreshing = true
+        
+        lifecycleScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) { 
+                    repo.cancelBooking(bookingId) 
+                }
+                
+                binding.swipeRefresh.isRefreshing = false
+                
+                if (result.isSuccess) {
+                    Snackbar.make(
+                        binding.root, 
+                        "✅ Booking cancelled successfully", 
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                    
+                    // Reload data
+                    loadData()
+                } else {
+                    Snackbar.make(
+                        binding.root, 
+                        "Error: ${result.exceptionOrNull()?.message}", 
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            } catch (t: Throwable) {
+                binding.swipeRefresh.isRefreshing = false
+                Snackbar.make(
+                    binding.root, 
+                    "Error: ${t.localizedMessage}", 
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+    
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_UPDATE_BOOKING && resultCode == RESULT_OK) {
+            // Reload data after successful update
+            loadData()
+        }
+    }
+    
+    companion object {
+        private const val REQUEST_UPDATE_BOOKING = 1001
     }
 }

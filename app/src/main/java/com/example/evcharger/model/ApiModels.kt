@@ -28,6 +28,12 @@ data class BookingRequest(
     @SerializedName("Duration") val duration: Int
 )
 
+// Update booking request: {"ReservationDateTime":"2025-10-26T10:00:00Z","Duration":3}
+data class UpdateBookingRequest(
+    @SerializedName("ReservationDateTime") val reservationDateTime: String,
+    @SerializedName("Duration") val duration: Int
+)
+
 // Response data returned under "data" for the booking endpoint
 data class BookingResponseData(
     val bookingId: String,

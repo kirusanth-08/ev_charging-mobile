@@ -48,6 +48,17 @@ interface ApiService {
     @GET("booking/operator/bookings")
     suspend fun getOperatorBookings(@Query("stationId") stationId: String): Response<ApiResponse<List<BookingResponseData>>>
 
+    // Update pending booking (only ReservationDateTime and Duration can be updated)
+    @PUT("booking/{bookingId}")
+    suspend fun updateBooking(
+        @Path("bookingId") bookingId: String,
+        @Body body: UpdateBookingRequest
+    ): Response<ApiResponse<BookingResponseData>>
+
+    // Cancel/delete a booking
+    @DELETE("booking/{bookingId}")
+    suspend fun cancelBooking(@Path("bookingId") bookingId: String): Response<ApiResponse<Unit>>
+
     @GET("station/nearby")
     suspend fun getNearbyStations(
         @Query("latitude") lat: Double,

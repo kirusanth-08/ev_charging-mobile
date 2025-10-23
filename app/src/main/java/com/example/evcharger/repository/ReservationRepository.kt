@@ -91,4 +91,39 @@ class ReservationRepository {
     // Station operator confirms arrival by scanning QR and posting { "QrCode": "..." }
     suspend fun confirmArrival(qrCode: String) =
         RetrofitClient.api.confirmArrival(com.example.evcharger.model.ConfirmArrivalRequest(qrCode))
+
+    /**
+     * Update a pending booking (only ReservationDateTime and Duration can be updated)
+     * @param bookingId The booking ID (e.g., "BK202510221834388225")
+     * @param reservationDateTime New ISO 8601 datetime string (e.g., "2025-10-26T10:00:00Z")
+     * @param duration New duration in hours
+     * @return Result containing updated BookingResponseData
+     */
+    suspend fun updateBooking(
+        bookingId: String,
+        reservationDateTime: String,
+        duration: Int
+    ): Result<BookingResponseData> {
+        val request = UpdateBookingRequest(reservationDateTime, duration)
+        val res = RetrofitClient.api.updateBooking(bookingId, request)
+        return if (res.isSuccessful && res.body()?.success == true && res.body()?.data != null) {
+            Result.success(res.body()!!.data!!)
+        } else {
+            Result.failure(Exception(res.body()?.message ?: "Failed to update booking"))
+        }
+    }
+
+    /**
+     * Cancel/delete a booking
+     * @param bookingId The booking ID (e.g., "BK202510021000001234")
+     * @return Result indicating success or failure
+     */
+    suspend fun cancelBooking(bookingId: String): Result<Unit> {
+        val res = RetrofitClient.api.cancelBooking(bookingId)
+        return if (res.isSuccessful && res.body()?.success == true) {
+            Result.success(Unit)
+        } else {
+            Result.failure(Exception(res.body()?.message ?: "Failed to cancel booking"))
+        }
+    }
 }
