@@ -213,4 +213,18 @@ class ReservationRepository(private val context: Context? = null) {
             Result.failure(Exception(res.body()?.message ?: "Failed to cancel booking"))
         }
     }
+
+    /**
+     * Approve a pending booking (for station operators)
+     * @param bookingId The booking ID to approve (e.g., "BK202510021000001234")
+     * @return Result containing approved BookingResponseData
+     */
+    suspend fun approveBooking(bookingId: String): Result<BookingResponseData> {
+        val res = RetrofitClient.api.approveBooking(bookingId)
+        return if (res.isSuccessful && res.body()?.success == true && res.body()?.data != null) {
+            Result.success(res.body()!!.data!!)
+        } else {
+            Result.failure(Exception(res.body()?.message ?: "Failed to approve booking"))
+        }
+    }
 }

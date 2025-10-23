@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.evcharger.databinding.ActivityOperatorPendingBookingsBinding
 import com.example.evcharger.model.BookingResponseData
 import com.example.evcharger.network.RetrofitClient
+import com.example.evcharger.repository.ReservationRepository
 import com.example.evcharger.ui.adapters.OperatorBookingAdapter
 import com.example.evcharger.utils.StatusBarUtil
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,6 +27,7 @@ class OperatorPendingBookingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityOperatorPendingBookingsBinding
     private lateinit var adapter: OperatorBookingAdapter
     private val pendingBookings = mutableListOf<BookingResponseData>()
+    private val reservationRepository = ReservationRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,20 +111,139 @@ class OperatorPendingBookingsActivity : AppCompatActivity() {
     }
 
     private fun handleApproveBooking(booking: BookingResponseData) {
-        // TODO: Implement approval logic
-        // This might call a different endpoint like PATCH /api/booking/{id}/approve
-        Toast.makeText(this, "Approve: ${booking.bookingId}", Toast.LENGTH_SHORT).show()
+        // Show confirmation dialog
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Approve Booking")
+            .setMessage("Are you sure you want to approve booking ${booking.bookingId}?")
+            .setPositiveButton("Approve") { _, _ ->
+                approveBooking(booking)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun approveBooking(booking: BookingResponseData) {
+        lifecycleScope.launch {
+            try {
+                showLoading(true)
+                
+                withContext(Dispatchers.IO) {
+                    val result = reservationRepository.approveBooking(booking.bookingId)
+                    
+                    withContext(Dispatchers.Main) {
+                        showLoading(false)
+                        
+                        result.fold(
+                            onSuccess = { approvedBooking ->
+                                Toast.makeText(
+                                    this@OperatorPendingBookingsActivity,
+                                    "Booking ${booking.bookingId} approved successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                
+                                // Remove from the list and refresh UI
+                                pendingBookings.remove(booking)
+                                adapter.notifyDataSetChanged()
+                                binding.tvBookingCount.text = "${pendingBookings.size} pending request(s)"
+                                updateEmptyState()
+                            },
+                            onFailure = { error ->
+                                showError(error.localizedMessage ?: "Failed to approve booking")
+                            }
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+                    showError(e.localizedMessage ?: "Network error occurred")
+                }
+            }
+        }
     }
 
     private fun handleRejectBooking(booking: BookingResponseData) {
-        // TODO: Implement rejection logic
-        // This might call DELETE /api/booking/{id} or PATCH with rejection status
-        Toast.makeText(this, "Reject: ${booking.bookingId}", Toast.LENGTH_SHORT).show()
+        // Show confirmation dialog
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Reject Booking")
+            .setMessage("Are you sure you want to reject booking ${booking.bookingId}? This action cannot be undone.")
+            .setPositiveButton("Reject") { _, _ ->
+                rejectBooking(booking)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun rejectBooking(booking: BookingResponseData) {
+        lifecycleScope.launch {
+            try {
+                showLoading(true)
+                
+                withContext(Dispatchers.IO) {
+                    val result = reservationRepository.cancelBooking(booking.bookingId)
+                    
+                    withContext(Dispatchers.Main) {
+                        showLoading(false)
+                        
+                        result.fold(
+                            onSuccess = {
+                                Toast.makeText(
+                                    this@OperatorPendingBookingsActivity,
+                                    "Booking ${booking.bookingId} rejected successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                
+                                // Remove from the list and refresh UI
+                                pendingBookings.remove(booking)
+                                adapter.notifyDataSetChanged()
+                                binding.tvBookingCount.text = "${pendingBookings.size} pending request(s)"
+                                updateEmptyState()
+                            },
+                            onFailure = { error ->
+                                showError(error.localizedMessage ?: "Failed to reject booking")
+                            }
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+                    showError(e.localizedMessage ?: "Network error occurred")
+                }
+            }
+        }
     }
 
     private fun handleViewDetails(booking: BookingResponseData) {
-        // TODO: Navigate to booking details screen
-        Toast.makeText(this, "View details: ${booking.bookingId}", Toast.LENGTH_SHORT).show()
+        val details = buildString {
+            appendLine("Booking ID: ${booking.bookingId}")
+            appendLine("Customer NIC: ${booking.evOwnerNic ?: "N/A"}")
+            appendLine("Station: ${booking.stationName ?: "N/A"}")
+            appendLine("Location: ${booking.stationLocation ?: "N/A"}")
+            appendLine("Slot Number: ${booking.slotNumber ?: "N/A"}")
+            appendLine("Reservation Time: ${booking.reservationDateTime ?: "N/A"}")
+            appendLine("Duration: ${booking.duration ?: 0} hour(s)")
+            appendLine("Status: ${booking.status ?: "N/A"}")
+            appendLine("Created At: ${booking.createdAt ?: "N/A"}")
+            if (booking.approvedBy != null) {
+                appendLine("Approved By: ${booking.approvedBy}")
+            }
+            if (booking.approvedAt != null) {
+                appendLine("Approved At: ${booking.approvedAt}")
+            }
+            if (booking.energyConsumed != null) {
+                appendLine("Energy Consumed: ${booking.energyConsumed} kWh")
+            }
+            if (booking.cost != null) {
+                appendLine("Cost: LKR ${booking.cost}")
+            }
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Booking Details")
+            .setMessage(details)
+            .setPositiveButton("Close", null)
+            .show()
     }
 
     private fun showLoading(show: Boolean) {
