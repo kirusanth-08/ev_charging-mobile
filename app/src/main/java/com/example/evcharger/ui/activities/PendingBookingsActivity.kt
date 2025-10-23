@@ -140,6 +140,7 @@ class PendingBookingsActivity : AppCompatActivity() {
         val btnClose = dialogView.findViewById<android.widget.ImageButton>(com.example.evcharger.R.id.btnClose)
         val btnUpdate = dialogView.findViewById<android.widget.Button>(com.example.evcharger.R.id.btnUpdate)
         val btnCancel = dialogView.findViewById<android.widget.Button>(com.example.evcharger.R.id.btnCancel)
+        val btnViewStation = dialogView.findViewById<android.widget.Button>(com.example.evcharger.R.id.btnViewStation)
         
         // Set data
         tvBookingId.text = booking.bookingId
@@ -200,6 +201,18 @@ class PendingBookingsActivity : AppCompatActivity() {
         // Close button
         btnClose.setOnClickListener {
             dialog.dismiss()
+        }
+        
+        // View Station button
+        btnViewStation.setOnClickListener {
+            dialog.dismiss()
+            booking.stationId?.let { stationId ->
+                val intent = android.content.Intent(this, StationDetailsActivity::class.java)
+                intent.putExtra("stationId", stationId)
+                startActivity(intent)
+            } ?: run {
+                Snackbar.make(binding.root, "Station information not available", Snackbar.LENGTH_SHORT).show()
+            }
         }
         
         dialog.show()

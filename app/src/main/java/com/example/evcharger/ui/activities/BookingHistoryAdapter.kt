@@ -10,7 +10,9 @@ import com.example.evcharger.R
 import com.example.evcharger.databinding.ItemBookingHistoryBinding
 import com.example.evcharger.model.BookingResponseData
 
-class BookingHistoryAdapter : ListAdapter<BookingResponseData, BookingHistoryAdapter.ViewHolder>(DiffCallback()) {
+class BookingHistoryAdapter(
+    private val onItemClick: (BookingResponseData) -> Unit
+) : ListAdapter<BookingResponseData, BookingHistoryAdapter.ViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemBookingHistoryBinding.inflate(
@@ -22,7 +24,11 @@ class BookingHistoryAdapter : ListAdapter<BookingResponseData, BookingHistoryAda
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val booking = getItem(position)
+        holder.bind(booking)
+        holder.itemView.setOnClickListener {
+            onItemClick(booking)
+        }
     }
 
     class ViewHolder(private val binding: ItemBookingHistoryBinding) :

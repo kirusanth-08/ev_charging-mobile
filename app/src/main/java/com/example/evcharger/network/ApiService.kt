@@ -66,6 +66,12 @@ interface ApiService {
         @Query("radius") radius: Int = 10
     ): Response<ApiResponse<List<BackendNearbyItem>>>
 
+    // Get station details by ID
+    @GET("station/{stationId}")
+    suspend fun getStationDetails(
+        @Path("stationId") stationId: String
+    ): Response<ApiResponse<BackendStationV2>>
+
     // Get station availability with slot details
     @GET("station/{stationId}/availability")
     suspend fun getStationAvailability(

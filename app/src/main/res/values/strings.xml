@@ -85,4 +85,19 @@
     <string name="not_specified">Not specified</string>
     <string name="location_not_available">Location not available</string>
     <string name="station_icon">Station icon</string>
+    
+    <!-- Station Details -->
+    <string name="error_loading_station">Failed to load station details</string>
+    <string name="station_id">Station ID</string>
+    <string name="location">Location</string>
+    <string name="station_type">Type</string>
+    <string name="status">Status</string>
+    <string name="station_active">Active</string>
+    <string name="station_inactive">Inactive</string>
+    <string name="slots_information">Slots Information</string>
+    <string name="total_slots">Total Slots</string>
+    <string name="available_slots">Available Slots</string>
+    <string name="available">Available</string>
+    <string name="unavailable">Unavailable</string>
+    <string name="view_station_details">View Station Details</string>
 </resources>

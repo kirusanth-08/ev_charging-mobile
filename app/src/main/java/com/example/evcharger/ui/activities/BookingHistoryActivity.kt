@@ -1,5 +1,6 @@
 package com.example.evcharger.ui.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -22,7 +23,16 @@ import kotlinx.coroutines.withContext
 class BookingHistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBookingHistoryBinding
-    private val adapter = BookingHistoryAdapter()
+    private val adapter = BookingHistoryAdapter { booking ->
+        // Handle booking click - navigate to station details
+        booking.stationId?.let { stationId ->
+            val intent = Intent(this, StationDetailsActivity::class.java)
+            intent.putExtra("stationId", stationId)
+            startActivity(intent)
+        } ?: run {
+            Snackbar.make(binding.root, "Station information not available", Snackbar.LENGTH_SHORT).show()
+        }
+    }
     private val repo = ReservationRepository()
     private var loadJob: Job? = null
 

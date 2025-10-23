@@ -32,6 +32,8 @@
         <activity android:name=".ui.activities.ReservationFormActivity" />
         <activity android:name=".ui.activities.BookingListActivity" />
         <activity android:name=".ui.activities.PendingBookingsActivity" />
+        <activity android:name=".ui.activities.BookingHistoryActivity" />
+        <activity android:name=".ui.activities.StationDetailsActivity" />
         <activity android:name=".ui.activities.UpdateBookingActivity" />
         <activity android:name=".ui.activities.DashboardActivity" />
         <activity android:name=".ui.activities.HomeActivity" />
