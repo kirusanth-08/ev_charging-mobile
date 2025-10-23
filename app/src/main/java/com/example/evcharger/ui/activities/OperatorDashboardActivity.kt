@@ -39,6 +39,7 @@ class OperatorDashboardActivity : AppCompatActivity() {
     val txtOperatorInfo = findViewById<TextView>(R.id.txtOperatorInfo)
     val cardScan = findViewById<MaterialCardView>(R.id.cardScan)
     val cardManage = findViewById<MaterialCardView>(R.id.cardManage)
+        val cardPendingBookings = findViewById<MaterialCardView>(R.id.cardPendingBookings)
         val txtStationSummary = findViewById<TextView>(R.id.txtStationSummary)
         val txtRecentScans = findViewById<TextView>(R.id.txtRecentScans)
 
@@ -55,6 +56,11 @@ class OperatorDashboardActivity : AppCompatActivity() {
 
         cardManage.setOnClickListener {
             val i = Intent(this, ManageStationActivity::class.java)
+            startActivity(i)
+        }
+
+        cardPendingBookings.setOnClickListener {
+            val i = Intent(this, OperatorPendingBookingsActivity::class.java)
             startActivity(i)
         }
 
@@ -124,8 +130,8 @@ class OperatorDashboardActivity : AppCompatActivity() {
     }
 
     private fun performLogout() {
-        lifecycleScope.launch {
-            sessionManager.clearSessionAsync()
+        lifecycleScope.launch(Dispatchers.IO) {
+            sessionManager.clearSession()
             RetrofitClient.setAuthToken(null)
             
             launch(Dispatchers.Main) {

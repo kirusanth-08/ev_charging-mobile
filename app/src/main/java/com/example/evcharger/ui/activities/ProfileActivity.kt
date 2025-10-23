@@ -12,6 +12,7 @@ import com.example.evcharger.viewmodel.ProfileViewModel
 import com.example.evcharger.auth.UserSessionManager
 import com.example.evcharger.utils.StatusBarUtil
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -240,18 +241,20 @@ class ProfileActivity : AppCompatActivity() {
     }
     
     private fun performLogout() {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             // Clear session
-            sessionManager.clearSessionAsync()
+            sessionManager.clearSession()
             
             // Clear token from RetrofitClient
             com.example.evcharger.network.RetrofitClient.setAuthToken(null)
             
-            // Show success message
-            Snackbar.make(binding.root, "Logged out successfully", Snackbar.LENGTH_SHORT).show()
-            
-            // Navigate to login screen
-            navigateToLogin()
+            launch(Dispatchers.Main) {
+                // Show success message
+                Snackbar.make(binding.root, "Logged out successfully", Snackbar.LENGTH_SHORT).show()
+                
+                // Navigate to login screen
+                navigateToLogin()
+            }
         }
     }
     

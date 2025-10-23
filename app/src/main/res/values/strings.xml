@@ -100,4 +100,12 @@
     <string name="available">Available</string>
     <string name="unavailable">Unavailable</string>
     <string name="view_station_details">View Station Details</string>
+    
+    <!-- Operator Pending Bookings -->
+    <string name="no_pending_bookings">No Pending Requests</string>
+    <string name="no_pending_bookings_desc">All charging requests have been processed</string>
+    <string name="approve">Approve</string>
+    <string name="reject">Reject</string>
+    <string name="view_details">View Details</string>
+    <string name="reservation_time">Reservation Time</string>
 </resources>
