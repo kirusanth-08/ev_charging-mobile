@@ -75,7 +75,29 @@ class OperatorViewModel : ViewModel() {
                 val res = repo.confirmArrival(qrCode)
                 if (res.isSuccessful && res.body()?.data != null) {
                     scannedReservation.postValue(res.body()!!.data!!)
-                } else error.postValue(res.body()?.message ?: "Confirm arrival failed")
+                } else {
+                    // Try to get message from response body first
+                    val errorMessage = res.body()?.message 
+                    
+                    // If body is null (e.g., 4xx/5xx errors), try parsing error body
+                    if (errorMessage == null && res.errorBody() != null) {
+                        try {
+                            val errorJson = res.errorBody()?.string()
+                            val gson = com.google.gson.Gson()
+                            
+                            // Parse as generic ApiResponse with Any type
+                            val errorResponse = gson.fromJson(errorJson, 
+                                object : com.google.gson.reflect.TypeToken<com.example.evcharger.model.ApiResponse<Any>>() {}.type
+                            ) as? com.example.evcharger.model.ApiResponse<*>
+                            
+                            error.postValue(errorResponse?.message ?: "Confirm arrival failed")
+                        } catch (e: Exception) {
+                            error.postValue("Confirm arrival failed")
+                        }
+                    } else {
+                        error.postValue(errorMessage ?: "Confirm arrival failed")
+                    }
+                }
             } catch (e: Exception) {
                 error.postValue(e.localizedMessage ?: "Network error")
             } finally {

@@ -26,9 +26,10 @@ class QRScannerActivity : AppCompatActivity() {
 
     private val launcher = registerForActivityResult(ScanContract()) { result ->
         if (result != null && result.contents != null) {
-            // Store payload and show confirmation dialog
+            // Store payload and directly confirm arrival
             lastScannedPayload = result.contents
-            showArrivalConfirmationDialog(result.contents)
+            // Directly call confirmArrival without showing QR code details
+            vm.confirmArrival(result.contents)
         } else {
             Snackbar.make(binding.root, "Scan cancelled", Snackbar.LENGTH_SHORT).show()
         }
@@ -93,16 +94,6 @@ class QRScannerActivity : AppCompatActivity() {
 
         // Observe ViewModel state changes
         setupObservers()
-        
-        // Confirm arrival button: post scanned QR payload to backend (manual retry)
-        binding.btnConfirmArrival.setOnClickListener {
-            val payload = lastScannedPayload ?: ""
-            if (payload.isBlank()) {
-                Snackbar.make(binding.root, "No scanned QR available to confirm", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            vm.confirmArrival(payload)
-        }
     }
     
     /**
@@ -110,45 +101,10 @@ class QRScannerActivity : AppCompatActivity() {
      */
     private fun startQRScanner() {
         val opts = ScanOptions().setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-        opts.setPrompt("Scan reservation QR code")
+        opts.setPrompt("Scan reservation QR code to confirm arrival")
         opts.setBeepEnabled(true)
         opts.setOrientationLocked(true) // Lock to portrait orientation
         launcher.launch(opts)
-    }
-    
-    /**
-     * Show confirmation dialog after QR code is scanned
-     * Allows operator to verify booking details before confirming arrival
-     */
-    private fun showArrivalConfirmationDialog(qrPayload: String) {
-        AlertDialog.Builder(this)
-            .setTitle("🚗 Confirm Vehicle Arrival")
-            .setMessage(
-                "QR Code scanned successfully!\n\n" +
-                "QR Payload: ${qrPayload.take(50)}${if (qrPayload.length > 50) "..." else ""}\n\n" +
-                "Do you want to confirm the customer's arrival at the charging station?"
-            )
-            .setPositiveButton("✅ Confirm Arrival") { dialog, _ ->
-                // Operator confirmed - proceed with API call
-                vm.confirmArrival(qrPayload)
-                dialog.dismiss()
-            }
-            .setNegativeButton("❌ Cancel") { dialog, _ ->
-                // Operator cancelled - do nothing
-                Snackbar.make(
-                    binding.root, 
-                    "Arrival confirmation cancelled", 
-                    Snackbar.LENGTH_SHORT
-                ).show()
-                dialog.dismiss()
-            }
-            .setNeutralButton("🔄 Scan Again") { dialog, _ ->
-                // Rescan QR code
-                dialog.dismiss()
-                startQRScanner()
-            }
-            .setCancelable(false)
-            .show()
     }
     
     /**
@@ -171,9 +127,16 @@ class QRScannerActivity : AppCompatActivity() {
         vm.loading.observe(this) { isLoading ->
             binding.progressOperator.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
             binding.txtLoadingMessage.visibility = if (isLoading == true) android.view.View.VISIBLE else android.view.View.GONE
+            
+            // Update loading message text
+            if (isLoading == true) {
+                binding.txtLoadingMessage.text = "Processing QR code and confirming arrival..."
+            }
+            
             // Disable inputs during operations to prevent duplicate calls
             binding.btnOperatorLogin.isEnabled = isLoading != true
             binding.btnScanQR.isEnabled = isLoading != true
+            binding.btnConfirmArrival.isEnabled = isLoading != true
         }
         
         vm.role.observe(this) { r ->
@@ -187,29 +150,47 @@ class QRScannerActivity : AppCompatActivity() {
         
         vm.scannedReservation.observe(this) {
             if (it != null) {
-                binding.reservationDetailsCard.visibility = android.view.View.VISIBLE
-                binding.txtReservationStatus.text = it.status.name
+                // Show success dialog
+                val bookingId = it.id ?: it.bookingId ?: "N/A"
+                val customerNic = it.evOwnerNic ?: it.ownerNic ?: "N/A"
+                val slotNumber = it.slotNumber ?: "N/A"
                 
-                val info = buildString {
-                    append("Reservation ID: ${it.id ?: it.bookingId ?: "N/A"}\n")
-                    append("Customer: ${it.evOwnerNic ?: it.ownerNic ?: "N/A"}\n")
-                    append("Station: ${it.stationName ?: it.stationId}\n")
-                    append("Location: ${it.stationLocation ?: "N/A"}\n")
-                    append("Slot: ${it.slotNumber ?: "N/A"}\n")
-                    append("Start: ${it.startTime ?: it.reservationDateTime ?: "N/A"}\n")
-                    append("Duration: ${it.duration?.let { "$it mins" } ?: "N/A"}\n")
-                    append("Status: ${it.status.name}\n")
-                    append("QR Code: ${lastScannedPayload ?: it.qrCode ?: it.qrCodePayload ?: "N/A"}")
-                }
-                binding.txtReservationInfo.text = info
-                
-                Snackbar.make(binding.root, "Arrival confirmed successfully!", Snackbar.LENGTH_LONG).show()
+                AlertDialog.Builder(this)
+                    .setTitle("✅ Arrival Confirmed Successfully!")
+                    .setMessage(
+                        "Booking ID: $bookingId\n" +
+                        "Customer NIC: $customerNic\n" +
+                        "Slot: $slotNumber\n\n" +
+                        "The customer's arrival has been confirmed."
+                    )
+                    .setPositiveButton("OK") { dialog, _ -> 
+                        dialog.dismiss()
+                        // Optionally clear the reservation details
+                        binding.reservationDetailsCard.visibility = android.view.View.GONE
+                    }
+                    .setNeutralButton("Scan Another") { dialog, _ ->
+                        dialog.dismiss()
+                        binding.reservationDetailsCard.visibility = android.view.View.GONE
+                        startQRScanner()
+                    }
+                    .setCancelable(false)
+                    .show()
             }
         }
         
         vm.error.observe(this) { msg ->
-            msg?.let { 
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+            msg?.let { errorMessage ->
+                // Always show error in a dialog with the actual API response message
+                AlertDialog.Builder(this)
+                    .setTitle("❌ Confirmation Failed")
+                    .setMessage(errorMessage)
+                    .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+                    .setNeutralButton("Scan Again") { dialog, _ ->
+                        dialog.dismiss()
+                        startQRScanner()
+                    }
+                    .setCancelable(false)
+                    .show()
             }
         }
     }
