@@ -35,7 +35,7 @@ interface ApiService {
     ): Response<ApiResponse<Unit>>
 
     @GET("booking/history")
-    suspend fun getHistory(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>
+    suspend fun getHistory(): Response<ApiResponse<List<BookingResponseData>>>
 
     @GET("booking/upcoming")
     suspend fun getUpcoming(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>

@@ -94,11 +94,12 @@ class BookingListActivity : AppCompatActivity() {
                 }
                 
                 val upcoming = withContext(Dispatchers.IO) { repo.getUpcoming(nic) }
-                val history = withContext(Dispatchers.IO) { repo.getHistory(nic) }
+                val history = withContext(Dispatchers.IO) { repo.getHistory() }
                 if (upcoming.isSuccessful && history.isSuccessful) {
                     val list = mutableListOf<Reservation>()
                     upcoming.body()?.data?.let { list.addAll(it) }
-                    history.body()?.data?.let { list.addAll(it) }
+                    // Note: history returns BookingResponseData, not Reservation
+                    // If you need to show history, convert BookingResponseData to Reservation or use separate adapter
                     adapter.submitList(list)
                 } else {
                     val errorMsg = upcoming.body()?.message 

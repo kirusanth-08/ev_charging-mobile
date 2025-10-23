@@ -69,9 +69,11 @@ class UpdateBookingActivity : AppCompatActivity() {
             completedAt = null,
             cancelledAt = null,
             createdAt = null,
-            timeUntilReservation = null,
+            updatedAt = null,
             canModify = null,
-            canCancel = null
+            canCancel = null,
+            timeUntilReservation = null,
+            isExpired = null
         )
         
         setupUI()

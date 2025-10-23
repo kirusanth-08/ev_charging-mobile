@@ -176,7 +176,7 @@ class HomeActivity : AppCompatActivity() {
                 val upcomingRes = withContext(Dispatchers.IO) { repo.getUpcoming(nic) }
                 
                 // Get history bookings
-                val historyRes = withContext(Dispatchers.IO) { repo.getHistory(nic) }
+                val historyRes = withContext(Dispatchers.IO) { repo.getHistory() }
                 
                 // Calculate total bookings
                 val upcomingCount = if (upcomingRes.isSuccessful) {

@@ -9,6 +9,8 @@
     <string name="action_edit">Edit</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_search">Search</string>
+    <string name="common_close">Close</string>
+    <string name="common_cancel_booking">Cancel Booking</string>
     
     <!-- Authentication -->
     <string name="auth_sign_in">Sign In</string>
@@ -31,6 +33,8 @@
     <string name="booking_offline">Offline</string>
     <string name="booking_pending">Pending</string>
     <string name="booking_approved">Approved</string>
+    <string name="booking_id">Booking ID</string>
+    <string name="booking_unknown_station">Unknown Station</string>
     
     <!-- Errors -->
     <string name="error_generic">Something went wrong. Please try again.</string>
@@ -47,4 +51,38 @@
     <string name="cd_station_icon">Station icon</string>
     <string name="cd_qr_code">QR code</string>
     <string name="cd_location">Location</string>
+    
+    <!-- Booking Details Dialog -->
+    <string name="booking_details">Booking Details</string>
+    <string name="station_details">Station Details</string>
+    <string name="reservation_details">Reservation Details</string>
+    <string name="available_actions">Available Actions</string>
+    <string name="can_modify_booking">You can modify this booking</string>
+    <string name="can_cancel_booking">You can cancel this booking</string>
+    <string name="warning">Warning</string>
+    <string name="cancel_booking_title">Cancel Booking</string>
+    <string name="cancel_booking_confirmation">Are you sure you want to cancel this booking?</string>
+    <string name="cancel_booking_warning">This action cannot be undone.</string>
+    <string name="common_no">No</string>
+    <string name="common_yes_cancel">Yes, Cancel</string>
+    
+    <!-- Update Booking -->
+    <string name="update_booking_title">Update</string>
+    <string name="update_booking_station">Station</string>
+    <string name="update_booking_slot">Slot</string>
+    
+    <!-- Booking History -->
+    <string name="booking_history">Booking History</string>
+    <string name="no_history">No History</string>
+    <string name="no_booking_history">No Booking History</string>
+    <string name="no_booking_history_desc">You haven\'t made any bookings yet.\nStart charging at your nearest station!</string>
+    <string name="error_loading_history">Failed to load booking history</string>
+    <string name="slot_number">Slot</string>
+    <string name="date_time">Date &amp; Time</string>
+    <string name="duration">Duration</string>
+    <string name="slot_format">Slot #%d</string>
+    <string name="duration_hours">%d hours</string>
+    <string name="not_specified">Not specified</string>
+    <string name="location_not_available">Location not available</string>
+    <string name="station_icon">Station icon</string>
 </resources>

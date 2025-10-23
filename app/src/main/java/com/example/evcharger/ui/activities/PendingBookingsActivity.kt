@@ -113,47 +113,96 @@ class PendingBookingsActivity : AppCompatActivity() {
     }
 
     private fun showBookingDetails(booking: BookingResponseData) {
-        // Show booking details in a dialog
-        val message = buildString {
-            append("Booking ID: ${booking.bookingId}\n\n")
-            append("Station: ${booking.stationName}\n")
-            append("Location: ${booking.stationLocation}\n")
-            append("Slot: ${booking.slotNumber}\n")
-            append("Duration: ${booking.duration} hours\n")
-            append("Status: ${booking.status}\n\n")
-            
-            if (booking.timeUntilReservation != null) {
-                append("Time until reservation: ${booking.timeUntilReservation}\n\n")
-            }
-            
-            if (booking.canCancel == true) {
-                append("✓ You can cancel this booking\n")
-            }
-            if (booking.canModify == true) {
-                append("✓ You can modify this booking")
-            }
-        }
-
-        val dialogBuilder = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("📋 Booking Details")
-            .setMessage(message)
-            .setPositiveButton("Close", null)
+        // Inflate custom dialog layout
+        val dialogView = layoutInflater.inflate(com.example.evcharger.R.layout.dialog_booking_details, null)
         
-        // Add update button if canModify is true
+        // Create dialog
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+        
+        // Make dialog background transparent to show custom rounded corners
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        
+        // Bind views
+        val tvBookingId = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvBookingId)
+        val tvStationName = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvStationName)
+        val tvLocation = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvLocation)
+        val tvSlot = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvSlot)
+        val tvDateTime = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvDateTime)
+        val tvDuration = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvDuration)
+        val chipStatus = dialogView.findViewById<com.google.android.material.chip.Chip>(com.example.evcharger.R.id.chipStatus)
+        val layoutTimeUntil = dialogView.findViewById<android.widget.LinearLayout>(com.example.evcharger.R.id.layoutTimeUntil)
+        val tvTimeUntil = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvTimeUntil)
+        val cardPermissions = dialogView.findViewById<androidx.cardview.widget.CardView>(com.example.evcharger.R.id.cardPermissions)
+        val layoutCanModify = dialogView.findViewById<android.widget.LinearLayout>(com.example.evcharger.R.id.layoutCanModify)
+        val layoutCanCancel = dialogView.findViewById<android.widget.LinearLayout>(com.example.evcharger.R.id.layoutCanCancel)
+        val btnClose = dialogView.findViewById<android.widget.ImageButton>(com.example.evcharger.R.id.btnClose)
+        val btnUpdate = dialogView.findViewById<android.widget.Button>(com.example.evcharger.R.id.btnUpdate)
+        val btnCancel = dialogView.findViewById<android.widget.Button>(com.example.evcharger.R.id.btnCancel)
+        
+        // Set data
+        tvBookingId.text = booking.bookingId
+        tvStationName.text = booking.stationName ?: "Unknown Station"
+        tvLocation.text = booking.stationLocation ?: "Location not available"
+        tvSlot.text = "Slot #${booking.slotNumber}"
+        tvDateTime.text = booking.reservationDateTime ?: "Not specified"
+        tvDuration.text = "${booking.duration} hours"
+        chipStatus.text = booking.status?.uppercase() ?: "PENDING"
+        
+        // Set status chip color
+        when (booking.status?.lowercase()) {
+            "approved" -> chipStatus.setChipBackgroundColorResource(com.example.evcharger.R.color.success)
+            "pending" -> chipStatus.setChipBackgroundColorResource(com.example.evcharger.R.color.warning)
+            "cancelled" -> chipStatus.setChipBackgroundColorResource(com.example.evcharger.R.color.error)
+            else -> chipStatus.setChipBackgroundColorResource(com.example.evcharger.R.color.text_secondary_light)
+        }
+        
+        // Handle time until reservation
+        if (booking.timeUntilReservation != null) {
+            layoutTimeUntil.visibility = android.view.View.VISIBLE
+            tvTimeUntil.text = "Time until reservation: ${booking.timeUntilReservation}"
+        } else {
+            layoutTimeUntil.visibility = android.view.View.GONE
+        }
+        
+        // Handle permissions
+        val hasPermissions = booking.canModify == true || booking.canCancel == true
+        if (hasPermissions) {
+            cardPermissions.visibility = android.view.View.VISIBLE
+            layoutCanModify.visibility = if (booking.canModify == true) android.view.View.VISIBLE else android.view.View.GONE
+            layoutCanCancel.visibility = if (booking.canCancel == true) android.view.View.VISIBLE else android.view.View.GONE
+        } else {
+            cardPermissions.visibility = android.view.View.GONE
+        }
+        
+        // Handle action buttons
         if (booking.canModify == true) {
-            dialogBuilder.setNeutralButton("Update") { _, _ ->
+            btnUpdate.visibility = android.view.View.VISIBLE
+            btnUpdate.setOnClickListener {
+                dialog.dismiss()
                 openUpdateBooking(booking)
             }
+        } else {
+            btnUpdate.visibility = android.view.View.GONE
         }
         
-        // Add cancel button if canCancel is true
         if (booking.canCancel == true) {
-            dialogBuilder.setNegativeButton("Cancel Booking") { _, _ ->
+            btnCancel.visibility = android.view.View.VISIBLE
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
                 confirmCancelBooking(booking)
             }
+        } else {
+            btnCancel.visibility = android.view.View.GONE
         }
         
-        dialogBuilder.show()
+        // Close button
+        btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
+        
+        dialog.show()
     }
     
     private fun openUpdateBooking(booking: BookingResponseData) {
@@ -172,20 +221,40 @@ class PendingBookingsActivity : AppCompatActivity() {
     }
     
     private fun confirmCancelBooking(booking: BookingResponseData) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("⚠️ Cancel Booking")
-            .setMessage(
-                "Are you sure you want to cancel this booking?\n\n" +
-                "Booking ID: ${booking.bookingId}\n" +
-                "Station: ${booking.stationName}\n" +
-                "Slot: ${booking.slotNumber}\n\n" +
-                "This action cannot be undone."
-            )
-            .setPositiveButton("Yes, Cancel") { _, _ ->
-                cancelBooking(booking.bookingId)
-            }
-            .setNegativeButton("No", null)
-            .show()
+        // Inflate custom cancel dialog layout
+        val dialogView = layoutInflater.inflate(com.example.evcharger.R.layout.dialog_cancel_booking, null)
+        
+        // Create dialog
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+        
+        // Make dialog background transparent
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        
+        // Bind views
+        val tvCancelBookingId = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvCancelBookingId)
+        val tvCancelStationName = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvCancelStationName)
+        val tvCancelSlot = dialogView.findViewById<android.widget.TextView>(com.example.evcharger.R.id.tvCancelSlot)
+        val btnCancelNo = dialogView.findViewById<android.widget.Button>(com.example.evcharger.R.id.btnCancelNo)
+        val btnCancelYes = dialogView.findViewById<android.widget.Button>(com.example.evcharger.R.id.btnCancelYes)
+        
+        // Set data
+        tvCancelBookingId.text = booking.bookingId
+        tvCancelStationName.text = booking.stationName ?: "Unknown"
+        tvCancelSlot.text = "#${booking.slotNumber}"
+        
+        // Handle buttons
+        btnCancelNo.setOnClickListener {
+            dialog.dismiss()
+        }
+        
+        btnCancelYes.setOnClickListener {
+            dialog.dismiss()
+            cancelBooking(booking.bookingId)
+        }
+        
+        dialog.show()
     }
     
     private fun cancelBooking(bookingId: String) {
