@@ -30,7 +30,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
         val nic = intent.getStringExtra("NIC") ?: ""
 
-        val repo = ReservationRepository()
+        val repo = ReservationRepository(this)
 
         // Check account status first
         checkAccountStatus(nic)

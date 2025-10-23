@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 class StationDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityStationDetailsBinding
-    private val repo = ReservationRepository()
+    private lateinit var repo: ReservationRepository
     private lateinit var stationId: String
     private val slotsAdapter = StationSlotsAdapter()
 
@@ -30,6 +30,9 @@ class StationDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityStationDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Initialize repository with context for caching
+        repo = ReservationRepository(this)
 
         // Get station ID from intent
         stationId = intent.getStringExtra("stationId") ?: run {
@@ -74,8 +77,18 @@ class StationDetailsActivity : AppCompatActivity() {
 
                 if (res.isSuccessful && res.body()?.success == true) {
                     val station = res.body()?.data
+                    val isFromCache = res.body()?.message?.contains("offline cache", ignoreCase = true) == true
                     
                     if (station != null) {
+                        // Show offline indicator if data is from cache
+                        if (isFromCache) {
+                            Snackbar.make(
+                                binding.root,
+                                "📡 Offline Mode: Showing cached station data",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                        
                         // Display station info
                         binding.tvStationName.text = station.name
                         binding.tvStationId.text = station.stationId

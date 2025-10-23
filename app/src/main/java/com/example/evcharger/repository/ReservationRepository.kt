@@ -1,15 +1,22 @@
 package com.example.evcharger.repository
 
+import android.content.Context
 import com.example.evcharger.model.*
 import com.example.evcharger.network.RetrofitClient
 import com.example.evcharger.util.TimeUtils
+import retrofit2.Response
 import java.time.LocalDateTime
 
 /**
  * Repository for interacting with server-side reservation endpoints.
  * Enforces local 12h modification/cancellation rule before API call.
+ * Supports offline caching for station data.
  */
-class ReservationRepository {
+class ReservationRepository(private val context: Context? = null) {
+
+    private val stationCache: StationCacheRepository? by lazy {
+        context?.let { StationCacheRepository(it) }
+    }
 
     suspend fun createReservation(nic: String, stationId: String, start: LocalDateTime): Result<Reservation> {
         val res = RetrofitClient.api.createReservation(
@@ -49,8 +56,87 @@ class ReservationRepository {
 
     suspend fun getUpcoming(nic: String) = RetrofitClient.api.getUpcoming(nic)
     suspend fun getHistory() = RetrofitClient.api.getHistory()
-    suspend fun getNearby(lat: Double, lng: Double) = RetrofitClient.api.getNearbyStations(lat, lng)
-    suspend fun getStationDetails(stationId: String) = RetrofitClient.api.getStationDetails(stationId)
+    
+    /**
+     * Get nearby stations with offline support
+     * Tries API first, caches result, falls back to cache if offline
+     */
+    suspend fun getNearby(lat: Double, lng: Double): Response<ApiResponse<List<BackendNearbyItem>>> {
+        return try {
+            // Try to fetch from API
+            val response = RetrofitClient.api.getNearbyStations(lat, lng)
+            
+            // If successful, cache the stations
+            if (response.isSuccessful && response.body()?.success == true) {
+                response.body()?.data?.let { nearbyItems ->
+                    stationCache?.cacheStations(nearbyItems.map { it.station })
+                }
+            }
+            
+            response
+        } catch (e: Exception) {
+            // If offline or error, try to get from cache
+            stationCache?.let { cache ->
+                val cachedStations = cache.getNearbyStations(lat, lng)
+                if (cachedStations.isNotEmpty()) {
+                    // Convert cached stations to NearbyItems with null distance (offline mode)
+                    val nearbyItems = cachedStations.map { station ->
+                        BackendNearbyItem(
+                            station = station,
+                            distanceKm = null // Distance calculation requires location, not available offline
+                        )
+                    }
+                    // Return cached data as successful response
+                    return Response.success(
+                        ApiResponse(
+                            success = true,
+                            message = "Loaded from offline cache",
+                            data = nearbyItems
+                        )
+                    )
+                }
+            }
+            // Re-throw if no cache available
+            throw e
+        }
+    }
+    
+    /**
+     * Get station details with offline support
+     */
+    suspend fun getStationDetails(stationId: String): Response<ApiResponse<BackendStationV2>> {
+        return try {
+            // Try to fetch from API
+            val response = RetrofitClient.api.getStationDetails(stationId)
+            
+            // If successful, cache the station
+            if (response.isSuccessful && response.body()?.success == true) {
+                response.body()?.data?.let { station ->
+                    stationCache?.cacheStation(station)
+                }
+            }
+            
+            response
+        } catch (e: Exception) {
+            // If offline or error, try to get from cache
+            stationCache?.let { cache ->
+                val cachedStation = cache.getStation(stationId)
+                if (cachedStation != null) {
+                    // Return cached data as successful response
+                    return Response.success(
+                        ApiResponse(
+                            success = true,
+                            message = "Loaded from offline cache",
+                            data = cachedStation
+                        )
+                    )
+                }
+            }
+            // Re-throw if no cache available
+            throw e
+        }
+    }
+    
     // Note: backend does not provide a GET reservation-by-QR endpoint.
     // Confirmation of arrival is done via POST /booking/confirm-arrival with { "QrCode": "..." }.
     suspend fun getPending() = RetrofitClient.api.getPending()

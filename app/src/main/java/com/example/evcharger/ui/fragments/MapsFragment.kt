@@ -98,11 +98,24 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
                 (activity as? com.example.evcharger.ui.activities.DashboardActivity)?.showLoadingIndicator()
                 
                 CoroutineScope(Dispatchers.IO).launch {
-                    val res = RetrofitClient.api.getNearbyStations(loc.latitude, loc.longitude, 10)
+                    // Use repository with offline caching support
+                    val repo = com.example.evcharger.repository.ReservationRepository(requireContext())
+                    val res = repo.getNearby(loc.latitude, loc.longitude)
+                    
                     if (res.isSuccessful && res.body()?.data != null) {
                         val stations = res.body()!!.data!!
+                        val isFromCache = res.body()?.message?.contains("offline cache", ignoreCase = true) == true
 
                         requireActivity().runOnUiThread {
+                            // Show offline indicator if data is from cache
+                            if (isFromCache) {
+                                android.widget.Toast.makeText(
+                                    requireContext(),
+                                    "📡 Offline Mode: Showing cached stations",
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            
                             // Clear old markers
                             currentMarkers.forEach { it.remove() }
                             currentMarkers.clear()

@@ -25,7 +25,7 @@ class BookingListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBookingListBinding
     private lateinit var nic: String
     private val adapter = ReservationAdapter()
-    private val repo = ReservationRepository()
+    private lateinit var repo: ReservationRepository
     private var loadJob: Job? = null
     private var isAccountActive = true
 
@@ -38,6 +38,9 @@ class BookingListActivity : AppCompatActivity() {
         StatusBarUtil.setGreen(this)
 
         nic = intent.getStringExtra("NIC") ?: ""
+        
+        // Initialize repository with context for caching
+        repo = ReservationRepository(this)
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter

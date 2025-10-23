@@ -33,13 +33,16 @@ class BookingHistoryActivity : AppCompatActivity() {
             Snackbar.make(binding.root, "Station information not available", Snackbar.LENGTH_SHORT).show()
         }
     }
-    private val repo = ReservationRepository()
+    private lateinit var repo: ReservationRepository
     private var loadJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityBookingHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        // Initialize repository with context for caching
+        repo = ReservationRepository(this)
 
         // Setup toolbar
         binding.topAppBar.setNavigationOnClickListener {

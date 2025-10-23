@@ -26,7 +26,7 @@ class PendingBookingsActivity : AppCompatActivity() {
         // Handle booking click - show details or options
         showBookingDetails(booking)
     }
-    private val repo = ReservationRepository()
+    private lateinit var repo: ReservationRepository
     private var loadJob: Job? = null
     private var stationId: String? = null
 
@@ -37,6 +37,9 @@ class PendingBookingsActivity : AppCompatActivity() {
 
         // Set green status bar to match header
         StatusBarUtil.setGreen(this)
+        
+        // Initialize repository with context for caching
+        repo = ReservationRepository(this)
 
         // Setup toolbar navigation
         binding.topAppBar.setNavigationOnClickListener {

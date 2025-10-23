@@ -7,18 +7,35 @@ import android.database.sqlite.SQLiteOpenHelper
 /**
  * SQLiteOpenHelper for local persistence.
  * Stores:
+ * - User session data (user_session table) - single row for active session
  * - EV Owner accounts (users table)
  * - User profile data cache (user_profiles table)
  * - Charging stations cache for offline display (stations table)
  * - Charging slots cache (slots table)
  * 
- * Database version: 2
+ * Database version: 3
  * - v1: Initial users table
  * - v2: Added stations, slots, and user_profiles tables for offline support
+ * - v3: Added user_session table (replacing DataStore)
  */
-class AppDatabaseHelper(context: Context) : SQLiteOpenHelper(context, "evcharging.db", null, 2) {
+class AppDatabaseHelper(context: Context) : SQLiteOpenHelper(context, "evcharging.db", null, 3) {
 
     override fun onCreate(db: SQLiteDatabase) {
+        // User session table (for storing active session data)
+        db.execSQL(
+            """
+            CREATE TABLE user_session(
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                token TEXT NOT NULL,
+                role TEXT,
+                username TEXT,
+                nic TEXT,
+                expires_at TEXT,
+                created_at INTEGER NOT NULL
+            )
+            """.trimIndent()
+        )
+        
         // Users table (existing - for local user accounts)
         db.execSQL(
             """
@@ -169,7 +186,42 @@ class AppDatabaseHelper(context: Context) : SQLiteOpenHelper(context, "evchargin
                 db.execSQL("CREATE INDEX idx_stations_location ON stations(latitude, longitude)")
                 db.execSQL("CREATE INDEX idx_slots_station ON slots(station_id)")
                 db.execSQL("CREATE INDEX idx_slots_availability ON slots(is_available)")
+                
+                // Fall through to v3 upgrade
             }
+            2 -> {
+                // Upgrade from v2 to v3: Add user_session table
+                db.execSQL(
+                    """
+                    CREATE TABLE user_session(
+                        id INTEGER PRIMARY KEY CHECK (id = 1),
+                        token TEXT NOT NULL,
+                        role TEXT,
+                        username TEXT,
+                        nic TEXT,
+                        expires_at TEXT,
+                        created_at INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+        
+        // Handle multi-version upgrades (e.g., v1 -> v3)
+        if (oldVersion == 1 && newVersion >= 3) {
+            db.execSQL(
+                """
+                CREATE TABLE user_session(
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    token TEXT NOT NULL,
+                    role TEXT,
+                    username TEXT,
+                    nic TEXT,
+                    expires_at TEXT,
+                    created_at INTEGER NOT NULL
+                )
+                """.trimIndent()
+            )
         }
     }
 }
