@@ -44,9 +44,16 @@ interface ApiService {
     @GET("booking/pending")
     suspend fun getPending(): Response<ApiResponse<List<BookingResponseData>>>
 
-    // Get pending bookings for a specific station (operator)
+    // LEGACY: Get pending bookings for a specific station (operator)
+    // Note: Consider migrating to getOperatorPending() which returns richer response
     @GET("booking/operator/bookings")
     suspend fun getOperatorBookings(@Query("stationId") stationId: String): Response<ApiResponse<List<BookingResponseData>>>
+
+    // NEW: Get pending bookings for operator (optionally filtered by stationId)
+    // Backend path: /api/booking/operator/pending?stationId=ST20251005324
+    // Returns custom response with count, stationId, and bookings array
+    @GET("booking/operator/pending")
+    suspend fun getOperatorPending(@Query("stationId") stationId: String? = null): Response<OperatorPendingResponse>
 
     // Update pending booking (only ReservationDateTime and Duration can be updated)
     @PUT("booking/{bookingId}")

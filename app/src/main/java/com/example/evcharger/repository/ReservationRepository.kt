@@ -148,6 +148,15 @@ class ReservationRepository(private val context: Context? = null) {
      */
     suspend fun getOperatorBookings(stationId: String) = RetrofitClient.api.getOperatorBookings(stationId)
 
+    /**
+     * Get pending bookings for operator (optionally filtered by stationId)
+     * Uses the new endpoint: GET /api/booking/operator/pending?stationId=...
+     * @param stationId Optional station ID to filter bookings (e.g., "ST20251005324")
+     * @return Response<OperatorPendingResponse> with count, stationId, and bookings list
+     */
+    suspend fun getOperatorPendingBookings(stationId: String? = null) = 
+        RetrofitClient.api.getOperatorPending(stationId)
+
     suspend fun confirm(reservationId: String, operatorId: String) =
         RetrofitClient.api.confirmBooking(ConfirmBookingRequest(reservationId, operatorId))
 

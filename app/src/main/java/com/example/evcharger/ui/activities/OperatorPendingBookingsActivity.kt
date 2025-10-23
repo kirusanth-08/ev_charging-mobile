@@ -28,6 +28,7 @@ class OperatorPendingBookingsActivity : AppCompatActivity() {
     private lateinit var adapter: OperatorBookingAdapter
     private val pendingBookings = mutableListOf<BookingResponseData>()
     private val reservationRepository = ReservationRepository()
+    private var stationId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,9 +38,13 @@ class OperatorPendingBookingsActivity : AppCompatActivity() {
         // Set status bar color
         StatusBarUtil.setGreen(this)
 
-        setupToolbar()
-        setupRecyclerView()
-        loadPendingBookings()
+    setupToolbar()
+    setupRecyclerView()
+
+    // If activity was started with a specific stationId, use it to filter pending bookings
+    stationId = intent.getStringExtra("stationId")
+
+    loadPendingBookings()
 
         // Swipe to refresh
         binding.swipeRefresh.setOnRefreshListener {
@@ -75,19 +80,23 @@ class OperatorPendingBookingsActivity : AppCompatActivity() {
     private fun loadPendingBookings() {
         showLoading(true)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             try {
-                val response = RetrofitClient.api.getPending()
+                val response = withContext(Dispatchers.IO) {
+                    // Use the new operator pending endpoint that returns OperatorPendingResponse
+                    reservationRepository.getOperatorPendingBookings(stationId)
+                }
 
                 withContext(Dispatchers.Main) {
                     showLoading(false)
 
                     if (response.isSuccessful && response.body()?.success == true) {
-                        val bookings = response.body()?.data ?: emptyList()
-                        
-                        // Filter only pending status bookings for operators
-                        val pending = bookings.filter { 
-                            it.status?.equals("Pending", ignoreCase = true) == true 
+                        val operatorResponse = response.body()!!
+                        val bookings = operatorResponse.bookings ?: emptyList()
+
+                        // Filter only pending status bookings for operators (defensive)
+                        val pending = bookings.filter {
+                            it.status?.equals("Pending", ignoreCase = true) == true
                         }
 
                         pendingBookings.clear()
@@ -95,7 +104,14 @@ class OperatorPendingBookingsActivity : AppCompatActivity() {
                         adapter.notifyDataSetChanged()
 
                         updateEmptyState()
-                        binding.tvBookingCount.text = "${pending.size} pending request(s)"
+                        
+                        // Show count and station info if available
+                        val countText = if (stationId != null) {
+                            "${pending.size} pending request(s) for Station ${operatorResponse.stationId ?: stationId}"
+                        } else {
+                            "${pending.size} pending request(s) across ${operatorResponse.stationId ?: "all stations"}"
+                        }
+                        binding.tvBookingCount.text = countText
                     } else {
                         val errorMsg = response.body()?.message ?: "Failed to load pending bookings"
                         showError(errorMsg)

@@ -62,6 +62,16 @@ data class BookingResponseData(
     val isExpired: Boolean?
 )
 
+// Response for operator pending bookings endpoint
+// GET /api/booking/operator/pending?stationId=ST20251005324
+data class OperatorPendingResponse(
+    val success: Boolean,
+    val message: String?,
+    val count: Int?,
+    val stationId: String?,
+    val bookings: List<BookingResponseData>?
+)
+
 // Request payload for confirming arrival via QR code: { "QrCode": "<QR_CODE_STRING>" }
 data class ConfirmArrivalRequest(
     @SerializedName("QrCode") val qrCode: String
