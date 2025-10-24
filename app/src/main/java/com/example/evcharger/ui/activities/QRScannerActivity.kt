@@ -1,6 +1,7 @@
 package com.example.evcharger.ui.activities
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
@@ -23,6 +24,7 @@ class QRScannerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityQrscannerBinding
     private val vm: OperatorViewModel by viewModels()
+    private lateinit var inProgressAdapter: InProgressBookingAdapter
 
     private val launcher = registerForActivityResult(ScanContract()) { result ->
         if (result != null && result.contents != null) {
@@ -46,6 +48,15 @@ class QRScannerActivity : AppCompatActivity() {
         // Set green status bar to match operator dashboard theme
         StatusBarUtil.setGreen(this)
 
+        // Initialize RecyclerView adapter
+        inProgressAdapter = InProgressBookingAdapter { booking ->
+            showCompleteBookingDialog(booking)
+        }
+        binding.rvInProgressBookings.apply {
+            adapter = inProgressAdapter
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@QRScannerActivity)
+        }
+
         // If there's a persisted operator session, apply it and hide login inputs
         val mgr = UserSessionManager(this)
         val sess = mgr.loadSession()
@@ -59,6 +70,9 @@ class QRScannerActivity : AppCompatActivity() {
             binding.loginSection.visibility = android.view.View.GONE
 
             Snackbar.make(binding.root, "Welcome back, ${sess.username}!", Snackbar.LENGTH_SHORT).show()
+            
+            // Load in-progress bookings for logged-in operator
+            vm.fetchInProgressBookings()
         }
 
         // Login button click handler
@@ -108,6 +122,67 @@ class QRScannerActivity : AppCompatActivity() {
     }
     
     /**
+     * Show dialog to complete a booking with energy and cost input
+     */
+    private fun showCompleteBookingDialog(booking: com.example.evcharger.model.BookingResponseData) {
+        val dialogView = LayoutInflater.from(this).inflate(
+            android.R.layout.select_dialog_item, // Temporary, we'll create a custom layout
+            null
+        )
+        
+        // Create a simple input dialog
+        val energyInput = android.widget.EditText(this).apply {
+            hint = "Energy Consumed (kWh)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        
+        val costInput = android.widget.EditText(this).apply {
+            hint = "Total Cost (LKR)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(50, 40, 50, 10)
+            addView(energyInput)
+            addView(costInput)
+        }
+        
+        AlertDialog.Builder(this)
+            .setTitle("⚡ Complete Charging")
+            .setMessage("Booking ID: ${booking.bookingId}\nCustomer: ${booking.evOwnerNic}\n\nEnter charging details:")
+            .setView(container)
+            .setPositiveButton("Complete") { dialog, _ ->
+                val energyStr = energyInput.text.toString()
+                val costStr = costInput.text.toString()
+                
+                if (energyStr.isBlank() || costStr.isBlank()) {
+                    Snackbar.make(binding.root, "Please enter both energy and cost", Snackbar.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                
+                try {
+                    val energy = energyStr.toDouble()
+                    val cost = costStr.toDouble()
+                    
+                    if (energy <= 0 || cost <= 0) {
+                        Snackbar.make(binding.root, "Values must be greater than 0", Snackbar.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+                    
+                    vm.completeBooking(booking.bookingId ?: "", energy, cost)
+                    dialog.dismiss()
+                } catch (e: Exception) {
+                    Snackbar.make(binding.root, "Invalid number format", Snackbar.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+    
+    /**
      * Setup all ViewModel observers
      */
     private fun setupObservers() {
@@ -143,6 +218,8 @@ class QRScannerActivity : AppCompatActivity() {
             if (r.equals("StationOperator", ignoreCase = true)) {
                 Snackbar.make(binding.root, "Operator logged in successfully!", Snackbar.LENGTH_SHORT).show()
                 binding.loginSection.visibility = android.view.View.GONE
+                // Load in-progress bookings after successful login
+                vm.fetchInProgressBookings()
             } else if (!r.isNullOrBlank()) {
                 Snackbar.make(binding.root, "Access denied: requires StationOperator role", Snackbar.LENGTH_LONG).show()
             }
@@ -174,6 +251,32 @@ class QRScannerActivity : AppCompatActivity() {
                         startQRScanner()
                     }
                     .setCancelable(false)
+                    .show()
+                    
+                // Refresh in-progress bookings after successful confirmation
+                vm.fetchInProgressBookings()
+            }
+        }
+        
+        vm.inProgressBookings.observe(this) { bookings ->
+            if (bookings != null) {
+                inProgressAdapter.submitList(bookings)
+                binding.txtInProgressCount.text = "${bookings.size} booking(s) in progress"
+                binding.inProgressSection.visibility = 
+                    if (bookings.isEmpty()) android.view.View.GONE 
+                    else android.view.View.VISIBLE
+            }
+        }
+        
+        vm.bookingCompleted.observe(this) { completed ->
+            if (completed == true) {
+                AlertDialog.Builder(this)
+                    .setTitle("✅ Charging Completed")
+                    .setMessage("The booking has been successfully completed and marked as finished.")
+                    .setPositiveButton("OK") { dialog, _ ->
+                        dialog.dismiss()
+                        vm.bookingCompleted.postValue(false) // Reset
+                    }
                     .show()
             }
         }

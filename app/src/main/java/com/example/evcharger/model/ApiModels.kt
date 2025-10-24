@@ -77,6 +77,12 @@ data class ConfirmArrivalRequest(
     @SerializedName("QrCode") val qrCode: String
 )
 
+// Request payload for completing a booking after charging: { "EnergyConsumed": 20.5, "Cost": 1500.00 }
+data class CompleteBookingRequest(
+    @SerializedName("EnergyConsumed") val energyConsumed: Double,
+    @SerializedName("Cost") val cost: Double
+)
+
 data class ModifyReservationRequest(
     val reservationId: String,
     val newStartTimeIso: String

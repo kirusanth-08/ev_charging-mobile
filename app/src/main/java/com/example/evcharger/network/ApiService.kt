@@ -105,6 +105,13 @@ interface ApiService {
     @POST("booking/confirm-arrival")
     suspend fun confirmArrival(@Body body: com.example.evcharger.model.ConfirmArrivalRequest): Response<ApiResponse<Reservation>>
 
+    // Complete booking after charging: PATCH /api/booking/{bookingId}/complete
+    @PATCH("booking/{bookingId}/complete")
+    suspend fun completeBooking(
+        @Path("bookingId") bookingId: String,
+        @Body body: com.example.evcharger.model.CompleteBookingRequest
+    ): Response<ApiResponse<BookingResponseData>>
+
     // Confirm booking with reservation ID and operator ID
     @PATCH("booking/{id}/approve")
     suspend fun confirmBooking(@Body body: ConfirmBookingRequest): Response<ApiResponse<Reservation>>

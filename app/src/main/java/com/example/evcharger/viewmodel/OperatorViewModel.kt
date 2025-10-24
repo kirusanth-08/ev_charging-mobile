@@ -18,10 +18,12 @@ class OperatorViewModel : ViewModel() {
 
     val operatorToken = MutableLiveData<String?>()
     val scannedReservation = MutableLiveData<Reservation?>()
+    val inProgressBookings = MutableLiveData<List<com.example.evcharger.model.BookingResponseData>>()
     val role = MutableLiveData<String?>()
     val error = MutableLiveData<String?>()
     val operatorUsername = MutableLiveData<String?>()
     val loading = MutableLiveData(false)
+    val bookingCompleted = MutableLiveData<Boolean>()
 
     fun login(username: String, password: String) {
         loading.postValue(true)
@@ -109,5 +111,79 @@ class OperatorViewModel : ViewModel() {
     // Alias to match naming in other parts of the app: calls the same repository method
     fun confirmArrival(qrCode: String) {
         confirmArrivalByQr(qrCode)
+    }
+
+    /**
+     * Fetch in-progress bookings (status = "InProgress" or "Arrived")
+     * These are bookings that have been confirmed and are currently charging
+     */
+    fun fetchInProgressBookings(stationId: String? = null) {
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Use the operator pending endpoint to get all bookings, then filter
+                val res = repo.getOperatorPendingBookings(stationId)
+                if (res.isSuccessful && res.body()?.bookings != null) {
+                    // Filter for in-progress bookings (status = "InProgress" or "Arrived" or "Confirmed")
+                    val inProgress = res.body()!!.bookings!!.filter { booking ->
+                        booking.status?.equals("InProgress", ignoreCase = true) == true ||
+                        booking.status?.equals("Arrived", ignoreCase = true) == true ||
+                        booking.status?.equals("Confirmed", ignoreCase = true) == true
+                    }
+                    inProgressBookings.postValue(inProgress)
+                } else {
+                    error.postValue(res.body()?.message ?: "Failed to fetch bookings")
+                }
+            } catch (e: Exception) {
+                error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
+            }
+        }
+    }
+
+    /**
+     * Complete a booking after charging is done
+     * @param bookingId The booking ID to complete
+     * @param energyConsumed Energy consumed in kWh
+     * @param cost Total cost in currency units
+     */
+    fun completeBooking(bookingId: String, energyConsumed: Double, cost: Double) {
+        loading.postValue(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val res = repo.completeBooking(bookingId, energyConsumed, cost)
+                if (res.isSuccessful && res.body()?.success == true) {
+                    bookingCompleted.postValue(true)
+                    // Refresh the in-progress list
+                    fetchInProgressBookings()
+                } else {
+                    // Try to get message from response body first
+                    val errorMessage = res.body()?.message
+                    
+                    // If body is null (e.g., 4xx/5xx errors), try parsing error body
+                    if (errorMessage == null && res.errorBody() != null) {
+                        try {
+                            val errorJson = res.errorBody()?.string()
+                            val gson = com.google.gson.Gson()
+                            
+                            val errorResponse = gson.fromJson(errorJson,
+                                object : com.google.gson.reflect.TypeToken<com.example.evcharger.model.ApiResponse<Any>>() {}.type
+                            ) as? com.example.evcharger.model.ApiResponse<*>
+                            
+                            error.postValue(errorResponse?.message ?: "Failed to complete booking")
+                        } catch (e: Exception) {
+                            error.postValue("Failed to complete booking")
+                        }
+                    } else {
+                        error.postValue(errorMessage ?: "Failed to complete booking")
+                    }
+                }
+            } catch (e: Exception) {
+                error.postValue(e.localizedMessage ?: "Network error")
+            } finally {
+                loading.postValue(false)
+            }
+        }
     }
 }

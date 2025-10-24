@@ -188,6 +188,13 @@ class ReservationRepository(private val context: Context? = null) {
     suspend fun confirmArrival(qrCode: String) =
         RetrofitClient.api.confirmArrival(com.example.evcharger.model.ConfirmArrivalRequest(qrCode))
 
+    // Station operator completes a booking after charging
+    suspend fun completeBooking(bookingId: String, energyConsumed: Double, cost: Double) =
+        RetrofitClient.api.completeBooking(
+            bookingId,
+            com.example.evcharger.model.CompleteBookingRequest(energyConsumed, cost)
+        )
+
     /**
      * Update a pending booking (only ReservationDateTime and Duration can be updated)
      * @param bookingId The booking ID (e.g., "BK202510221834388225")
