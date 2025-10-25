@@ -102,6 +102,43 @@ class ReservationRepository(private val context: Context? = null) {
     }
     
     /**
+     * Get all stations 
+     */
+    suspend fun getAllStations(): Response<ApiResponse<List<BackendStationV2>>> {
+        return try {
+            // Try to fetch from API
+            val response = RetrofitClient.api.getAllStations()
+            
+            // If successful, cache the stations
+            if (response.isSuccessful && response.body()?.success == true) {
+                response.body()?.data?.let { stations ->
+                    stationCache?.cacheStations(stations)
+                }
+            }
+            
+            response
+        } catch (e: Exception) {
+            // If offline or error, try to get from cache
+            stationCache?.let { cache ->
+                val cachedStations = cache.getAllStations()
+                if (cachedStations.isNotEmpty()) {
+                    // Return cached data as successful response
+                    return Response.success(
+                        ApiResponse(
+                            success = true,
+                            message = "Loaded from offline cache",
+                            count = cachedStations.size,
+                            data = cachedStations
+                        )
+                    )
+                }
+            }
+            // Re-throw if no cache available
+            throw e
+        }
+    }
+    
+    /**
      * Get station details with offline support
      */
     suspend fun getStationDetails(stationId: String): Response<ApiResponse<BackendStationV2>> {

@@ -18,5 +18,6 @@ data class Station(
     val chargingPowerKw: Int? = null,
     val status: String? = null,
     val lastUpdated: String? = null,
-    val distanceMeters: Int? = null
+    val distanceMeters: Int? = null,
+    val isActive: Boolean = true  // Station operational status
 ) : Parcelable

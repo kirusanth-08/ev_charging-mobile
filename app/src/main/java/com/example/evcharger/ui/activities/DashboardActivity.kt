@@ -151,6 +151,30 @@ class DashboardActivity : AppCompatActivity() {
                 }
             }
         }
+        
+        // Toggle view mode button - switch between nearby and all stations
+        binding.btnToggleView.setOnClickListener {
+            val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+            if (frag is MapsFragment) {
+                frag.toggleStationView()
+            }
+        }
+    }
+    
+    /**
+     * Update toggle button text based on current view mode
+     * @param isShowingAllStations true if currently showing all stations
+     */
+    fun updateToggleButtonText(isShowingAllStations: Boolean) {
+        runOnUiThread {
+            if (isShowingAllStations) {
+                binding.btnToggleView.text = "Nearby Only"
+                binding.btnToggleView.icon = resources.getDrawable(android.R.drawable.ic_menu_mylocation, theme)
+            } else {
+                binding.btnToggleView.text = "All Stations"
+                binding.btnToggleView.icon = resources.getDrawable(android.R.drawable.ic_menu_mapmode, theme)
+            }
+        }
     }
     
     /**

@@ -39,6 +39,7 @@ class ReservationFormActivity : AppCompatActivity() {
     private var stationId: String = ""
     private var stationName: String = ""
     private var stationAddress: String = ""
+    private var isStationActive: Boolean = true
     
     private var selectedDate: LocalDate? = null
     private var selectedStartTime: LocalTime? = null
@@ -75,10 +76,37 @@ class ReservationFormActivity : AppCompatActivity() {
         stationId = intent.getStringExtra("StationId") ?: intent.getStringExtra("stationId") ?: "station-1"
         stationName = intent.getStringExtra("StationName") ?: "Charging Station"
         stationAddress = intent.getStringExtra("StationAddress") ?: "Location"
+        isStationActive = intent.getBooleanExtra("IsActive", true)
         
         // Update header
         binding.txtStationName.text = stationName
         binding.txtStationAddress.text = stationAddress
+        
+        // Check if station is inactive
+        if (!isStationActive) {
+            showInactiveStationAndFinish()
+        }
+    }
+    
+    /**
+     * Show dialog and finish activity if station is inactive
+     */
+    private fun showInactiveStationAndFinish() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("⚠️ Station Inactive")
+            .setMessage(
+                "This charging station is currently inactive and not accepting bookings.\n\n" +
+                "The station may be:\n" +
+                "• Under maintenance\n" +
+                "• Temporarily closed\n" +
+                "• Being upgraded\n\n" +
+                "Please choose another station or try again later."
+            )
+            .setPositiveButton("OK") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
     }
     
     private fun checkAccountStatusBeforeBooking() {
@@ -160,6 +188,23 @@ class ReservationFormActivity : AppCompatActivity() {
         
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // First, verify station details and active status
+                val stationResponse = RetrofitClient.api.getStationDetails(stationId)
+                
+                withContext(Dispatchers.Main) {
+                    if (stationResponse.isSuccessful && stationResponse.body()?.success == true) {
+                        val stationDetails = stationResponse.body()?.data
+                        
+                        // Double-check if station is active from server
+                        if (stationDetails?.isActive == false) {
+                            binding.progressSlots.visibility = android.view.View.GONE
+                            isLoadingAvailability = false
+                            showInactiveStationAndFinish()
+                            return@withContext
+                        }
+                    }
+                }
+                
                 val response = RetrofitClient.api.getStationAvailability(stationId)
                 
                 withContext(Dispatchers.Main) {

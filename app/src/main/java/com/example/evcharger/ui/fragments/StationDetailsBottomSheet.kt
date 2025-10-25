@@ -56,12 +56,17 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
             // Set station name
             binding.txtStationName.text = s.name
             
-            // Set status with color
-            binding.txtStationStatus.text = when(s.status?.lowercase()) {
-                "available" -> "Available Now"
-                "busy" -> "Busy"
-                "offline" -> "Offline"
-                else -> s.status ?: "Unknown"
+            // Set status with color - check isActive first
+            if (!s.isActive) {
+                binding.txtStationStatus.text = "⚠️ Inactive - Booking Disabled"
+                binding.txtStationStatus.setTextColor(resources.getColor(R.color.error, null))
+            } else {
+                binding.txtStationStatus.text = when(s.status?.lowercase()) {
+                    "available" -> "Available Now"
+                    "busy" -> "Busy"
+                    "offline" -> "Offline"
+                    else -> s.status ?: "Unknown"
+                }
             }
             
             // Set address
@@ -94,7 +99,7 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
                 s.chargingPowerKw?.let { 
                     append("Power: ${it}kW\n") 
                 }
-                append("Status: ${s.status ?: "Unknown"}\n")
+                append("Status: ${if (!s.isActive) "Inactive" else s.status ?: "Unknown"}\n")
                 s.lastUpdated?.let { 
                     append("Updated: ${it.take(10)}") 
                 }
@@ -106,7 +111,7 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
             val session = sessionManager.loadSession()
             val userNic = session.username ?: ""
 
-            // Navigate button
+            // Navigate button (always enabled)
             binding.btnNavigate.setOnClickListener {
                 val uri = Uri.parse("google.navigation:q=${s.latitude},${s.longitude}&mode=d")
                 val intent = Intent(Intent.ACTION_VIEW, uri).apply { 
@@ -122,24 +127,69 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
                 }
             }
 
-            // Quick Reserve button - goes directly to reservation form
-            binding.btnReserve.setOnClickListener {
-                val intent = Intent(requireContext(), ReservationFormActivity::class.java).apply {
-                    putExtra("NIC", userNic)
-                    putExtra("stationId", s.id)
-                    putExtra("StationId", s.id)
-                    putExtra("StationName", s.name)
-                    putExtra("StationAddress", s.address)
+            // Check if station is active before allowing booking
+            if (!s.isActive) {
+                // Disable booking buttons and show message
+                binding.btnReserve.isEnabled = false
+                binding.btnReserve.alpha = 0.5f
+                binding.btnReserve.setOnClickListener {
+                    showInactiveStationDialog()
                 }
-                startActivity(intent)
-                dismiss()
-            }
+                
+                binding.btnViewSlots.isEnabled = false
+                binding.btnViewSlots.alpha = 0.5f
+                binding.btnViewSlots.setOnClickListener {
+                    showInactiveStationDialog()
+                }
+            } else {
+                // Enable booking buttons for active stations
+                binding.btnReserve.isEnabled = true
+                binding.btnReserve.alpha = 1.0f
+                
+                // Quick Reserve button - goes directly to reservation form
+                binding.btnReserve.setOnClickListener {
+                    val intent = Intent(requireContext(), ReservationFormActivity::class.java).apply {
+                        putExtra("NIC", userNic)
+                        putExtra("stationId", s.id)
+                        putExtra("StationId", s.id)
+                        putExtra("StationName", s.name)
+                        putExtra("StationAddress", s.address)
+                        putExtra("IsActive", s.isActive)
+                    }
+                    startActivity(intent)
+                    dismiss()
+                }
 
-            // View Slots button - shows available slots
-            binding.btnViewSlots.setOnClickListener {
-                toggleSlotsView(s, userNic)
+                binding.btnViewSlots.isEnabled = true
+                binding.btnViewSlots.alpha = 1.0f
+                
+                // View Slots button - shows available slots
+                binding.btnViewSlots.setOnClickListener {
+                    toggleSlotsView(s, userNic)
+                }
             }
         }
+    }
+    
+    /**
+     * Show dialog explaining why booking is disabled for inactive stations
+     */
+    private fun showInactiveStationDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("⚠️ Station Inactive")
+            .setMessage(
+                "This charging station is currently inactive and not accepting bookings.\n\n" +
+                "The station may be:\n" +
+                "• Under maintenance\n" +
+                "• Temporarily closed\n" +
+                "• Being upgraded\n\n" +
+                "Please choose another station or try again later."
+            )
+            .setPositiveButton("Find Other Stations") { _, _ ->
+                dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun toggleSlotsView(station: Station, userNic: String) {
@@ -173,6 +223,7 @@ class StationDetailsBottomSheet : BottomSheetDialogFragment() {
                     putExtra("StationName", station.name)
                     putExtra("StationAddress", station.address)
                     putExtra("SlotNumber", slot.slotNumber)
+                    putExtra("IsActive", station.isActive)
                 }
                 startActivity(intent)
                 dismiss()

@@ -152,6 +152,21 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp">
 
+            <!-- Toggle View Mode Button (All Stations / Nearby) -->
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/btnToggleView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All Stations"
+                android:contentDescription="Toggle between nearby and all stations"
+                app:icon="@android:drawable/ic_menu_mapmode"
+                app:iconTint="@android:color/white"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/primary"
+                app:elevation="6dp"
+                app:borderWidth="0dp"
+                android:layout_marginBottom="16dp" />
+
             <!-- Current Location Button -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnCurrentLocation"
