@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardBooking"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="12dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/primary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/txtBookingId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="BK202510250336183363"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                tools:text="BK202510250336183363" />
+
+            <TextView
+                android:id="@+id/txtStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✓ Completed"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@drawable/rounded_background_primary_light"
+                tools:text="✓ Completed" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Station Name -->
+        <TextView
+            android:id="@+id/txtStationName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🏢 Station Name"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp"
+            tools:text="🏢 Central Charging Hub" />
+
+        <!-- Booking Details -->
+        <TextView
+            android:id="@+id/txtSlot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚡ Slot 2"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="4dp"
+            tools:text="⚡ Slot 2" />
+
+        <TextView
+            android:id="@+id/txtReservationTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📅 Scheduled: Oct 26, 2025 09:06 AM"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="4dp"
+            tools:text="📅 Scheduled: Oct 26, 2025 09:06 AM" />
+
+        <TextView
+            android:id="@+id/txtDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏱️ Duration: 2 hour(s)"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="4dp"
+            tools:text="⏱️ Duration: 2 hour(s)" />
+
+        <TextView
+            android:id="@+id/txtCompletedTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🕒 Completed: Oct 25, 2025 05:40 PM"
+            android:textSize="14sp"
+            android:textColor="@color/primary"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"
+            tools:text="🕒 Completed: Oct 25, 2025 05:40 PM" />
+
+        <!-- Energy & Cost Summary -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="@color/surface_variant"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚡ Energy Consumed"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/txtEnergyConsumed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="20.5 kWh"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    tools:text="20.5 kWh" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/divider"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="💰 Total Cost"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/txtCost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LKR 1,500.00"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    tools:text="LKR 1,500.00" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
