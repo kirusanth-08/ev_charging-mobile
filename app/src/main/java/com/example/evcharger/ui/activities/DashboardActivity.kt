@@ -137,6 +137,11 @@ class DashboardActivity : AppCompatActivity() {
             finish()
         }
 
+        // Refresh button - reload stations
+        binding.btnRefresh.setOnClickListener {
+            refreshStations()
+        }
+
         binding.btnViewBookings.setOnClickListener {
             startActivity(Intent(this, BookingListActivity::class.java).putExtra("NIC", nic))
         }
@@ -158,6 +163,27 @@ class DashboardActivity : AppCompatActivity() {
             if (frag is MapsFragment) {
                 frag.toggleStationView()
             }
+        }
+    }
+    
+    /**
+     * Refresh stations data from the server
+     */
+    private fun refreshStations() {
+        val frag = supportFragmentManager.findFragmentById(binding.mapContainer.id)
+        if (frag is MapsFragment) {
+            // Show loading indicator
+            showLoadingIndicator()
+            
+            // Trigger refresh in the MapsFragment
+            frag.refreshStations()
+            
+            // Show feedback to user
+            android.widget.Toast.makeText(
+                this,
+                "Refreshing stations...",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
         }
     }
     

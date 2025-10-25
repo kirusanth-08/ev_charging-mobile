@@ -10,6 +10,7 @@ import android.widget.Toast
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.lifecycle.lifecycleScope
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.evcharger.R
 import com.example.evcharger.repository.StationRepository
 import com.example.evcharger.auth.UserSessionManager
@@ -22,6 +23,10 @@ class OperatorDashboardActivity : AppCompatActivity() {
 
     private lateinit var sessionManager: UserSessionManager
     private val stationRepo = StationRepository()
+    private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var txtStationSummary: TextView
+    private lateinit var txtRecentScans: TextView
+    private lateinit var rvStations: androidx.recyclerview.widget.RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,17 +41,31 @@ class OperatorDashboardActivity : AppCompatActivity() {
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.operatorTopAppBar)
         setSupportActionBar(toolbar)
 
-    val txtOperatorInfo = findViewById<TextView>(R.id.txtOperatorInfo)
-    val cardScan = findViewById<MaterialCardView>(R.id.cardScan)
-    val cardManage = findViewById<MaterialCardView>(R.id.cardManage)
+        // Initialize views
+        swipeRefresh = findViewById(R.id.swipeRefresh)
+        txtStationSummary = findViewById(R.id.txtStationSummary)
+        txtRecentScans = findViewById(R.id.txtRecentScans)
+        rvStations = findViewById(R.id.rvOperatorStations)
+
+        val txtOperatorInfo = findViewById<TextView>(R.id.txtOperatorInfo)
+        val cardScan = findViewById<MaterialCardView>(R.id.cardScan)
+        val cardManage = findViewById<MaterialCardView>(R.id.cardManage)
         val cardPendingBookings = findViewById<MaterialCardView>(R.id.cardPendingBookings)
         val cardConfirmedArrivals = findViewById<MaterialCardView>(R.id.cardConfirmedArrivals)
-        val txtStationSummary = findViewById<TextView>(R.id.txtStationSummary)
-        val txtRecentScans = findViewById<TextView>(R.id.txtRecentScans)
 
         val username = sessionManager.loadSession().username
         if (username != null && username.isNotEmpty()) {
             txtOperatorInfo.text = "Welcome, $username"
+        }
+
+        // Setup swipe to refresh
+        swipeRefresh.setColorSchemeResources(
+            R.color.primary,
+            R.color.success,
+            R.color.accent
+        )
+        swipeRefresh.setOnRefreshListener {
+            loadStationData()
         }
 
         cardScan.setOnClickListener {
@@ -70,9 +89,15 @@ class OperatorDashboardActivity : AppCompatActivity() {
             startActivity(i)
         }
 
-        // Fetch station summary counts and populate station cards list
-        val rvStations = findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvOperatorStations)
+        // Setup RecyclerView
         rvStations.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+
+        // Load initial data
+        loadStationData()
+    }
+
+    private fun loadStationData() {
+        swipeRefresh.isRefreshing = true
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -93,17 +118,20 @@ class OperatorDashboardActivity : AppCompatActivity() {
                         txtStationSummary.text = "Stations: $stationCount  •  Available slots: $availableSlots / $totalSlots"
                         txtRecentScans.text = "Recent scans: —"
                         rvStations.adapter = StationCardAdapter(data)
+                        swipeRefresh.isRefreshing = false
                     }
                 } else {
                     launch(Dispatchers.Main) {
                         txtStationSummary.text = "Stations: 0  •  Available slots: 0"
                         val errorMsg = resp.body()?.message ?: "Failed to load stations"
                         Toast.makeText(this@OperatorDashboardActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                        swipeRefresh.isRefreshing = false
                     }
                 }
             } catch (ex: Exception) {
                 launch(Dispatchers.Main) {
                     Toast.makeText(this@OperatorDashboardActivity, ex.localizedMessage ?: "Failed to load stations", Toast.LENGTH_SHORT).show()
+                    swipeRefresh.isRefreshing = false
                 }
             }
         }

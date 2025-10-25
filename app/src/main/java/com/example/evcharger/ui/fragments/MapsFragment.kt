@@ -108,6 +108,17 @@ class MapsFragment : Fragment(R.layout.fragment_maps) {
         // Notify activity to update toggle button text
         (activity as? com.example.evcharger.ui.activities.DashboardActivity)?.updateToggleButtonText(isShowingAllStations)
     }
+    
+    /**
+     * Refresh stations data from the server
+     */
+    fun refreshStations() {
+        if (isShowingAllStations) {
+            loadAllStations()
+        } else {
+            loadNearby()
+        }
+    }
 
     private fun loadNearby() {
         val ctx = requireContext()
