@@ -17,7 +17,7 @@ interface ApiService {
     @POST("booking")
     suspend fun createReservation(@Body body: CreateReservationRequest): Response<ApiResponse<Reservation>>
 
-    // New booking endpoint matching `/api/booking` that accepts PascalCase property names
+    // New booking endpoint matching `/api/booking`
     // Body: {"StationId":"ST20251005780","SlotNumber":1,"ReservationDateTime":"2025-10-11T10:00:00Z","Duration":4}
     @POST("booking")
     suspend fun postBooking(@Body body: BookingRequest): Response<ApiResponse<BookingResponseData>>
@@ -34,9 +34,11 @@ interface ApiService {
         @Body body: CancelReservationRequest
     ): Response<ApiResponse<Unit>>
 
+    // Get booking history for evOwner
     @GET("booking/history")
     suspend fun getHistory(): Response<ApiResponse<List<BookingResponseData>>>
 
+    // Get all pending booking for evOwner
     @GET("booking/upcoming")
     suspend fun getUpcoming(@Query("nic") nic: String): Response<ApiResponse<List<Reservation>>>
 
@@ -44,14 +46,11 @@ interface ApiService {
     @GET("booking/pending")
     suspend fun getPending(): Response<ApiResponse<List<BookingResponseData>>>
 
-    // LEGACY: Get pending bookings for a specific station (operator)
-    // Note: Consider migrating to getOperatorPending() which returns richer response
+    // Get pending bookings for a specific station (operator)
     @GET("booking/operator/bookings")
     suspend fun getOperatorBookings(@Query("stationId") stationId: String): Response<ApiResponse<List<BookingResponseData>>>
 
-    // NEW: Get pending bookings for operator (optionally filtered by stationId)
-    // Backend path: /api/booking/operator/pending?stationId=ST20251005324
-    // Returns custom response with count, stationId, and bookings array
+    // Get pending bookings for operator (optionally filtered by stationId)
     @GET("booking/operator/pending")
     suspend fun getOperatorPending(@Query("stationId") stationId: String? = null): Response<OperatorPendingResponse>
 

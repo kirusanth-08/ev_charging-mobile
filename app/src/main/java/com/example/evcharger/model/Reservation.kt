@@ -1,3 +1,4 @@
+// Reservation model
 package com.example.evcharger.model
 
 import com.google.gson.annotations.SerializedName

@@ -1,3 +1,4 @@
+// User model
 package com.example.evcharger.model
 
 /**

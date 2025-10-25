@@ -47,9 +47,7 @@ class OperatorViewModel : ViewModel() {
         }
     }
 
-    // Removed lookupByQr: backend does not expose a GET reservation-by-QR endpoint.
     // Operators should POST the scanned QR to confirm arrival (confirmArrivalByQr / confirmArrival).
-
     fun confirm(reservationId: String, operatorId: String) {
         loading.postValue(true)
         viewModelScope.launch(Dispatchers.IO) {

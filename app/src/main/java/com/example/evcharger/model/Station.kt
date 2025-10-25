@@ -1,3 +1,4 @@
+// Station model
 package com.example.evcharger.model
 
 import android.os.Parcelable
