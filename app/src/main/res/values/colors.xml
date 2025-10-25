@@ -35,10 +35,12 @@
     <color name="white">#FFFFFFFF</color>
     <color name="error">#F44336</color>
     <color name="error_dark">#B00020</color>
+    <color name="error_background">#FFEBEE</color>
     <color name="success">#4CAF50</color>
     <color name="warning">#FF9800</color>
     <color name="info">#2196F3</color>
     <color name="info_light">#E3F2FD</color>
+    <color name="info_background">#E3F2FD</color>
     
     <!-- Gradient Colors (Green) -->
     <color name="gradient_start">#4CAF50</color>

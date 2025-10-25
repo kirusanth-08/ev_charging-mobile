@@ -40,6 +40,7 @@ class OperatorDashboardActivity : AppCompatActivity() {
     val cardScan = findViewById<MaterialCardView>(R.id.cardScan)
     val cardManage = findViewById<MaterialCardView>(R.id.cardManage)
         val cardPendingBookings = findViewById<MaterialCardView>(R.id.cardPendingBookings)
+        val cardConfirmedArrivals = findViewById<MaterialCardView>(R.id.cardConfirmedArrivals)
         val txtStationSummary = findViewById<TextView>(R.id.txtStationSummary)
         val txtRecentScans = findViewById<TextView>(R.id.txtRecentScans)
 
@@ -61,6 +62,11 @@ class OperatorDashboardActivity : AppCompatActivity() {
 
         cardPendingBookings.setOnClickListener {
             val i = Intent(this, OperatorPendingBookingsActivity::class.java)
+            startActivity(i)
+        }
+
+        cardConfirmedArrivals.setOnClickListener {
+            val i = Intent(this, OperatorConfirmedArrivalsActivity::class.java)
             startActivity(i)
         }
 

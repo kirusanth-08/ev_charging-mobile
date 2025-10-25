@@ -41,6 +41,8 @@
         <activity android:name=".ui.activities.ProfileEditActivity" />
         <activity android:name=".ui.activities.OperatorDashboardActivity" />
         <activity android:name=".ui.activities.OperatorPendingBookingsActivity" />
+        <activity android:name=".ui.activities.OperatorConfirmedArrivalsActivity" />
+        <activity android:name=".ui.activities.StationBookingsActivity" />
         <activity android:name=".ui.activities.ManageStationActivity" />
         <activity android:name=".ui.activities.StationDetailActivity" />
         <activity android:name=".ui.activities.SignupActivity" />

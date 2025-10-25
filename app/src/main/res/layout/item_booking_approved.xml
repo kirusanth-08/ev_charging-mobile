@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardBooking"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="12dp"
+    app:strokeWidth="2dp"
+    app:strokeColor="@color/info">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/txtBookingId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="BK202510250336183363"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                tools:text="BK202510250336183363" />
+
+            <TextView
+                android:id="@+id/txtStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✅ Approved"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/info"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@drawable/rounded_background_info_light"
+                tools:text="✅ Approved" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Booking Details -->
+        <TextView
+            android:id="@+id/txtCustomer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="👤 Customer: 200128201391"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="4dp"
+            tools:text="👤 Customer: 200128201391" />
+
+        <TextView
+            android:id="@+id/txtSlot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚡ Slot 2"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="4dp"
+            tools:text="⚡ Slot 2" />
+
+        <TextView
+            android:id="@+id/txtReservationTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📅 Scheduled: Oct 26, 2025 09:06 AM"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="4dp"
+            tools:text="📅 Scheduled: Oct 26, 2025 09:06 AM" />
+
+        <TextView
+            android:id="@+id/txtDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⏱️ Duration: 2 hour(s)"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="8dp"
+            tools:text="⏱️ Duration: 2 hour(s)" />
+
+        <TextView
+            android:id="@+id/txtTimeUntil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1 days, 2 hours"
+            android:textSize="13sp"
+            android:textStyle="italic"
+            android:textColor="@color/info"
+            android:layout_marginBottom="8dp"
+            tools:text="1 days, 2 hours" />
+
+        <!-- Info Message -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="@color/info_background"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ℹ️"
+                android:textSize="18sp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Waiting for customer to arrive and scan QR code"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

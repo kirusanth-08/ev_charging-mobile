@@ -19,8 +19,9 @@ class StationCardAdapter(
             b.txtCardStationMeta.text = "$total slots • $available available"
             b.root.setOnClickListener {
                 val ctx = b.root.context
-                val i = Intent(ctx, StationDetailActivity::class.java)
+                val i = Intent(ctx, StationBookingsActivity::class.java)
                 i.putExtra("stationId", s.stationId)
+                i.putExtra("stationName", s.name)
                 ctx.startActivity(i)
             }
         }
